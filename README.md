@@ -29,7 +29,8 @@ The main code is Main.m, user can select the following options:
       We recommend users to add periods of superlattice starting by half of the injection barrier (so that the file and starts by the half of the width of the injection barrier).
       To obtain tight-binding solutions of Schrodinger equations, we encourage users to add extra padding of 100+ angstroms in their injection barrier layers
   - **material** = "AlGaAs" - string defining material systems, currently supported material systems are "AlGaAs", "AlGaSb", "InGaAs/InAlAs" and "InGaAs/GaAsSb"
+  - **nstamx** - number of states to visualy present in the figures, rule of thumb is number of wells + 2
   - **solver** = "TMM" - string defining type of solver you wish to use, supported options are "TMM" and "FDM"
-  - **solverType** = "Taylor" - string defining specific treatment of nonparabolicity treatment in Schrodinger equations, supported options are "Parabolic", "Kane", "Taylor" and TMM solver has an extra option "Ekenberg" for the 14kp model by U.Ekenber et. al, Physical Review B 40 (1989) 7714
+  - **nonparabolicityType** = "Taylor" - string defining specific treatment of nonparabolicity treatment in Schrodinger equations, supported options are "Parabolic", "Kane", "Taylor" and TMM solver has an extra option "Ekenberg" for the 14kp model by U.Ekenber et. al, Physical Review B 40 (1989) 7714
   - **dz** - resolution of z axis in angstroms
   - **padding** - total added padding in layer_file in angstroms, this option is only relevant for plotting the solutions on two periods and if user used tight binding approximation while calculating the electronic structure
