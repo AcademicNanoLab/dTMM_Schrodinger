@@ -16,7 +16,7 @@ The package consists of six classes, implemented in MATLAB:
           - full two band Kane nonparabolic subband approximation and
           - Taylor expansion of two band Kane nonparabolic subband approximation
           - 14 kp band nonparabolicity treatement of Schrodinger equation
-    **Visualisation** - contains methods that create figures that visualise the electron structure, at the first release version, 4 figures are supported: electron structure of the modelled device, eigenvalue energy graph, energy difference graph, electron structure on two periods if user was modelling a QCL device.
+   -  **Visualisation** - contains methods that create figures that visualise the electron structure, at the first release version, 4 figures are supported: electron structure of the modelled device, eigenvalue energy graph, energy difference graph, electron structure on two periods if user was modelling a QCL device.
 
 The main code is Main.m, user can select the following options:
    -  **layer_file** = ".....txt" - two column file containing multiple quantum well layer structure in format
