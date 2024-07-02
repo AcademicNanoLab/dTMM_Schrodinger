@@ -5,18 +5,18 @@ Details on the solvers and methodology of this package is available at doi.org/x
 
 The package consists of six classes, implemented in MATLAB:
   - **ConstsAndScales** - contains common constants and scales required for solving Schrodinger equation under effective mass approximation
-  - **Material** - contains material parameters of several material system in which multiple quantum well heterostrucutres can be generated, namely GaAs/AlGaAs, GaSb/AlGaSb, InGaAs/InAlAs, InGaAs/GaAsSb, we encourage user to add more material properties to this repository
+  - **Material** - contains material parameters of several material systems in which multiple quantum well heterostrucutres can be generated, namely GaAs/AlGaAs, GaSb/AlGaSb, InGaAs/InAlAs, InGaAs/GaAsSb, we encourage user to add more material properties to this repository
   - **Grid** - contains methods that define the spatial axis z and material parameters profile
   - **FDMSolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via finite difference approach using three cases:
           - parabolic subband approximation,
           - full two band Kane nonparabolic subband approximation and
-          - Taylor expansion of two band Kane nonparabolic subband approximation
+          - Taylor expansion of the two band Kane nonparabolic subband approximation
   - **TMMsolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via derivative transfer matrix approach using four cases: 
           - parabolic subband approximation,
           - full two band Kane nonparabolic subband approximation and
-          - Taylor expansion of two band Kane nonparabolic subband approximation
-          - 14 kp band nonparabolicity treatement of Schrodinger equation
-   -  **Visualisation** - contains methods that create figures that visualise the electron structure, at the first release version, 4 figures are supported: electron structure of the modelled device, eigenvalue energy graph, energy difference graph, electron structure on two periods if user was modelling a QCL device.
+          - Taylor expansion of the two band Kane nonparabolic subband approximation
+          - 14 kp band nonparabolicity treatement of Schrodinger equation as per work in  U.Ekenber et. al, Physical Review B 40 (1989) 7714
+   -  **Visualisation** - contains methods that create figures that visualise the electron structure, currently 4 figures are supported: electron structure of the modelled device, eigenvalue energy graph, energy difference graph, electron structure on two periods if user was modelling a QCL device.
 
 The main code is Main.m, user can select the following options:
    -  **layer_file** = ".....txt" - two column file containing multiple quantum well layer structure in format
@@ -25,9 +25,9 @@ The main code is Main.m, user can select the following options:
        20   0.15
        200  0
        200  0.15
-      The first column is width of the layers in angstorom (1e-10 meters) and the second column is molar composition of the barrier layer (interpolation is handled via Material class depending on chose material system)
-      We recommend users to add periods of superlattice starting by half of the injection barrier (so that the file and starts by the half of the width of the injection barrier).
-      To obtain tight-binding solutions of Schrodinger equations, we encourage users to add extra padding of 100+ angstroms in their injection barrier layers
+      The first column is width of the layers in angstorom (1e-10 meters) and the second column is molar composition of the barrier layer (interpolation is handled via Material class depending on chosen material system)
+      We recommend users to add periods of superlattice starting by half of the injection barrier (so that the file ends and starts by the half of the width of the injection barrier).
+      To obtain tight-binding solutions of Schrodinger equation, user should add extra padding of 100+ angstroms in their injection barrier layers
   - **material** = "AlGaAs" - string defining material systems, currently supported material systems are "AlGaAs", "AlGaSb", "InGaAs/InAlAs" and "InGaAs/GaAsSb"
   - **nstamx** - number of states to visualy present in the figures, rule of thumb is number of wells + 2
   - **solver** = "TMM" - string defining type of solver you wish to use, supported options are "TMM" and "FDM"
