@@ -1,5 +1,5 @@
 # dTMM_Schrodinger
-Schrodinger equation solvers via derivative transfer matrix method 
+Schrodinger equation solvers via derivative transfer matrix method and finite difference method
 
 Details on the solvers and methodology of this package is available at doi.org/xxxxxxxx
 
