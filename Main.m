@@ -8,7 +8,7 @@ material="AlGaAs";                                  % Material system
 K=1.9;                                              % Input bias in [kV/cm]
 nstmax=10;                                          % Max number of states
 solver="TMM";                                       % Solver
-solverType="Taylor";                                % Solver type
+nonparabolicType="Taylor";                          % Solver type
 dz=0.6;                                             % z-axis step in [angstroms]
 padding=400;                                        % Added padding in [angstroms] 
 
