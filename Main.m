@@ -8,7 +8,7 @@ material="AlGaAs";                                  % Material system
 K=1.9;                                              % Input bias in [kV/cm]
 nstmax=10;                                          % Max number of states
 solver="TMM";                                       % Solver
-nonparabolicType="Taylor";                          % Solver type
+nonparabolicityType="Taylor";                       % Nonnparabolicity type
 dz=0.6;                                             % z-axis step in [angstroms]
 padding=400;                                        % Added padding in [angstroms] 
 
@@ -21,10 +21,10 @@ padding=400;                                        % Added padding in [angstrom
 G=Grid(layer_file,dz,material);
 G.set_K(K);
 
-if (solver == "TMM")
-    Solver=FDMSolver(solverType,G,nstmax);
+if (solver == "FDM)
+    Solver=FDMSolver(nonparabolicityType,G,nstmax);
 else 
-    Solver=TMMSolver(solverType,G,nstmax);
+    Solver=TMMSolver(nonparabolicityType,G,nstmax);
 end
 
 [energies,psis]=Solver.get_wavefunctions;
