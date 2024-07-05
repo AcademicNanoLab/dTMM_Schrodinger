@@ -1,0 +1,70 @@
+classdef App < handle
+
+    properties
+        app                             % app window
+        app_w = 600;
+        app_h = 400;
+        color = [0.6 0.8 1];
+        x
+        y
+    end
+
+    properties (Hidden)
+        grid
+        innerGrid
+        title
+    end
+
+    methods
+        function obj = App
+            screen_size = get(0, 'ScreenSize');
+            x = mean( screen_size([1, 3]));         % app x-coordinate
+            y = mean( screen_size([2, 4]));         % app y-coordinate
+
+            % draw the screen
+            obj.app = uifigure();
+            obj.app.Position = [x - obj.app_w/2, y - obj.app_h/2, obj.app_w, obj.app_h];
+            obj.app.MenuBar = 'none';
+            obj.app.Name = 'dTMM Wizard';
+
+            % draw the grid
+            obj.grid = uigridlayout(obj.app);
+            obj.grid.BackgroundColor = obj.color;
+            obj.grid.RowHeight = {22,'1x',22};
+            obj.grid.ColumnWidth = {'1x'};
+
+            obj.title = uilabel(obj.grid);
+            obj.title.Layout.Row = 1;
+            obj.title.Layout.Column = 1;
+        end
+
+        function mainLayout(obj, screen)
+            titles = {'Set options', 'Create GIF', 'Loading'};
+            obj.title.Text = titles{screen};
+        end
+
+        function step1(obj)
+            obj.mainLayout(1);
+
+            obj.innerGrid = uigridlayout(obj.grid);
+            obj.innerGrid.Layout.Row = 2;
+            obj.innerGrid.Layout.Column = 1;
+            obj.innerGrid.ColumnWidth = {30,'1x',30};
+
+
+        end
+        
+        function dropdown(obj, title, row)
+            title = uilabel(obj.grid);
+
+        end
+    end
+end
+
+% % Layer file
+% % [file,location] = uigetfile('*.txt');
+%
+%
+% end
+%
+% step0();

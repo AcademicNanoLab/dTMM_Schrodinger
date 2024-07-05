@@ -21,7 +21,7 @@ padding=400;                                        % Added padding in [angstrom
 G=Grid(layer_file,dz,material);
 G.set_K(K);
 
-if (solver == "FDM)
+if (solver == "FDM")
     Solver=FDMSolver(nonparabolicityType,G,nstmax);
 else 
     Solver=TMMSolver(nonparabolicityType,G,nstmax);
