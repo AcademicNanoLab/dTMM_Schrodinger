@@ -22,7 +22,7 @@ classdef App < handle
     methods
         function obj = App
             fclose all;
-            
+
             screen_size = get(0, 'ScreenSize');
             x = mean( screen_size([1, 3]));         % app x-coordinate
             y = mean( screen_size([2, 4]));         % app y-coordinate
@@ -46,28 +46,37 @@ classdef App < handle
             obj.grid.RowHeight = {'fit','1x',22};
             obj.grid.ColumnWidth = {'1x'};
 
+            % init title
             obj.title = uilabel(obj.grid);
             obj.title.Layout.Row = 1;
             obj.title.Layout.Column = 1;
             obj.title.Interpreter = "html";
-
-            % init params dict
-            obj.params = containers.Map();
-            obj.defaultNumericalParams = containers.Map();
-
-            % init screen
-            obj.screen = 1;
-        end
-
-        function mainLayout(obj)
-            titles = {'Set options', 'Create GIF', 'Loading'};
-            obj.title.Text = strcat("<font style='font-size:20px; font-weight:bold; font-family:Helvetica, Verdana, Arial;'>",titles{obj.screen},"</font>");
 
             % init inner grid
             obj.innerGrid = uigridlayout(obj.grid);
             obj.innerGrid.Layout.Row = 2;
             obj.innerGrid.Layout.Column = 1;
             obj.innerGrid.BackgroundColor = obj.color;
+
+            % init params dict
+            obj.params = containers.Map();
+            obj.defaultNumericalParams = containers.Map();
+            obj.params('Layer file') = pwd;
+            obj.params('Material') = 'AlGaAs';
+            obj.params('Solver') = 'TMM';
+            obj.params('Non-parabolicity') = 'Parabolic';
+            obj.params('K') = 1.9;
+            obj.params('Nstmax') = 10;
+            obj.params('dz') = 0.6;
+            obj.params('Padding') = 400;
+
+            % init screen
+            obj.screen = 1;
+        end
+
+        function mainLayout(obj)
+            titles = {'Set options', 'Create GIF', 'Complete'};
+            obj.title.Text = strcat("<font style='font-size:20px; font-weight:bold; font-family:Helvetica, Verdana, Arial;'>",titles{obj.screen},"</font>");
 
             % button grid
             buttonGrid = uigridlayout(obj.grid);
@@ -77,69 +86,59 @@ classdef App < handle
             buttonGrid.Padding = [0,0,0,0];
             buttonGrid.RowHeight = {22};
             buttonGrid.ColumnWidth = {'1x',100,100};
-            
+
             % prev button
             if (obj.screen > 1)
                 pButton = uibutton(buttonGrid);
                 pButton.Layout.Row = 1;
                 pButton.Layout.Column = 2;
-                pButton.Text = 'Previous';
+                if (obj.screen < obj.totalScreens)
+                    pButton.Text = 'Previous';
+                else
+                    pButton.Text = 'Restart';
+                end
                 pButton.ButtonPushedFcn = @(src, event) obj.prevButtonPressed();
             end
 
             % next button
-            nButton = uibutton(buttonGrid);
-            nButton.Layout.Row = 1;
-            nButton.Layout.Column = 3;
-            if (obj.screen < obj.totalScreens)
-                nButton.Text = 'Next';
-            else
-                nButton.Text = 'Finish';
+            if (obj.screen <= obj.totalScreens)
+                nButton = uibutton(buttonGrid);
+                nButton.Layout.Row = 1;
+                nButton.Layout.Column = 3;
+                if (obj.screen < obj.totalScreens - 1)
+                    nButton.Text = 'Next';
+                elseif (obj.screen < obj.totalScreens)
+                    nButton.Text = 'Finish';
+                else
+                    nButton.Text = 'Complete';
+                end
+                nButton.ButtonPushedFcn = @(src, event) obj.nextButtonPressed();
             end
-            nButton.ButtonPushedFcn = @(src, event) obj.nextButtonPressed();
         end
 
         function prevButtonPressed(obj)
-            if (obj.screen > 1)
+            if (obj.screen < obj.totalScreens)
                 obj.screen = obj.screen - 1;
-                obj.switchScreen();
+            else
+                obj.screen = 1;
             end
+            obj.switchScreen();
         end
 
         function nextButtonPressed(obj)
-            if (obj.screen < obj.totalScreens)
+            expression = '\w*.txt';
+            if (isempty(regexp(obj.params('Layer file'),expression,'match')))
+                errorFig = errordlg('You need to select a layer file', 'File error','modal');
+                uiwait;
+                figure(obj.app);
+            else
                 obj.screen = obj.screen + 1;
                 obj.switchScreen();
-            else
-                % MAIN CODE!!
-            obj.labeledInputArea('Layer file', 1, 'fileSelector');
-            obj.labeledInputArea('Material', 2, 'dropdown', solver);
-            obj.labeledInputArea('Solver', 3, 'radio', 'row');
-            obj.labeledInputArea('Non-parabolicity', 4, 'dropdown');
-            obj.labeledInputArea('K', 5, 'numberInput', solver);
-            obj.labeledInputArea('Nstmax', 6, 'numberInput', solver);
-            obj.labeledInputArea('dz', 7, 'numberInput', solver);
-
-                G=Grid(obj.params('Layer file'),obj.params('dz'),obj.params('Material'));
-                G.set_K(obj.params('K'));
-
-                if (obj.params('Solver') == "FDM")
-                    Solver=FDMSolver(obj.params('Non-parabolicity'),G,obj.params('Nstmax'));
-                else
-                    Solver=TMMSolver(nonparabolicityType,G,nstmax);
-                end
-
-                [energies,psis]=Solver.get_wavefunctions;
-                energies_meV = energies / (G.consts.e);
-                V=Visualization(G,energies,psis);
-                V.plot_V_wf;
-                V.plot_energies;
-                V.plot_energy_difference_in_terahertz;
-                V.plot_QCL(K,padding);
             end
         end
 
         function switchScreen(obj)
+            obj.innerGrid.Children.delete;
             switch (obj.screen)
                 case 1
                     fprintf("1");
@@ -150,32 +149,68 @@ classdef App < handle
                 case 3
                     fprintf("3");
                     obj.step3();
+                case 4
+                    close(obj.app);
             end
         end
 
         function step1(obj)
             obj.mainLayout();
             rowHeight = 22;
-            obj.innerGrid.RowHeight = {rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight};
+            obj.innerGrid.RowHeight = {rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight};
             obj.innerGrid.ColumnWidth = {'fit','1x',100};
 
-            solver = "FDM";
             obj.labeledInputArea('Layer file', 1, 'fileSelector');
-            obj.labeledInputArea('Material', 2, 'dropdown');
-            obj.labeledInputArea('Solver', 3, 'radio', 'row');
-            obj.labeledInputArea('Non-parabolicity', 4, 'dropdown',solver);
-            obj.labeledInputArea('K', 5, 'numberInput');
-            obj.labeledInputArea('Nstmax', 6, 'numberInput');
-            obj.labeledInputArea('dz', 7, 'numberInput');
+            obj.labeledInputArea('Material', 2, 'dropdown', obj.params('Material'));
+            obj.labeledInputArea('Solver', 3, 'radio');
+            obj.labeledInputArea('Non-parabolicity', 4, 'dropdown', obj.params('Non-parabolicity'));
+            obj.labeledInputArea('K',       5, 'numberInput', obj.params('K'),      [0,5],      0.05,   '%.2f kV/cm');
+            obj.labeledInputArea('Nstmax',  6, 'numberInput', obj.params('Nstmax'), [0,20],     1,      '%.0f');
+            obj.labeledInputArea('dz',      7, 'numberInput', obj.params('dz'),     [0,5],      0.1,    '%.1f angstroms');
+            obj.labeledInputArea('Padding', 8, 'numberInput', obj.params('Padding'),[100,400],  25,     '%.0f angstroms');
         end
 
         function step2(obj)
             obj.mainLayout();
-            
         end
 
-        function step3(obj)
+        function step3(obj)            
+            progressBar = waitbar(0,'Please Wait...');
+            progressBar.Name = 'Loading figures';
+
+            % MAIN CODE!!
+            G=Grid(obj.params('Layer file'),obj.params('dz'),obj.params('Material'));
+            G.set_K(obj.params('K'));
+            waitbar(1/6,progressBar);
+
+            if (obj.params('Solver') == "FDM")
+                Solver=FDMSolver(obj.params('Non-parabolicity'),G,obj.params('Nstmax'));
+            else
+                Solver=TMMSolver(obj.params('Non-parabolicity'),G,obj.params('Nstmax'));
+            end
+            waitbar(2/6,progressBar);
+
+            [energies,psis]=Solver.get_wavefunctions;
+            % energies_meV = energies / (G.consts.e);
+            V=Visualization(G,energies,psis);
+            V.plot_V_wf;
+            waitbar(3/6,progressBar);
+            V.plot_energies;
+            waitbar(4/6,progressBar);
+            V.plot_energy_difference_in_terahertz;
+            waitbar(5/6,progressBar);
+            V.plot_QCL(obj.params('K'),obj.params('Padding'));
+            waitbar(1,progressBar);
+            pause(1);
+            close(progressBar);
+
+            % completed
             obj.mainLayout();
+            figure(obj.app);
+            completeText = uilabel(obj.innerGrid);
+            completeText.Layout.Row = 1;
+            completeText.Layout.Column = 1;
+            completeText.Text = 'The figures have been created. {Would you like to restart the wizard?}';
         end
 
 
@@ -187,27 +222,23 @@ classdef App < handle
 
             switch type
                 case 'dropdown'
-                    if (nargin == 5)
-                        obj.dropdown(titleText, row, varargin{1});
-                    else
-                        obj.dropdown(titleText, row);
-                    end
+                    obj.dropdown(titleText, row, varargin);
                 case 'fileSelector'
                     obj.fileSelector(titleText, row);
                 case 'numberInput'
-                    obj.numberInput(titleText, row);
+                    obj.numberInput(titleText, row, varargin{1}, varargin{2}, varargin{3}, varargin{4});
                 case 'radio'
                     obj.radioInput(titleText, row);
             end
         end
 
-        function dropdown(obj, titleText, row, varargin)
+        function dropdown(obj, titleText, row, initVal)
             dOptions = {};
             switch titleText
                 case 'Material'
                     dOptions = {'AlGaAs','AlGaSb','InGaAs/InAlAs','InGaAs/GaAsSb'};
                 case 'Non-parabolicity'
-                    if (nargin == 4 && varargin{1} == "FDM")
+                    if (obj.params('Solver') == "FDM")
                         dOptions = {'Parabolic','Taylor','Kane'};
                     else
                         dOptions = {'Parabolic','Taylor','Kane','Ekenberg'};
@@ -219,6 +250,7 @@ classdef App < handle
             dDropdown.Items = dOptions;
 
             % initialize value
+            dDropdown.Value = initVal;
             obj.params(titleText) = dDropdown.Value;
 
             % callback function upon value change
@@ -230,9 +262,6 @@ classdef App < handle
         end
 
         function fileSelector(obj, titleText, row)
-            % initialize value
-            obj.params(titleText) = pwd;
-
             fTextBox = uitextarea(obj.innerGrid);
             fTextBox.Layout.Row = row;
             fTextBox.Layout.Column = 2;
@@ -260,10 +289,7 @@ classdef App < handle
             end
         end
 
-        function numberInput(obj, titleText, row)
-            % initialize value
-            obj.params(titleText) = 1;
-
+        function numberInput(obj, titleText, row, initVal, limits, step, valueDisplayFormat)
             % input number
             numericInput = uispinner(obj.innerGrid);
             numericInput.Layout.Row = row;
@@ -271,44 +297,11 @@ classdef App < handle
             numericInput.Value = obj.params(titleText);
 
             % parameters dependent on which item it is
-            switch titleText
-                case 'K'
-                    numericInput.Limits = [0,5];
-                    numericInput.Step = 0.05;
-                    numericInput.ValueDisplayFormat = '%.2f kV/cm';
-                case 'Nstmax'
-                    numericInput.Limits = [0,20];
-                    numericInput.Step = 1;
-                    numericInput.ValueDisplayFormat = '%.0f';
-                case 'dz'
-                    numericInput.Limits = [0,5];
-                    numericInput.Step = 0.1;
-                    numericInput.ValueDisplayFormat = '%.1f angstroms';
-            end
+            numericInput.Limits = limits;
+            numericInput.Step = step;
+            numericInput.ValueDisplayFormat = valueDisplayFormat;
 
             numericInput.ValueChangedFcn = @(src, event) obj.numericInputValueChanged(event, titleText);
-
-            % % internal grid
-            % g = uigridlayout(obj.innerGrid, [1, 3]);
-            % g.BackgroundColor = obj.color;
-            % g.Padding = [0,0,0,0];
-            % g.Layout.Row = row;
-            % g.Layout.Column = 2;
-            % g.ColumnWidth = {'1x',30,30};
-            % 
-            % % number input area
-            % numericInput = uieditfield(g, 'numeric');
-            % numericInput.Layout.Column = 1;
-            % numericInput.Value = obj.params(titleText);
-            % 
-            % % buttons
-            % plusButton = uibutton(g);
-            % plusButton.Layout.Column = 2;
-            % plusButton.Text = '+';
-            % 
-            % minusButton = uibutton(g);
-            % minusButton.Layout.Column = 3;
-            % minusButton.Text = '-';
         end
 
         function numericInputValueChanged(obj, event, titleText)
@@ -316,9 +309,6 @@ classdef App < handle
         end
 
         function radioInput(obj, titleText, row)
-            % initialize value
-            obj.params(titleText) = "TMM";
-
             % button group
             bg = uibuttongroup(obj.innerGrid);
             bg.BackgroundColor = obj.color;
@@ -341,6 +331,11 @@ classdef App < handle
 
         function radioInputPressed(obj, event, titleText)
             obj.params(titleText) = event.NewValue.Text;
+            if (obj.params('Non-parabolicity') == "Ekenberg")
+                obj.labeledInputArea('Non-parabolicity', 4, 'dropdown', 'Parabolic');
+            else
+                obj.labeledInputArea('Non-parabolicity', 4, 'dropdown', obj.params('Non-parabolicity'));
+            end
         end
     end
 end
