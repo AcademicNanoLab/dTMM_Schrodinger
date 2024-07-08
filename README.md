@@ -35,4 +35,9 @@ The main code is Main.m, user can select the following options:
   - **dz** - resolution of z axis in angstroms
   - **padding** - total added padding in layer_file in angstroms, this option is only relevant for plotting the solutions on two periods and if user used tight binding approximation while calculating the electronic structure
 
-The package contains a test folder in which the
+The package contains a test folder in which there are three .m files and three corresponding layer files = ".....txt" - two column files containing multiple quantum well layer structure as described above for the three exemplary structures.
+
+  - Structure 1 is a GaAs/AlGaAs Bound to continuum THz QCL descibed in: A. Demić et. al, IEEE Transactions on Terahertz Science and Technology 7 (2017) 368–377.
+  - Structure 2 is a LO-phonon InGaAs/InAlAs THz QCL descibed in: C. Deutsch et. al, Acs Photonics 4 (2017) 957–962
+  - Structure 3 is a LO-phonon InGaAs/GaAsSb THz QCL descibed in: C. Deutsch et. al, Applied Physics Letters 101 (2012).
+
