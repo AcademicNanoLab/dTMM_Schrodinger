@@ -24,12 +24,12 @@ classdef App < handle
             fclose all;
 
             screen_size = get(0, 'ScreenSize');
-            x = mean( screen_size([1, 3]));         % app x-coordinate
-            y = mean( screen_size([2, 4]));         % app y-coordinate
+            obj.x = mean( screen_size([1, 3]));         % app x-coordinate
+            obj.y = mean( screen_size([2, 4]));         % app y-coordinate
 
             % draw the screen
             obj.app = uifigure();
-            obj.app.Position = [x - obj.app_w/2, y - obj.app_h/2, obj.app_w, obj.app_h];
+            obj.app.Position = [obj.x - obj.app_w/2, obj.y - obj.app_h/2, obj.app_w, obj.app_h];
             obj.app.MenuBar = 'none';
             obj.app.Name = 'dTMM Wizard';
             obj.app.Color = obj.color;
@@ -57,6 +57,7 @@ classdef App < handle
             obj.innerGrid.Layout.Row = 2;
             obj.innerGrid.Layout.Column = 1;
             obj.innerGrid.BackgroundColor = obj.color;
+            obj.innerGrid.Padding = [0,0,0,0];
 
             % init params dict
             obj.params = containers.Map();
@@ -77,6 +78,7 @@ classdef App < handle
         function mainLayout(obj)
             titles = {'Set options', 'Create GIF', 'Complete'};
             obj.title.Text = strcat("<font style='font-size:20px; font-weight:bold; font-family:Helvetica, Verdana, Arial;'>",titles{obj.screen},"</font>");
+            obj.app.Position = [obj.x - obj.app_w/2, obj.y - obj.app_h/2, obj.app_w, obj.app_h]; % TODO
 
             % button grid
             buttonGrid = uigridlayout(obj.grid);
@@ -174,7 +176,26 @@ classdef App < handle
             obj.mainLayout();
         end
 
-        function step3(obj)            
+        function step3(obj)    
+            % get the layout
+            obj.mainLayout();
+            big_w = obj.app_w;
+            big_h = obj.app_h * 1.5;
+            obj.innerGrid.RowHeight = {(big_h-60)/2,(big_h-60)/2};
+            obj.innerGrid.ColumnWidth = {(big_w-30)/2,(big_w-30)/2};
+            obj.app.Position = [obj.x - big_w/2, obj.y - big_h/2, big_w, big_h];
+            allPlots = gobjects(2, 2);
+            for r = 1:2
+                for c = 1:2
+                    curPlot = uipanel(obj.innerGrid);
+                    curPlot.Layout.Row = r;
+                    curPlot.Layout.Column = c;
+                    curPlot.BackgroundColor = obj.color;
+                    curPlot.BorderType = 'none';
+                    allPlots(r, c) = curPlot;
+                end
+            end
+
             progressBar = waitbar(0,'Please Wait...');
             progressBar.Name = 'Loading figures';
 
@@ -193,24 +214,23 @@ classdef App < handle
             [energies,psis]=Solver.get_wavefunctions;
             % energies_meV = energies / (G.consts.e);
             V=Visualization(G,energies,psis);
-            V.plot_V_wf;
+            V.plot_V_wf(allPlots(1,1));
             waitbar(3/6,progressBar);
-            V.plot_energies;
+            V.plot_energies(allPlots(1,2));
             waitbar(4/6,progressBar);
-            V.plot_energy_difference_in_terahertz;
+            V.plot_energy_difference_in_terahertz(allPlots(2,1));
             waitbar(5/6,progressBar);
-            V.plot_QCL(obj.params('K'),obj.params('Padding'));
+            V.plot_QCL(allPlots(2,2),obj.params('K'),obj.params('Padding'));
             waitbar(1,progressBar);
             pause(1);
             close(progressBar);
 
             % completed
-            obj.mainLayout();
             figure(obj.app);
-            completeText = uilabel(obj.innerGrid);
-            completeText.Layout.Row = 1;
-            completeText.Layout.Column = 1;
-            completeText.Text = 'The figures have been created. {Would you like to restart the wizard?}';
+            % completeText = uilabel(obj.innerGrid);
+            % completeText.Layout.Row = 1;
+            % completeText.Layout.Column = 1;
+            % completeText.Text = 'The figures have been created. {Would you like to restart the wizard?}';
         end
 
 
