@@ -37,7 +37,7 @@ classdef Visualization < handle
             set(ax,'FontSize',14);
         end
         %% Get bandstructure profile and wavefuncitons on two periods
-        function f = plot_QCL(obj,parent,K,padding)
+        function f = plot_QCL(obj,parent,K,padding,isGIF,varargin)
             nstates=length(obj.E);
             f=parent;
             z=obj.G.get_z/obj.consts.angstrom;
@@ -53,11 +53,17 @@ classdef Visualization < handle
                 end
             end
             hold(ax,"off");
-            title(ax,'Bandstructure profile on two QCL periods');
+            if (isGIF)
+                title(ax,strcat('K = ',num2str(K)));
+                axis(ax,varargin{1})
+            else
+                title(ax,'Bandstructure profile on two QCL periods');
+            end
             xlabel(ax,'z [$\textrm{\AA}$]','interpreter','latex');
             ylabel(ax,'V [meV]','interpreter','latex')
             set(ax,'FontSize',14)
         end
+        
         %% Get eigenvalue energies
         function f = plot_energies(obj,parent)
             f=parent;

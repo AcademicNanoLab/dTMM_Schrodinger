@@ -8,15 +8,14 @@ classdef App < handle
         x
         y
         params
-        defaultNumericalParams
-        totalScreens = 3;
     end
 
     properties (Hidden)
         grid
         innerGrid
         title
-        screen
+        totalScreens = 3;
+        screen = 1;
     end
 
     methods
@@ -61,7 +60,6 @@ classdef App < handle
 
             % init params dict
             obj.params = containers.Map();
-            obj.defaultNumericalParams = containers.Map();
             obj.params('Layer file') = pwd;
             obj.params('Material') = 'AlGaAs';
             obj.params('Solver') = 'TMM';
@@ -181,8 +179,10 @@ classdef App < handle
             obj.mainLayout();
             big_w = obj.app_w;
             big_h = obj.app_h * 1.5;
-            obj.innerGrid.RowHeight = {(big_h-60)/2,(big_h-60)/2};
-            obj.innerGrid.ColumnWidth = {(big_w-30)/2,(big_w-30)/2};
+            % obj.innerGrid.RowHeight = {(big_h-60)/2,(big_h-60)/2};
+            % obj.innerGrid.ColumnWidth = {(big_w-30)/2,(big_w-30)/2};
+            obj.innerGrid.RowHeight = {'fit','fit'};
+            obj.innerGrid.ColumnWidth = {'fit','fit'};
             obj.app.Position = [obj.x - big_w/2, obj.y - big_h/2, big_w, big_h];
             allPlots = gobjects(2, 2);
             for r = 1:2
