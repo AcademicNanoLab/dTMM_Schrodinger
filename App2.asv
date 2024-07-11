@@ -103,7 +103,7 @@ classdef App2 < handle
                 fileName = strcat(saveParams('Directory'),'/',saveParams('File name'));
                 if (strcmp(saveParams('Save as'),'MATLAB Figures')) % save figures - same for GIF and PNG
                     for i = 1:length(obj.MFigs)
-                        set(obj.MFigs(i), 'CreateFcn', 'set(gcbo,''Visible'',''on'')');
+                        set(obj.MFigs(i), 'CreateFcn', 'set(gcbo,''Visible'',''on'')'); 
                         saveas(obj.MFigs(i),strcat(fileName,num2str(i)),'fig');
                         close(obj.MFigs(i));
                     end
@@ -147,10 +147,7 @@ classdef App2 < handle
                 case 3
                     obj.step3_PNG();
                 case obj.totalScreens
-                    if strcmp(obj.imageType,'GIF')
-                        obj.step4_GIF();
-                    else
-                    end
+                    obj.step4_GIF();
             end
         end
 
@@ -174,9 +171,6 @@ classdef App2 < handle
                 case 2
                     obj.pButton.Text = 'Previous';
                     obj.nButton.Text = 'Finish';
-                    % case obj.totalScreens - 1
-                    %     obj.pButton.Text = 'Previous';
-                    %     obj.nButton.Text = 'Finish';
                 otherwise
                     obj.pButton.Text = 'Previous';
                     obj.nButton.Text = 'Next';
@@ -288,12 +282,12 @@ classdef App2 < handle
             % completed
             obj.app.Visible = 'on';
             f = figure;
-            movie(f,obj.M,5,2);
-            close(f); % TODO: if you DON'T want the figure to close immediately, just comment this out
+            movie(f,obj.M,10,2);
+            f.close()
 
             % focus on app
             if (obj.app ~= 0)
-                figure(obj.app);
+                figure(obj.app); 
             end
         end
     end

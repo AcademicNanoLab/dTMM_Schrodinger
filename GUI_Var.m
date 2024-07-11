@@ -8,8 +8,8 @@ classdef GUI_Var < handle
         function obj = GUI_Var
             obj.setupParams = containers.Map();
             % file selector - init
-            obj.setupParams('Layer file') = {1,'fileSelector','/Users/hyuna/Desktop/dTMM_Schrodinger/test/Structure1_BTC_GaAs_AlGaAs.txt'};
-            % obj.setupParams('Layer file') = {1,'fileSelector',pwd};
+            obj.setupParams('Layer file') = {1,'fileSelector','/Users/hyuna/Desktop/dTMM_Schrodinger/test/Structure1_BTC_GaAs_AlGaAs.txt','*.txt'};
+            % obj.setupParams('Layer file') = {1,'fileSelector',pwd,'*.txt'};
             % dropdown, radio - init, options
             obj.setupParams('Material') = {2,'dropdown','AlGaAs',{'AlGaAs','AlGaSb','InGaAs/InAlAs','InGaAs/GaAsSb'}};
             obj.setupParams('Solver') = {3,'radio','TMM',{'TMM','FDM'}};

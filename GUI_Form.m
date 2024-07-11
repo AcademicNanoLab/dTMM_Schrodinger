@@ -9,10 +9,10 @@ classdef GUI_Form < handle
     end
 
     methods
-        function obj = GUI_Form(app,parentGrid,labelCol,inputCol)
+        function obj = GUI_Form(Var_Constructor,app,parentGrid,labelCol,inputCol)
             % init params dict
             obj.app = app;
-            obj.setupVar = GUI_Var();
+            obj.setupVar = Var_Constructor();
             obj.params = containers.Map();
             k = keys(obj.setupVar.setupParams);
             val = values(obj.setupVar.setupParams);
@@ -57,6 +57,8 @@ classdef GUI_Form < handle
                     obj.axisLimitInput(titleText);
                 case 'radio'
                     obj.radioInput(titleText);
+                case 'text'
+                    obj.textInput(titleText);
             end
         end
 
@@ -122,10 +124,18 @@ classdef GUI_Form < handle
         end
 
         function fileButtonPressed(obj, ~, titleText, fTextBox)
+            % access values
+            setupParam = obj.setupVar.setupParams(titleText);
+
             obj.app.Visible = 'off';
-            [file,location] = uigetfile('*.txt');
+            if (strcmp(setupParam{4},'dir'))
+                location = '';
+                file = uigetdir();
+            else
+                [file,location] = uigetfile(setupParam{4});
+            end
             obj.app.Visible = 'on';
-            if file ~= 0
+            if (file ~= 0)
                 obj.params(titleText) = strcat(location,file);
                 fTextBox.Value = obj.params(titleText);
             end
@@ -169,7 +179,7 @@ classdef GUI_Form < handle
             for i = 1:length(setupParam{4})
                 rb = uiradiobutton(bg);
                 rb.Text = setupParam{4}{i};
-                rb.Position = [-95+i*100 5 91 15];
+                rb.Position = [-145+i*150 5 150 15];
             end
 
             % callback function upon radio button press
@@ -181,9 +191,11 @@ classdef GUI_Form < handle
             obj.params(titleText) = event.NewValue.Text;
 
             % reset non-parabolicity
-            setupParam = obj.setupVar.setupParams('Non-parabolicity');
-            obj.labeledInputArea('Non-parabolicity');
-            obj.params('Non-parabolicity') = setupParam{3};
+            if (strcmp(titleText,'Solver'))
+                setupParam = obj.setupVar.setupParams('Non-parabolicity');
+                obj.labeledInputArea('Non-parabolicity');
+                obj.params('Non-parabolicity') = setupParam{3};
+            end
         end
 
         function rangeNumberInput(obj, titleText)
@@ -290,5 +302,24 @@ classdef GUI_Form < handle
             % disp(obj.params(strcat(titleText,num2str(idx))));
         end
 
+        function textInput(obj, titleText)
+            % access values
+            setupParam = obj.setupVar.setupParams(titleText);
+
+            % draw input area
+            textBox = uitextarea(obj.parentGrid);
+            textBox.Layout.Row = setupParam{1};
+            textBox.Layout.Column = obj.inputCol;
+            textBox.Value = setupParam{3};
+            obj.params(titleText) = setupParam{3};
+            textBox.WordWrap = 'off';
+
+            % callback function upon text input
+            textBox.ValueChangedFcn = @(src, event) obj.textChangedFunction(src, titleText);
+        end
+
+        function textChangedFunction(obj, src, titleText)
+            obj.params(titleText) = src.Value{1};
+        end
     end
 end
