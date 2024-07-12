@@ -91,7 +91,7 @@ classdef Visualization < handle
             title (ax,'Bound state energy differences');
             xlabel(ax,'${fi}$','interpreter','latex');
             ylabel(ax,'f [THz]','interpreter','latex');
-            xticks(ax,1:deltaE);
+            xticks(ax,1:length(deltaE));
             xticklabels(ax,num2cell(deltaE));
             set(ax,'FontSize',14)
         end 

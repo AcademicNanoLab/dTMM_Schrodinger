@@ -144,7 +144,7 @@ classdef App2 < handle
             if (obj.screen > obj.totalScreens)
                 close(obj.app);
                 obj.app = 0;
-                for i = 1:length(obj.MFigs) % clean up figures (TODO: check if resource usage impacted)
+                for i = 1:length(obj.MFigs) % clean up figures 
                     close(obj.MFigs(i));
                 end
                 return
