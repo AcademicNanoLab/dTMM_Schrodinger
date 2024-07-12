@@ -5,20 +5,20 @@
 classdef Visualization < handle
     properties (Access = private)
         %% Grid properties
-            E;          % Quasbound energies
-            psi;        % Wavefunctions
-            G;          % QCL structure grid
-            consts;
+        E;          % Quasbound energies
+        psi;        % Wavefunctions
+        G;          % QCL structure grid
+        consts;
     end
     methods
-    %% Constructor
+        %% Constructor
         function obj = Visualization(Grid,energies,psis)
             obj.G = Grid;
             obj.E = energies;
             obj.psi = psis;
             obj.consts=ConstAndScales;
         end
-    %% plot methods
+        %% plot methods
         %% Get bandstructure profile and wavefuncitons
         function f = plot_V_wf(obj,parent)
             nstates=length(obj.E);
@@ -63,7 +63,7 @@ classdef Visualization < handle
             ylabel(ax,'V [meV]','interpreter','latex')
             set(ax,'FontSize',14)
         end
-        
+
         %% Get eigenvalue energies
         function f = plot_energies(obj,parent)
             f=parent;
@@ -94,6 +94,6 @@ classdef Visualization < handle
             xticks(ax,1:length(deltaE));
             xticklabels(ax,num2cell(deltaE));
             set(ax,'FontSize',14)
-        end 
+        end
     end
 end

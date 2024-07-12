@@ -1,3 +1,4 @@
+% NOTE: if verLessThan causes errors in the future, please change to isMATLABReleaseOlderThan
 classdef App2 < handle
     properties
         app                             % app window
@@ -159,7 +160,7 @@ classdef App2 < handle
             if (obj.screen > obj.totalScreens)
                 close(obj.app);
                 obj.app = 0;
-                for i = 1:length(obj.MFigs) % clean up figures 
+                for i = 1:length(obj.MFigs) % clean up figures
                     close(obj.MFigs(i));
                 end
                 return

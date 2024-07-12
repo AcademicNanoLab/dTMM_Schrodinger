@@ -35,6 +35,8 @@ The main code is Main.m, user can select the following options:
   - **dz** - resolution of z axis in angstroms
   - **padding** - total added padding in layer_file in angstroms, this option is only relevant for plotting the solutions on two periods and if user used tight binding approximation while calculating the electronic structure
 
+To use a GUI wizard for option selection, please run App2.m
+
 The package contains a test folder in which there are three .m test files and three corresponding layer files = ".....txt" - containing the width of the layers in angstorom and the molar composition of the barrier layers for the three exemplary structures.
 
   - Structure 1 is a GaAs/AlGaAs Bound to continuum THz QCL descibed in: A. Demić et. al, IEEE Transactions on Terahertz Science and Technology 7 (2017) 368–377.
