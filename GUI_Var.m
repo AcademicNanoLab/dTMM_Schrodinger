@@ -8,8 +8,8 @@ classdef GUI_Var < handle
         function obj = GUI_Var
             obj.setupParams = containers.Map();
             % file selector - init
-            obj.setupParams('Layer file') = {1,'fileSelector','/Users/hyuna/Desktop/dTMM_Schrodinger/test/Structure1_BTC_GaAs_AlGaAs.txt','*.txt'};
-            % obj.setupParams('Layer file') = {1,'fileSelector',pwd,'*.txt'};
+            % obj.setupParams('Layer file') = {1,'fileSelector','/Users/hyuna/Desktop/dTMM_Schrodinger/test/Structure1_BTC_GaAs_AlGaAs.txt','*.txt'};
+            obj.setupParams('Layer file') = {1,'fileSelector',pwd,'*.txt'};
             % dropdown, radio - init, options
             obj.setupParams('Material') = {2,'dropdown','AlGaAs',{'AlGaAs','AlGaSb','InGaAs/InAlAs','InGaAs/GaAsSb'}};
             obj.setupParams('Solver') = {3,'radio','TMM',{'TMM','FDM'}};
@@ -22,7 +22,6 @@ classdef GUI_Var < handle
             % range - init, start, end, step, min-max, step (for slider),
             % units
             obj.setupParams('K_range')  = {5,'rangeNumberInput', 1, 1.5, 0.5, [0,5], 0.05, '%.2f kV/cm', [0,5], 0.05};
-            % obj.setupParams('K_range')  = {5,'rangeNumberInput', 1, 3, 0.1, [0,5], 0.05, '%.2f kV/cm', [0,5], 0.05};
             % numerical - init, min-max, step, units
             obj.setupParams('K')        = {5,'numberInput', 1.9, [0,5],      0.05,   '%.2f kV/cm'};
             obj.setupParams('Nstmax')   = {6,'numberInput', 10,  [0,20],     1,      '%.0f'};

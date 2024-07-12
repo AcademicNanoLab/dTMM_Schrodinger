@@ -24,6 +24,7 @@ classdef App2 < handle
         screen = 1;
         totalScreens = 4;
         color = [0 0.4470 0.7410];
+        curFigCount = 1;
     end
 
     methods
@@ -90,6 +91,9 @@ classdef App2 < handle
             % init Form object
             obj.GUI_Form = GUI_Form(GUI_Var,obj.app,obj.innerGrid,1,2);
 
+            % init save options form
+            obj.GUI_Save_Form = GUI_Form(GUI_Var_File,obj.app,obj.innerGrid,1,2);
+
             % init screen
             obj.switchScreen();
         end
@@ -105,7 +109,6 @@ classdef App2 < handle
                     for i = 1:length(obj.MFigs)
                         set(obj.MFigs(i), 'CreateFcn', 'set(gcbo,''Visible'',''on'')');
                         saveas(obj.MFigs(i),strcat(fileName,num2str(i)),'fig');
-                        close(obj.MFigs(i));
                     end
                 elseif (strcmp(obj.imageType,'GIF'))
                     v = VideoWriter(fileName,"MPEG-4");
@@ -113,6 +116,11 @@ classdef App2 < handle
                     open(v);
                     writeVideo(v,obj.M);
                     close(v);
+                elseif (strcmp(obj.imageType,'PNG'))
+                    for i = 1:length(obj.MFigs)
+                        set(obj.MFigs(i), 'CreateFcn', 'set(gcbo,''Visible'',''on'')');
+                        saveas(obj.MFigs(i),strcat(fileName,num2str(i)),'png');
+                    end
                 end
             end
         end
@@ -136,6 +144,9 @@ classdef App2 < handle
             if (obj.screen > obj.totalScreens)
                 close(obj.app);
                 obj.app = 0;
+                for i = 1:length(obj.MFigs) % clean up figures (TODO: check if resource usage impacted)
+                    close(obj.MFigs(i));
+                end
                 return
             end
             obj.mainLayout();
@@ -150,6 +161,7 @@ classdef App2 < handle
                     if strcmp(obj.imageType,'GIF')
                         obj.step4_GIF();
                     else
+                        obj.step4_PNG();
                     end
             end
         end
@@ -189,7 +201,7 @@ classdef App2 < handle
 
             % init
             text = {'GIF','PNG'};
-            file = {'optionGif.gif', 'optionPng.jpeg'};
+            file = {'optionGif.gif', 'optionPng.png'};
             for i = 1:2
                 imgButton = uibutton(obj.innerGrid);
                 imgButton.Layout.Row = 2;
@@ -227,15 +239,107 @@ classdef App2 < handle
         end
 
         function step3_PNG(obj)
+            obj.app.Visible = 'off';
             obj.innerGrid.RowHeight = {20,'1x',20};
-            obj.innerGrid.ColumnWidth = {20,'1x',20};
+            obj.innerGrid.ColumnWidth = {40,'1x',40};
+
+            % main code
+            params = obj.GUI_Form.params;
+            G=Grid(params('Layer file'),params('dz'),params('Material'));
+
+            % progress bar
+            progressBar = waitbar(0,'Please Wait...');
+            progressBar.Name = 'Loading figures';
+
+            % M
+            obj.MFigs = gobjects(1,4);
+
+            k = params('K');
+            G.set_K(k);
+
+            if (params('Solver') == "FDM")
+                Solver=FDMSolver(params('Non-parabolicity'),G,params('Nstmax'));
+            else
+                Solver=TMMSolver(params('Non-parabolicity'),G,params('Nstmax'));
+            end
+
+            [energies,psis]=Solver.get_wavefunctions;
+            V=Visualization(G,energies,psis);
+            % plot_V_wf
+            curFig1 = figure('Visible','off');
+            V.plot_V_wf(curFig1);
+            waitbar(3/6,progressBar);
+            % plot_energies
+            curFig2 = figure('Visible','off');
+            V.plot_energies(curFig2);
+            waitbar(4/6,progressBar);
+            % plot_energy_difference_in_terahertz
+            curFig3 = figure('Visible','off');
+            V.plot_energy_difference_in_terahertz(curFig3);
+            waitbar(5/6,progressBar);
+            % plot_QCL
+            curFig4 = figure('Visible','off');
+            V.plot_QCL(curFig4,params('K'),params('Padding'),0);
+            waitbar(1,progressBar);
+            % done
+            obj.MFigs = [curFig1,curFig2,curFig3,curFig4];
+
+            % finished
+            pause(0.5);
+            close(progressBar);
+            obj.app.Visible = 'on';
+
+            % show figures
+            curFigPanel = uipanel(obj.innerGrid);
+            curFigPanel.Layout.Row = 2;
+            curFigPanel.Layout.Column = 2;
+            curFigPanel.BackgroundColor = obj.color;
+            curFigPanel.BorderType = 'none';
+            copyobj(get(obj.MFigs(obj.curFigCount),'Children'),curFigPanel);
+
+            % carousel buttons
+            pCButton = uibutton(obj.innerGrid);
+            pCButton.Layout.Row = 2;
+            pCButton.Layout.Column = 1;
+            pCButton.Text = '<';
+            pCButton.ButtonPushedFcn = @(src, event) obj.pCButtonPressed(curFigPanel);
+            nCButton = uibutton(obj.innerGrid);
+            nCButton.Layout.Row = 2;
+            nCButton.Layout.Column = 3;
+            nCButton.Text = '>';
+            nCButton.ButtonPushedFcn = @(src, event) obj.nCButtonPressed(curFigPanel);
+        end
+
+        function pCButtonPressed(obj,curFigPanel)
+            if obj.curFigCount > 1
+                obj.curFigCount = obj.curFigCount - 1;
+            else
+                obj.curFigCount = 4;
+            end
+            obj.updateCurFigPanel(curFigPanel);
+        end
+
+        function nCButtonPressed(obj,curFigPanel)
+            if obj.curFigCount < 4
+                obj.curFigCount = obj.curFigCount + 1;
+            else
+                obj.curFigCount = 1;
+            end
+            obj.updateCurFigPanel(curFigPanel);
+        end
+
+        function updateCurFigPanel(obj,curFigPanel)
+            delete(curFigPanel.Children);
+            copyobj(get(obj.MFigs(obj.curFigCount),'Children'),curFigPanel);
+        end
+
+        function step4_PNG(obj)
+            % save options ui
+            obj.step4_shared();
         end
 
         function step4_GIF(obj)
-            % obj.app.Visible = 'off';
-            rowHeight = 22;
-            obj.innerGrid.RowHeight = {rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight};
-            obj.innerGrid.ColumnWidth = {'fit','1x',100};
+            obj.app.Visible = 'off';
 
             % main code
             params = obj.GUI_Form.params;
@@ -273,17 +377,11 @@ classdef App2 < handle
                 waitbar(i/length(kValues),progressBar);
             end
 
-            pause(1);
+            pause(0.5);
             close(progressBar);
 
-            % save options form
-            obj.GUI_Save_Form = GUI_Form(GUI_Var_File,obj.app,obj.innerGrid,1,2);
-
             % save options ui
-            k = keys(obj.GUI_Save_Form.setupVar.setupParams);
-            for i = 1:length(k)
-                obj.GUI_Save_Form.labeledInputArea(k{i})
-            end
+            obj.step4_shared();
 
             % completed
             obj.app.Visible = 'on';
@@ -294,6 +392,18 @@ classdef App2 < handle
             % focus on app
             if (obj.app ~= 0)
                 figure(obj.app);
+            end
+        end
+
+        function step4_shared(obj)
+            % save options ui
+            rowHeight = 22;
+            obj.innerGrid.RowHeight = {rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight};
+            obj.innerGrid.ColumnWidth = {'fit','1x',100};
+
+            k = keys(obj.GUI_Save_Form.setupVar.setupParams);
+            for i = 1:length(k)
+                obj.GUI_Save_Form.labeledInputArea(k{i})
             end
         end
     end
