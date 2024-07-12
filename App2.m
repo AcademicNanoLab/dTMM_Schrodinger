@@ -42,7 +42,9 @@ classdef App2 < handle
             obj.app.Position = [obj.x - obj.app_w/2, obj.y - obj.app_h/2, obj.app_w, obj.app_h];
             obj.app.MenuBar = 'none';
             obj.app.Name = 'dTMM Wizard';
-            obj.app.Color = obj.color;
+            if (~verLessThan('matlab',"9.14")) % TODO: if you want a blue border around your app then just comment out the if statement
+                obj.app.Color = obj.color;
+            end
 
             % add padding
             mainPanel = uipanel(obj.app);
@@ -52,28 +54,41 @@ classdef App2 < handle
 
             % draw the grid
             obj.grid = uigridlayout(mainPanel);
-            obj.grid.BackgroundColor = obj.color;
-            obj.grid.RowHeight = {'fit','1x',22};
+            if (~verLessThan('matlab',"9.14"))
+                obj.grid.BackgroundColor = obj.color;
+                obj.grid.RowHeight = {'fit','1x',22};
+            else
+                obj.grid.RowHeight = {40,'1x',22};
+            end
             obj.grid.ColumnWidth = {'1x'};
 
             % init title
             obj.title = uilabel(obj.grid);
             obj.title.Layout.Row = 1;
             obj.title.Layout.Column = 1;
-            obj.title.Interpreter = "html";
+            if (~verLessThan('matlab',"9.14"))
+                obj.title.Interpreter = "html";
+            else
+                obj.title.FontSize = 22;
+                obj.title.FontWeight = 'bold';
+            end
 
             % init inner grid
             obj.innerGrid = uigridlayout(obj.grid);
             obj.innerGrid.Layout.Row = 2;
             obj.innerGrid.Layout.Column = 1;
-            obj.innerGrid.BackgroundColor = obj.color;
+            if (~verLessThan('matlab',"9.14"))
+                obj.innerGrid.BackgroundColor = obj.color;
+            end
             obj.innerGrid.Padding = [0,0,0,0];
 
             % init button grid
             obj.buttonGrid = uigridlayout(obj.grid);
             obj.buttonGrid.Layout.Row = 3;
             obj.buttonGrid.Layout.Column = 1;
-            obj.buttonGrid.BackgroundColor = obj.color;
+            if (~verLessThan('matlab',"9.14"))
+                obj.buttonGrid.BackgroundColor = obj.color;
+            end
             obj.buttonGrid.Padding = [0,0,0,0];
             obj.buttonGrid.RowHeight = {22};
             obj.buttonGrid.ColumnWidth = {'1x',100,100};
@@ -167,7 +182,11 @@ classdef App2 < handle
         end
 
         function mainLayout(obj)
-            obj.title.Text = strcat("<font style='font-size:20px; font-weight:bold; font-family:Helvetica, Verdana, Arial;'>",obj.titles{obj.screen},"</font>");
+            if (~verLessThan('matlab',"9.14"))
+                obj.title.Text = strcat("<font style='font-size:20px; font-weight:bold; font-family:Helvetica, Verdana, Arial;'>",obj.titles{obj.screen},"</font>");
+            else
+                obj.title.Text = obj.titles{obj.screen};
+            end
             obj.innerGrid.Children.delete;
 
             % button text
@@ -222,7 +241,11 @@ classdef App2 < handle
         function step2(obj)
             rowHeight = 22;
             obj.innerGrid.RowHeight = {rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight};
-            obj.innerGrid.ColumnWidth = {'fit','1x',100};
+            if (~verLessThan('matlab',"9.14"))
+                obj.innerGrid.ColumnWidth = {'fit','1x',100};
+            else
+                obj.innerGrid.ColumnWidth = {100,'1x',100};
+            end
 
             % draw input
             k = keys(obj.GUI_Form.setupVar.setupParams);
@@ -293,7 +316,9 @@ classdef App2 < handle
             curFigPanel = uipanel(obj.innerGrid);
             curFigPanel.Layout.Row = 2;
             curFigPanel.Layout.Column = 2;
-            curFigPanel.BackgroundColor = obj.color;
+            if (~verLessThan('matlab',"9.14"))
+                curFigPanel.BackgroundColor = obj.color;
+            end
             curFigPanel.BorderType = 'none';
             copyobj(get(obj.MFigs(obj.curFigCount),'Children'),curFigPanel);
 
@@ -399,7 +424,11 @@ classdef App2 < handle
             % save options ui
             rowHeight = 22;
             obj.innerGrid.RowHeight = {rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight,rowHeight};
-            obj.innerGrid.ColumnWidth = {'fit','1x',100};
+            if (~verLessThan('matlab',"9.14"))
+                obj.innerGrid.ColumnWidth = {'fit','1x',100};
+            else
+                obj.innerGrid.ColumnWidth = {100,'1x',100};
+            end
 
             k = keys(obj.GUI_Save_Form.setupVar.setupParams);
             for i = 1:length(k)

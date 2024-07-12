@@ -111,7 +111,9 @@ classdef GUI_Form < handle
             fTextBox.Value = setupParam{3};
             obj.params(titleText) = setupParam{3};
             fTextBox.Editable = 'off';
-            fTextBox.WordWrap = 'off';
+            if (~verLessThan('matlab',"9.14"))
+                fTextBox.WordWrap = 'off';
+            end
 
             % draw button
             fButton = uibutton(obj.parentGrid);
@@ -206,7 +208,9 @@ classdef GUI_Form < handle
             rangeGrid = uigridlayout(obj.parentGrid);
             rangeGrid.Layout.Row = setupParam{1};
             rangeGrid.Layout.Column = obj.inputCol;
-            rangeGrid.BackgroundColor = obj.app.Color;
+            if (~verLessThan('matlab',"9.14"))
+                rangeGrid.BackgroundColor = obj.app.Color;
+            end
             rangeGrid.Padding = [0,0,0,0];
             rangeGrid.ColumnSpacing = 2;
             rangeGrid.RowHeight = {22};
@@ -257,7 +261,9 @@ classdef GUI_Form < handle
             rangeGrid = uigridlayout(obj.parentGrid);
             rangeGrid.Layout.Row = setupParam{1};
             rangeGrid.Layout.Column = obj.inputCol;
-            rangeGrid.BackgroundColor = obj.app.Color;
+            if (~verLessThan('matlab',"9.14"))
+                rangeGrid.BackgroundColor = obj.app.Color;
+            end
             rangeGrid.Padding = [0,0,0,0];
             rangeGrid.ColumnSpacing = 2;
             rangeGrid.RowHeight = {22};
@@ -312,7 +318,9 @@ classdef GUI_Form < handle
             textBox.Layout.Column = obj.inputCol;
             textBox.Value = setupParam{3};
             obj.params(titleText) = setupParam{3};
-            textBox.WordWrap = 'off';
+            if (~verLessThan('matlab',"9.14"))
+                textBox.WordWrap = 'off';
+            end
 
             % callback function upon text input
             textBox.ValueChangedFcn = @(src, event) obj.textChangedFunction(src, titleText);
