@@ -2,6 +2,7 @@ clear all
 close all 
 clc
 
+addpath('../src');
 %% Setup
 layer_file="test/Structure1_BTC_GaAs_AlGaAs.txt";   % Input file 
 material="AlGaAs";                                  % Material system
