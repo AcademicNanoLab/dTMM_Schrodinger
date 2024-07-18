@@ -1,3 +1,4 @@
+% Create a GUI_Form using a class with setupParams
 classdef GUI_Form < handle
     properties
         app

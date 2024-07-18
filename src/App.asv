@@ -43,7 +43,7 @@ classdef App < handle
             obj.app.Position = [obj.x - obj.app_w/2, obj.y - obj.app_h/2, obj.app_w, obj.app_h];
             obj.app.MenuBar = 'none';
             obj.app.Name = 'dTMM Wizard';
-            if (~verLessThan('matlab',"9.14")) 
+            if (~verLessThan('matlab',"9.14")) % TODO: if you want a blue border around your app then just comment out the if statement
                 obj.app.Color = obj.color;
             end
 
@@ -197,12 +197,18 @@ classdef App < handle
                 case 1
                     obj.pButton.Visible = 'off';
                     obj.nButton.Visible = 'off';
+                    % case 2
+                    % obj.pButton.Visible = 'off';
+                    % obj.nButton.Text = 'Next';
                 case obj.totalScreens
                     obj.pButton.Text = 'Save';
                     obj.nButton.Text = 'Close';
                 case 2
                     obj.pButton.Text = 'Previous';
                     obj.nButton.Text = 'Finish';
+                    % case obj.totalScreens - 1
+                    %     obj.pButton.Text = 'Previous';
+                    %     obj.nButton.Text = 'Finish';
                 otherwise
                     obj.pButton.Text = 'Previous';
                     obj.nButton.Text = 'Next';
@@ -214,7 +220,7 @@ classdef App < handle
             obj.innerGrid.ColumnWidth = {'1x','1x'};
 
             % init
-            text = {'Electronic Structure Calculation','Electronic Structure Animation (Bias Sweep)'};
+            text = {'PNG','GIF'};
             file = {'optionPng.png','optionGif.gif'};
             for i = 1:2
                 imgButton = uibutton(obj.innerGrid);
@@ -223,17 +229,15 @@ classdef App < handle
                 imgButton.Text = {'',text{i}};
                 imgButton.Icon = file{i};
                 imgButton.IconAlignment = 'top';
-                imgButton.FontSize = 20;
-                imgButton.WordWrap = 'on';
                 imgButton.ButtonPushedFcn = @(src, event) obj.imgButtonPressed(src);
             end
         end
 
         function imgButtonPressed(obj,src)
             if strcmp(src.Text{2},"Electronic Structure Calculation")
-                obj.imageType = "PNG";
+                obj.imageType = "PNG"
             else
-                obj.imageType = "GIF";
+                obj.imageType = src.Text{2};
             end
             obj.screen = obj.screen + 1;
             obj.switchScreen();

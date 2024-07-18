@@ -2,7 +2,7 @@ clear all
 close all 
 clc
 
-addpath('../src');
+addpath('src');
 %% Setup
 layer_file="test/Structure1_BTC_GaAs_AlGaAs.txt";   % Input file 
 material="AlGaAs";                                  % Material system
@@ -22,7 +22,7 @@ padding=400;                                        % Added padding in [angstrom
 G=Grid(layer_file,dz,material);
 G.set_K(K);
 
-if (solver == "FDM)
+if (solver == "FDM")
     Solver=FDMSolver(nonparabolicityType,G,nstmax);
 else 
     Solver=TMMSolver(nonparabolicityType,G,nstmax);

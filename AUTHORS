@@ -1,8 +1,8 @@
 Dr Aleksandar Demic, A.Demic@leeds.ac.uk, Univerisity of Leeds
 Dr Novak Stanojevic, novakstanojevic1@gmail.com, University of Belgrade
-Mrs Hyun Kim, KAIST University
+Ms Hyun A Kim, kimhyuna@kaist.ac.kr, KAIST
 
 CREDIT:
     Dr Demic developed the mathematical foundations for the derivative transfer matrix model and packaged and developed the code in MATLAB version in object-oriented manner
     Dr Stanojevic developed the code for the derivative transfer matrix model in MATLAB version, tested all versions of the solvers and conducted analysis of various heterostructure devices
-    Mrs Kim created the GUI for the main application along with GUI support for simulation of varying electrical bias
+    Ms Kim created the GUI for the main application along with GUI support for simulation of varying electrical bias
