@@ -18,7 +18,7 @@ The package consists of six classes, implemented in MATLAB:
           - 14 kp band nonparabolicity treatement of Schrodinger equation as per work in  U.Ekenber et. al, Physical Review B 40 (1989) 7714
    -  **Visualisation** - contains methods that create figures that visualise the electron structure, currently 4 figures are supported: electron structure of the modelled device, eigenvalue energy graph, energy difference graph, electron structure on two periods if user was modelling a QCL device.
 
-The main code contains GUI version and manual version by running Main.m, user can select the following options:
+The main code contains GUI version (by running App.m) and manual version (by running Main.m), user can select the following options:
    -  **layer_file** = ".....txt" - two column file containing multiple quantum well layer structure in format
        200  0.15
        200  0
