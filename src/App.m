@@ -29,7 +29,7 @@ classdef App < handle
     end
 
     methods
-        function obj = App2
+        function obj = App
             fclose all;
             clc;
 
