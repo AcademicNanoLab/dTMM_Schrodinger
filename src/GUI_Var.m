@@ -27,7 +27,7 @@ classdef GUI_Var < handle
             obj.setupParams('K')        = {5,'numberInput', 1.9, [0,30],     0.05,   '%.2f kV/cm'};
             obj.setupParams('Nstmax')   = {6,'numberInput', 10,  [3,20],     1,      '%.0f'};
             obj.setupParams('dz')       = {7,'numberInput', 1,   [0.5,3],    0.1,    '%.1f angstroms'};
-            obj.setupParams('Padding')  = {8,'numberInput', 200, [100,400],  25,     '%.0f angstroms'};
+            obj.setupParams('Padding')  = {8,'numberInput', 0, [0,400],  25,     '%.0f angstroms'};
             % axis limits
             obj.setupParams('Axis limits')  = {9,'axisLimitInput', [0 2000 0 120],  25};
         end
