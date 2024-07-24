@@ -42,7 +42,7 @@ classdef Visualization < handle
             f=parent;
             z=obj.G.get_z/obj.consts.angstrom;
             Lper=z(end)-padding;
-            npad=floor(padding/(obj.G.get_dz/obj.consts.angstrom)/2);
+            npad=floor(padding/(obj.G.get_dz/obj.consts.angstrom)/2)+1;
             ax=axes(f);
             hold(ax,"on");
             for p=1:2
