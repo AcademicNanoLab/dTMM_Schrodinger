@@ -31,7 +31,7 @@ end
 [energies,psis]=Solver.get_wavefunctions;
 energies_meV = energies / (G.consts.e);
 V=Visualization(G,energies,psis);
-V.plot_V_wf;
-V.plot_energies;
-V.plot_energy_difference_in_terahertz;
-V.plot_QCL(K,padding);
+V.plot_V_wf(figure);
+V.plot_energies(figure);
+V.plot_energy_difference_in_terahertz(figure);
+V.plot_QCL(figure,K,padding,false);
