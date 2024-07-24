@@ -56,7 +56,7 @@ classdef Grid < handle
             end
             obj.z=obj.z*obj.consts.angstrom;
             obj.K=0;
-            obj.dE=0.1e-3;
+            obj.dE=0.05e-3;
         end
     %% Set methods
        function set_K(obj,val)
