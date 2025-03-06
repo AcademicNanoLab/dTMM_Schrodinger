@@ -7,10 +7,11 @@ The package consists of six classes, implemented in MATLAB:
   - **ConstsAndScales** - contains common constants and scales required for solving Schrodinger equation under effective mass approximation
   - **Material** - contains material parameters of several material systems in which multiple quantum well heterostrucutres can be generated, namely GaAs/AlGaAs, GaSb/AlGaSb, InGaAs/InAlAs, InGaAs/GaAsSb, we encourage the user to add more material properties to this repository
   - **Grid** - contains methods that define the spatial axis z and material parameters profile
-  - **FDMSolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via finite difference approach using three cases:
-          - parabolic subband approximation,
-          - full two band Kane nonparabolic subband approximation and
-          - Taylor expansion of the two band Kane nonparabolic subband approximation
+  - **FDMSolver** - contains methods that solve 1D Schrodinger equation:
+          * under effective mass approximation via finite difference approach using three cases:
+          * parabolic subband approximation,
+          * full two band Kane nonparabolic subband approximation and
+          * Taylor expansion of the two band Kane nonparabolic subband approximation
   - **TMMsolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via derivative transfer matrix approach using four cases: 
           - parabolic subband approximation,
           - full two band Kane nonparabolic subband approximation and
