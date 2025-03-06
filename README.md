@@ -1,7 +1,7 @@
 # dTMM_Schrodinger
 Schrodinger equation solvers via derivative transfer matrix method and finite difference method
 
-Details on the solvers and methodology of this package is available at doi.org/xxxxxxxx
+Details on the solvers and methodology of this package is available at https://doi.org/10.1016/j.cpc.2025.109573 
 
 The package consists of six classes, implemented in MATLAB:
   - **ConstsAndScales** - contains common constants and scales required for solving Schrodinger equation under effective mass approximation
