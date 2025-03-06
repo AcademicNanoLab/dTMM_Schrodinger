@@ -8,15 +8,15 @@ The package consists of six classes, implemented in MATLAB:
   - **Material** - contains material parameters of several material systems in which multiple quantum well heterostrucutres can be generated, namely GaAs/AlGaAs, GaSb/AlGaSb, InGaAs/InAlAs, InGaAs/GaAsSb, we encourage the user to add more material properties to this repository
   - **Grid** - contains methods that define the spatial axis z and material parameters profile
   - **FDMSolver** - contains methods that solve 1D Schrodinger equation:
-          * under effective mass approximation via finite difference approach using three cases:
-          * parabolic subband approximation,
-          * full two band Kane nonparabolic subband approximation and
-          * Taylor expansion of the two band Kane nonparabolic subband approximation
-  - **TMMsolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via derivative transfer matrix approach using four cases: 
-          - parabolic subband approximation,
-          - full two band Kane nonparabolic subband approximation and
-          - Taylor expansion of the two band Kane nonparabolic subband approximation
-          - 14 kp band nonparabolicity treatement of Schrodinger equation as per work in  U.Ekenber et. al, Physical Review B 40 (1989) 7714
+      - under effective mass approximation via finite difference approach using three cases:
+      - parabolic subband approximation,
+      - full two band Kane nonparabolic subband approximation and
+      - Taylor expansion of the two band Kane nonparabolic subband approximation
+  - **TMMsolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via derivative transfer matrix approach using four cases:
+    - parabolic subband approximation,
+    - full two band Kane nonparabolic subband approximation and
+    - Taylor expansion of the two band Kane nonparabolic subband approximation
+    - 14 kp band nonparabolicity treatement of Schrodinger equation as per work in  U.Ekenber et. al, Physical Review B 40 (1989) 7714
    -  **Visualisation** - contains methods that create figures that visualise the electron structure, currently 4 figures are supported: electron structure of the modelled device, eigenvalue energy graph, energy difference graph, electron structure on two periods if user was modelling a QCL device.
 
 The main code contains GUI version (by running Main_GUI.m) and manual version (by running Main.m), user can select the following options:
