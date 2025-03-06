@@ -12,7 +12,7 @@ The package consists of six classes, implemented in MATLAB:
       - parabolic subband approximation,
       - full two band Kane nonparabolic subband approximation and
       - Taylor expansion of the two band Kane nonparabolic subband approximation
-  - **TMMsolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via derivative transfer matrix approach using four cases:
+  - **dTMMsolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via derivative transfer matrix approach using four cases:
     - parabolic subband approximation,
     - full two band Kane nonparabolic subband approximation and
     - Taylor expansion of the two band Kane nonparabolic subband approximation
