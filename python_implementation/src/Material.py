@@ -1,10 +1,13 @@
 #
-#
-#
-#
-#
+# Material class containing parameters of material system typically used
+# for muliple quantum well structures. Units are chosen as typically given
+# in literature, the Grid class converts them to SI units for further use
+# by the solvers.
 
 from dataclasses import dataclass
+import numpy as np
+
+import ConstAndScales
 
 @dataclass
 class Parameter:
@@ -20,6 +23,45 @@ class Material:
     P: Parameter        # P Kane parameter [eV A]
     Q: Parameter        # Q Kane parameter [eV A]
     V: Parameter        # Conduction band potential [eV]
+
+    def get_alpha0g(self, x):
+        Eg_alloy = self.interpolate_parameter(x, self.Eg)
+        Egp_alloy = self.interpolate_parameter(x,self.Egp)
+        d0_alloy = self.interpolate_parameter(x,self.d0)
+        P_alloy = self.interpolate_parameter(x,self.P)
+        Q_alloy = self.interpolate_parameter(x,self.Q)
+        
+        E0_alloy=Egp_alloy-Eg_alloy
+        ksi_alloy=P_alloy^4/9/Eg_alloy^3/(Eg_alloy+d0_alloy)^2
+        hi_alloy=P_alloy^2*Q_alloy^2/9/E0_alloy/Eg_alloy^2/(Eg_alloy+d0_alloy)^2
+
+        alpha0golubov=-ksi_alloy*(3*Eg_alloy^2+4*Eg_alloy*d0_alloy+2*d0_alloy^2)*(3*Eg_alloy+2*d0_alloy)/(Eg_alloy+d0_alloy)-2*hi_alloy*d0_alloy^2
+        beta0golubov=-12*hi_alloy*(3*Eg_alloy^2+4*Eg_alloy*d0_alloy+d0_alloy^2)
+
+        return alpha0golubov, beta0golubov
+    
+    def get_alpha0gp(self, x):
+        m_alloy = self.interpolate_parameter(x, self.m)
+        alpha0g, beta0g = self.get_alpha0g(x)
+
+        e = ConstAndScales.E
+        A = ConstAndScales.ANGSTROM
+        hbar = ConstAndScales.HBAR
+        u0 = hbar / ConstAndScales.m0
+
+        alpha0golubobp=-(2*m_alloy*e*A^2/hbar/u0)^2*alpha0g;    # ev^-1 
+        beta0golubovp=-(2*m_alloy*e*A^2/hbar/u0)^2*beta0g;      # ev^-1
+    
+        return alpha0golubobp, beta0golubovp
+    
+    def get_alpha_kane(self, x):
+        Eg_alloy = self.interpolate_parameter(x, self.Eg)
+        alpha = 1/ np.asarray(Eg_alloy, dtype=np.float32)      # assumes element-wise division 
+
+        return alpha
+            
+    def interpolate_parameter(self, x, param: Parameter):
+        return param.well + x *(param.barr - param.well)
 
 AlGaAs = Material(
     m   = Parameter(well=0.067, barr=0.15),
@@ -75,6 +117,6 @@ def get_material(HeterostructureMaterial):
         print(f"\nInvalid Heterostructure Material '{HeterostructureMaterial}'\nExpected one of { list(materials.keys()) }\n")
         exit(0)
 
-a = input("material: ")
-b = get_material(a)
-print(b)
+# a = input("material: ")
+# b = get_material(a)
+# print(b)
