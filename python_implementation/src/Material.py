@@ -110,7 +110,7 @@ materials = {
     "InGaAs/GaAsSb": InGaAs_GaAsSb
 }
 
-def get_material(HeterostructureMaterial):
+def get_material(HeterostructureMaterial) -> Material:
     if HeterostructureMaterial in materials:
         return materials[HeterostructureMaterial]
     else:
