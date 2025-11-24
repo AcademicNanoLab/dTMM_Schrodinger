@@ -14,15 +14,52 @@ class Parameter:
     well: float
     barr: float
 
-@dataclass
 class Material:
-    m: Parameter        # Effective mass
-    Eg: Parameter       # Bandgap (eV)
-    Egp: Parameter      # L Valley bandgap (eV)
-    d0: Parameter       # Spin-split bandgap (eV)
-    P: Parameter        # P Kane parameter [eV A]
-    Q: Parameter        # Q Kane parameter [eV A]
-    V: Parameter        # Conduction band potential [eV]
+    def __init__(self, HeterostructureMaterial):
+        if HeterostructureMaterial == "AlGaAs":
+            self.set_AlGaAs()
+        elif HeterostructureMaterial == "AlGaSb":
+            self.set_AlGaSb()
+        elif HeterostructureMaterial == "InGaAs_InAlAs":
+            self.set_InGaAs_InAlAs()
+        elif HeterostructureMaterial == "InGaAs_GaAsSb":
+            self.set_InGaAs_GaAsSb()
+
+    def set_AlGaAs(self):
+        self.m   = Parameter(well=0.067, barr=0.15)
+        self.Eg  = Parameter(well=1.424, barr=2.777)
+        self.Egp = Parameter(well=4.48,  barr=4.55)
+        self.d0  = Parameter(well=0.341, barr=0.3)
+        self.P   = Parameter(well=9.88,  barr=8.88)
+        self.Q   = Parameter(well=8.68,  barr=8.07)
+        self.V   = Parameter( well=0.0,  barr=0.67*(self.Eg.barr - self.Eg.well))
+
+    def set_AlGaSb(self):
+        self.m   = Parameter(well=0.041,  barr=0.12)
+        self.Eg  = Parameter(well=0.81,   barr=1.7)
+        self.Egp = Parameter(well=3.11,   barr=3.53)
+        self.d0  = Parameter(well=0.76,   barr=0.67)
+        self.P   = Parameter(well=9.69,   barr=8.57)
+        self.Q   = Parameter(well=8.25,   barr=7.8)
+        self.V   = Parameter(well=0.0,    barr=0.55*(self.Eg.barr - self.Eg.well))
+
+    def set_InGaAs_InAlAs(self):
+        self.m   = Parameter(well=0.043,  barr=0.075)
+        self.Eg  = Parameter(well=0.8161, barr=1.5296)
+        self.Egp = Parameter(well=4.508,  barr=4.514)
+        self.d0  = Parameter(well=0.3617, barr=0.3416)
+        self.P   = Parameter(well=9.4189, barr=8.9476)
+        self.Q   = Parameter(well=8.1712, barr=7.888)
+        self.V   = Parameter(well=0.0,    barr=0.73*(self.Eg.barr - self.Eg.well))
+
+    def set_InGaAs_GaAsSb(self):
+        self.m   = Parameter(well=0.043,   barr=0.045)
+        self.Eg  = Parameter(well=0.8161,  barr=1.1786)
+        self.Egp = Parameter(well=4.508,   barr=3.8393)
+        self.d0  = Parameter(well=0.3617,  barr=0.39637)
+        self.P   = Parameter(well=9.4189,  barr=9.7869)
+        self.Q   = Parameter(well=8.1712,  barr=8.4693)
+        self.V   = Parameter(well=0.0,     barr=1*(self.Eg.barr - self.Eg.well))
 
     def get_alpha0g(self, x):
         Eg_alloy = self.interpolate_parameter(x, self.Eg)
@@ -63,60 +100,6 @@ class Material:
     def interpolate_parameter(self, x, param: Parameter):
         return param.well + x *(param.barr - param.well)
 
-AlGaAs = Material(
-    m   = Parameter(well=0.067, barr=0.15),
-    Eg  = Parameter(well=1.424, barr=2.777),
-    Egp = Parameter(well=4.48,  barr=4.55),
-    d0  = Parameter(well=0.341, barr=0.3),
-    P   = Parameter(well=9.88,  barr=8.88),
-    Q   = Parameter(well=8.68,  barr=8.07),
-    V   = Parameter( well=0.0,  barr=0.67*(2.777-1.424))  # 0.67*(Eg.barr - Eg.well)
-)
-
-AlGaSb = Material(
-    m   = Parameter(well=0.041,  barr=0.12),
-    Eg  = Parameter(well=0.81,   barr=1.7),
-    Egp = Parameter(well=3.11,   barr=3.53),
-    d0  = Parameter(well=0.76,   barr=0.67),
-    P   = Parameter(well=9.69,   barr=8.57),
-    Q   = Parameter(well=8.25,   barr=7.8),
-    V   = Parameter(well=0.0,    barr=0.55*(1.7-0.81))  # 0.4845
-)
-
-InGaAs_InAlAs = Material(
-    m   = Parameter(well=0.043,  barr=0.075),
-    Eg  = Parameter(well=0.8161, barr=1.5296),
-    Egp = Parameter(well=4.508,  barr=4.514),
-    d0  = Parameter(well=0.3617, barr=0.3416),
-    P   = Parameter(well=9.4189, barr=8.9476),
-    Q   = Parameter(well=8.1712, barr=7.888),
-    V   = Parameter(well=0.0,    barr=0.73*(1.5296-0.8161))  # 0.520657
-)
-
-InGaAs_GaAsSb = Material(
-    m   = Parameter(well=0.043,   barr=0.045),
-    Eg  = Parameter(well=0.8161,  barr=1.1786),
-    Egp = Parameter(well=4.508,   barr=3.8393),
-    d0  = Parameter(well=0.3617,  barr=0.39637),
-    P   = Parameter(well=9.4189,  barr=9.7869),
-    Q   = Parameter(well=8.1712,  barr=8.4693),
-    V   = Parameter(well=0.0,     barr=1*(1.1786-0.8161))  # 0.3625
-)
-
-materials = {
-    "AlGaAs": AlGaAs,
-    "AlGaSb": AlGaSb,
-    "InGaAs/InAlAs": InGaAs_InAlAs,
-    "InGaAs/GaAsSb": InGaAs_GaAsSb
-}
-
-def get_material(HeterostructureMaterial) -> Material:
-    if HeterostructureMaterial in materials:
-        return materials[HeterostructureMaterial]
-    else:
-        print(f"\nInvalid Heterostructure Material '{HeterostructureMaterial}'\nExpected one of { list(materials.keys()) }\n")
-        exit(0)
-
 # a = input("material: ")
-# b = get_material(a)
-# print(b)
+# b = Material(a)
+# print(b.Eg.well)

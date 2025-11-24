@@ -23,9 +23,9 @@ class Grid:
         self.filename = filename
         self.dz = dz*ConstAndScales.ANGSTROM
         layer_thickness, alloy_profile = self.extract_thickness_composition()
-        self.z = np.arange(0, np.sum(layer_thickness) + dz, dz)
+        self.z = np.arange(0, np.sum(layer_thickness) + dz, dz)     # Check if dz is necessary in layer thickness + dz.
         self.nz = np.size(self.z)
-        self.material = Material.get_material(HeterostructureMaterial)
+        self.material = Material.Material(HeterostructureMaterial)
 
         # Find the cumulative sum of the thickness of each layer and append to x.
         self.x = [0] * self.nz
@@ -39,36 +39,35 @@ class Grid:
         
         self.z = self.z*ConstAndScales.ANGSTROM
         self.K = 0
-        self.dE = 0.05e-3 *ConstAndScales.E     # Moved from getter method
+        self.dE = 0.05e-3
 
     # Set methods
     def set_K(self, val):
-        self.K = val / ConstAndScales.kVcm
+        self.K = val
 
     def set_dE(self, val):
-        self.dE = val *ConstAndScales.E         # Moved from getter method
+        self.dE = val
     
-    # Get methods - some commented as unnecessary for python modules (all variables are public).
-    # def get_K(self):
-    #     return self.K / ConstAndScales.kVcm
+    def get_K(self):
+        return self.K / ConstAndScales.kVcm
     
-    # def get_nz(self):
-    #     return self.nz
+    def get_nz(self):
+        return self.nz
     
-    # def get_dz(self):
-    #     return self.dz
+    def get_dz(self):
+        return self.dz
     
-    # def get_z(self):
-    #     return self.z
+    def get_z(self):
+        return self.z
     
     def get_zj(self, j):
         return self.z[j]
     
-    # def get_x(self):
-    #     return self.x
+    def get_x(self):
+        return self.x
     
-    # def get_dE(self):     # Done in __init__
-    #     return self.dE *ConstAndScales.E
+    def get_dE(self):
+        return self.dE *ConstAndScales.E
     
     def get_Vmax(self, K):
         return ConstAndScales.E *(max(self.x)*self.material.V.barr + max(self.z) * K * ConstAndScales.kVcm)
@@ -79,8 +78,8 @@ class Grid:
             V[i] = ConstAndScales.E *self.material.interpolate_parameter(self.x[i], self.material.V)
         
         V = V - ConstAndScales.E * self.K * ConstAndScales.kVcm * self.z
-        V = V - np.min(V)      # Applying bias will create negative potential, 
-                            # so we offset this so that the lowest energy is 0
+        V = V - np.min(V)       # Applying bias will create negative potential, 
+                                # so we offset this so that the lowest energy is 0
         return V
     
     # Get effective mass profile vs z
