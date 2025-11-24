@@ -214,3 +214,7 @@ class EkenbergSolver(BaseSolver):
         dp = self.get_wavevector_derivative(j-1, E)
         dq = self.get_wavevector_derivative(j, E)
         return self.meff[j] / self.meff(j - 1) / (q+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q*q) * ((1.0 + 3.0 * self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) * dp - (1.0+self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) / (1.0+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q) * p / q * (1.0 + 3.0 * self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q)*dq)
+    
+    def construct_matrix(self):
+        pass    # Not a valid method for Ekenberg. (TMM Only)
+        return None
