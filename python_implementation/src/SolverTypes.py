@@ -43,23 +43,23 @@ class BaseSolver(ABC):
 class ParabolicSolver(BaseSolver):
     
     def get_wavevector(self, j, E):
-        return math.sqrt(2.0*self.meff(j)/self.hbar_pow2*(self.V(j)-E))
+        return math.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E))
 
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
-        return (- self.meff(j) / (kj * self.hbar_pow2))
+        return (- self.meff[j] / (kj * self.hbar_pow2))
     
     def get_coefficient(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
-        return self.meff(j) / self.meff(j - 1) * p / q
+        return self.meff[j] / self.meff(j - 1) * p / q
     
     def get_coefficient_derivative(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
         dp = self.get_wavevector_derivative(j-1,E)
         dq = self.get_wavevector_derivative(j,E)
-        return self.meff(j) / self.meff(j - 1) * (q*dp-p*dq)/(q * q)
+        return self.meff[j] / self.meff(j - 1) * (q*dp-p*dq)/(q * q)
 
     def construct_matrix(self):
         nz = self.G.get_nz()
@@ -68,11 +68,11 @@ class ParabolicSolver(BaseSolver):
 
         for i in range(1,nz):
             if i != 1:
-                A[i, i-1] = -scale * (1.0/self.meff(i-1) + 1.0/self.meff[i])
+                A[i, i-1] = -scale * (1.0/self.meff[i-1] + 1.0/self.meff[i])
             if i != nz:
-                A[i, i+1] = -scale * (1.0/self.meff(i+1) + 1.0/self.meff[i])
+                A[i, i+1] = -scale * (1.0/self.meff[i+1] + 1.0/self.meff[i])
             if ( (i != 1) and (i != nz) ):
-                A[i, i] = self.V[i] + scale * (1.0/self.meff(i+1) + 2.0/self.meff(i) + 1.0/self.meff(i-1))
+                A[i, i] = self.V[i] + scale * (1.0/self.meff[i+1] + 2.0/self.meff[i] + 1.0/self.meff[i-1])
         
         A[1, 1] = A[2, 2]
         A[nz, nz] = A[nz-1, nz-1]
@@ -81,44 +81,63 @@ class ParabolicSolver(BaseSolver):
 class TaylorSolver(BaseSolver):
 
     def get_wavevector(self, j, E):
-        return math.sqrt(2.0*self.meff(j)/self.hbar_pow2*(self.V(j)-E)/(1.0-self.alpha(j)*(E-self.V(j))))
+        return math.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E)/(1.0-self.alpha[j]*(E-self.V[j])))
 
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
-        return ( - self.meff(j) / (kj * self.hbar_pow2) / math.pow(1.0-self.alpha(j)*(E-self.V(j)),2) )
+        return ( - self.meff[j] / (kj * self.hbar_pow2) / math.pow(1.0-self.alpha[j]*(E-self.V[j]),2) )
     
     def get_coefficient(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
-        return self.meff(j) / self.meff(j - 1) / (1.0-self.alpha(j)*(E-self.V(j))) * (1.0-self.alpha(j-1)*(E-self.V(j-1))) * p / q
+        return self.meff[j] / self.meff(j - 1) / (1.0-self.alpha[j]*(E-self.V[j])) * (1.0-self.alpha(j-1)*(E-self.V(j-1))) * p / q
     
     def get_coefficient_derivative(self, j, E):
         p = self.get_wavevector(j-1, E)
         q = self.get_wavevector(j, E)
         dp = self.get_wavevector_derivative(j-1, E)
         dq = self.get_wavevector_derivative(j, E)
-        return self.meff(j) / self.meff(j-1) *(1.0-self.alpha(j-1)*(E-self.V(j-1))) / (1.0-self.alpha(j)*(E-self.V(j)))* (q*dp-p*dq)/(q * q) + p/q * (self.alpha(j)*self.meff(j)/math.pow(1.0-self.alpha(j)*(E-self.V(j)),2) / self.meff(j-1)*(1.0-self.alpha(j-1)*(E-self.V(j-1))) - self.meff(j)/(1.0-self.alpha(j)*(E-self.V(j)))/self.meff(j-1)*self.alpha(j-1))
+        return self.meff[j] / self.meff(j-1) *(1.0-self.alpha(j-1)*(E-self.V(j-1))) / (1.0-self.alpha[j]*(E-self.V[j]))* (q*dp-p*dq)/(q * q) + p/q * (self.alpha[j]*self.meff[j]/math.pow(1.0-self.alpha[j]*(E-self.V[j]),2) / self.meff(j-1)*(1.0-self.alpha(j-1)*(E-self.V(j-1))) - self.meff[j]/(1.0-self.alpha[j]*(E-self.V[j]))/self.meff(j-1)*self.alpha(j-1))
+
+    def construct_matrix(self):
+        nz = self.G.get_nz()
+        A = np.zeros(nz)
+        B = A
+        scale = math.pow(ConstAndScales.HBAR/self.G.get_dz(), 2) / 4.0
+
+        for i in range(1, nz):
+            if i != 1:
+                B[i, i-1] = -scale * (self.alpha[i] / self.meff[i] + self.alpha[i-1] / self.meff[i-1])
+                A[i, i-1] = -scale * ((1.0+self.alpha[i-1] *self.V[i-1]) / self.meff[i-1] + (1.0+self.alpha[i]*self.V[i])/self.meff[i])
+            if i != nz:
+                B[i, i+1] = -scale * (self.alpha[i] / self.meff[i] + self.alpha[i+1] / self.meff[i+1])
+                A[i, i+1] = -scale * ((1.0+self.alpha[i+1]*self.V[i+1])/self.meff[i+1]+(1.0+self.alpha[i]*self.V[i])/self.meff[i])
+            if (i!=1) and (i!=nz):
+                B[i,i] = 1.0 + scale * (self.alpha[i+1] / self.meff[i+1] + 2.0 * self.alpha[i] / self.meff[i] + self.alpha[i-1] / self.meff[i-1])
+                A[i,i] = self.V[i] + scale * ((1.0+self.alpha[i+1]*self.V[i+1])/self.meff[i+1] + 2.0 * (1.0+self.alpha[i]*self.V[i])/self.meff[i] + (1.0+self.alpha[i-1]*self.V[i-1])/self.meff[i-1])
+			    
+        return A
 
 class KaneSolver(BaseSolver):
 
     def get_wavevector(self, j, E):
-        return math.sqrt(2.0*self.meff(j)*(1.0+self.alpha(j)*(E-self.V(j)))/self.hbar_pow2*(self.V(j)-E))
+        return math.sqrt(2.0*self.meff[j]*(1.0+self.alpha[j]*(E-self.V[j]))/self.hbar_pow2*(self.V[j]-E))
     
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
-        return ( - self.meff(j) / (kj * self.hbar_pow2) * (1.0 + 2.0*self.alpha(j)*(E-self.V(j))) )
+        return ( - self.meff[j] / (kj * self.hbar_pow2) * (1.0 + 2.0*self.alpha[j]*(E-self.V[j])) )
 
     def get_coefficient(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
-        return self.meff(j) / self.meff(j - 1) * (1.0+self.alpha(j)*(E-self.V(j))) / (1.0+self.alpha(j-1)*(E-self.V(j-1))) * p / q
+        return self.meff[j] / self.meff(j - 1) * (1.0+self.alpha[j]*(E-self.V[j])) / (1.0+self.alpha(j-1)*(E-self.V(j-1))) * p / q
     
     def get_coefficient_derivative(self, j, E) :
         p = self.get_wavevector(j-1, E)
         q = self.get_wavevector(j, E)
         dp = self.get_wavevector_derivative(j-1, E)
         dq = self.get_wavevector_derivative(j, E)
-        return self.meff(j) / self.meff(j-1) * (1.0+self.alpha(j)*(E-self.V(j)))/(1.0+self.alpha(j-1)*(E-self.V(j-1)))* (q*dp-p*dq)/(q * q) + p/q * self.meff(j)/self.meff(j-1)*(self.alpha(j) - self.alpha(j-1) + self.alpha(j)*self.alpha(j-1)*(self.V(j) - self.V(j-1))) / (1.0+self.alpha(j-1)*(E-self.V(j-1))) / (1.0+self.alpha(j-1)*(E-self.V(j-1)))
+        return self.meff[j] / self.meff(j-1) * (1.0+self.alpha[j]*(E-self.V[j]))/(1.0+self.alpha(j-1)*(E-self.V(j-1)))* (q*dp-p*dq)/(q * q) + p/q * self.meff[j]/self.meff(j-1)*(self.alpha[j] - self.alpha(j-1) + self.alpha[j]*self.alpha(j-1)*(self.V[j] - self.V(j-1))) / (1.0+self.alpha(j-1)*(E-self.V(j-1))) / (1.0+self.alpha(j-1)*(E-self.V(j-1)))
 
     def construct_matrix(self):
         nz = self.G.get_nz()
@@ -178,20 +197,20 @@ class KaneSolver(BaseSolver):
 class EkenbergSolver(BaseSolver):
     
     def get_wavevector(self, j, E):
-        return math.sqrt(self.meff(j)/(self.hbar_pow2*self.alpha(j)) * (math.sqrt(1.0+4.0*self.alpha(j)*(self.V(j)-E))-1.0))
+        return math.sqrt(self.meff[j]/(self.hbar_pow2*self.alpha[j]) * (math.sqrt(1.0+4.0*self.alpha[j]*(self.V[j]-E))-1.0))
     
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
-        return -self.meff(j)/(self.hbar_pow2*kj)/(1.0 + self.hbar_pow2*self.alpha(j)/self.meff(j)*kj*kj)
+        return -self.meff[j]/(self.hbar_pow2*kj)/(1.0 + self.hbar_pow2*self.alpha[j]/self.meff[j]*kj*kj)
 
     def get_coefficient(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
-        return (self.meff(j) / self.meff(j - 1) * (1.0+self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) / (1.0+self.hbar_pow2*self.alpha(j)/self.meff(j)*q*q)	) * p / q
+        return (self.meff[j] / self.meff(j - 1) * (1.0+self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) / (1.0+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q)	) * p / q
     
     def get_coefficient_derivative(self, j, E) :
         p = self.get_wavevector(j-1, E)
         q = self.get_wavevector(j, E)
         dp = self.get_wavevector_derivative(j-1, E)
         dq = self.get_wavevector_derivative(j, E)
-        return self.meff(j) / self.meff(j - 1) / (q+self.hbar_pow2*self.alpha(j)/self.meff(j)*q*q*q) * ((1.0 + 3.0 * self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) * dp - (1.0+self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) / (1.0+self.hbar_pow2*self.alpha(j)/self.meff(j)*q*q) * p / q * (1.0 + 3.0 * self.hbar_pow2*self.alpha(j)/self.meff(j)*q*q)*dq)
+        return self.meff[j] / self.meff(j - 1) / (q+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q*q) * ((1.0 + 3.0 * self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) * dp - (1.0+self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) / (1.0+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q) * p / q * (1.0 + 3.0 * self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q)*dq)
