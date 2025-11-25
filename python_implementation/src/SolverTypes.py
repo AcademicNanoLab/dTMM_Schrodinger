@@ -18,23 +18,23 @@ class BaseSolver(ABC):
         self.hbar_pow2 = math.pow(ConstAndScales.HBAR, 2)
 
     @abstractmethod
-    def get_wavevector(self, j, E):
+    def get_wavevector(self, j, E): #TMM
         pass
 
     @abstractmethod
-    def get_coefficient(self, j, E):
+    def get_coefficient(self, j, E): #TMM
         pass
     
     @abstractmethod
-    def get_wavevector_derivative(self, j, E):
+    def get_wavevector_derivative(self, j, E): #TMM
         pass
     
     @abstractmethod
-    def get_coefficient_derivative(self, j, E):
+    def get_coefficient_derivative(self, j, E): #TMM
         pass
 
     @abstractmethod
-    def construct_matrix(self):
+    def construct_matrix(self): #FDM
         pass
 
 

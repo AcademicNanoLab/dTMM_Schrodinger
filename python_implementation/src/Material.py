@@ -69,11 +69,11 @@ class Material:
         Q_alloy = self.interpolate_parameter(x,self.Q)
         
         E0_alloy=Egp_alloy-Eg_alloy
-        ksi_alloy=P_alloy^4/9/Eg_alloy^3/(Eg_alloy+d0_alloy)^2
-        hi_alloy=P_alloy^2*Q_alloy^2/9/E0_alloy/Eg_alloy^2/(Eg_alloy+d0_alloy)^2
+        ksi_alloy=P_alloy**4/9/Eg_alloy**3/(Eg_alloy+d0_alloy)**2
+        hi_alloy=P_alloy**2*Q_alloy**2/9/E0_alloy/Eg_alloy**2/(Eg_alloy+d0_alloy)**2
 
-        alpha0golubov=-ksi_alloy*(3*Eg_alloy^2+4*Eg_alloy*d0_alloy+2*d0_alloy^2)*(3*Eg_alloy+2*d0_alloy)/(Eg_alloy+d0_alloy)-2*hi_alloy*d0_alloy^2
-        beta0golubov=-12*hi_alloy*(3*Eg_alloy^2+4*Eg_alloy*d0_alloy+d0_alloy^2)
+        alpha0golubov=-ksi_alloy*(3*Eg_alloy**2+4*Eg_alloy*d0_alloy+2*d0_alloy**2)*(3*Eg_alloy+2*d0_alloy)/(Eg_alloy+d0_alloy)-2*hi_alloy*d0_alloy**2
+        beta0golubov=-12*hi_alloy*(3*Eg_alloy**2+4*Eg_alloy*d0_alloy+d0_alloy**2)
 
         return alpha0golubov, beta0golubov
     
@@ -86,8 +86,8 @@ class Material:
         hbar = ConstAndScales.HBAR
         u0 = hbar / ConstAndScales.m0
 
-        alpha0golubobp=-(2*m_alloy*e*A^2/hbar/u0)^2*alpha0g;    # ev^-1 
-        beta0golubovp=-(2*m_alloy*e*A^2/hbar/u0)^2*beta0g;      # ev^-1
+        alpha0golubobp=-(2*m_alloy*e*A**2/hbar/u0)**2*alpha0g;    # ev^-1 
+        beta0golubovp=-(2*m_alloy*e*A**2/hbar/u0)**2*beta0g;      # ev^-1
     
         return alpha0golubobp, beta0golubovp
     
