@@ -15,16 +15,6 @@ class TMMSolver(BaseSolver):
     def __init__(self, Grid: Grid, nEmax) -> None:
         super().__init__(Grid, nEmax)
 
-        # alpha = Grid.get_alphap_ekenberg() if solverType=="Ekenberg" else Grid.get_alpha_kane()
-
-        # solver_types = {
-        #     "Parabolic": ParabolicSolver,
-        #     "Taylor": TaylorSolver,
-        #     "Kane": KaneSolver,
-        #     "Ekenberg": EkenbergSolver
-        # }
-        # self._solver = solver_types[solverType](Grid, alpha, self.meff, self.V)
-
     @abstractmethod
     def get_wavevector(self, j, E):
         pass

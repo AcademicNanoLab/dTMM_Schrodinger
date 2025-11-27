@@ -15,6 +15,7 @@ import numpy as np
 class FDMSolver(BaseSolver):
     def __init__(self, Grid:Grid, nEmax) -> None:
         super().__init__(Grid, nEmax)
+        self.alpha = Grid.get_alpha_kane()
 
     @abstractmethod
     def construct_system_matrix(self):      

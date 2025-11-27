@@ -10,6 +10,7 @@ import TMMSolver
 class Parabolic_TMM(TMMSolver): # type: ignore
     def __init__(self, Grid, nEmax) -> None:
         super().__init__(Grid, nEmax)
+        self.alpha = Grid.get_alpha_kane()
     
     def get_wavevector(self, j, E):
         return math.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E))
@@ -33,6 +34,7 @@ class Parabolic_TMM(TMMSolver): # type: ignore
 class Taylor_TMM(TMMSolver): # type: ignore
     def __init__(self, Grid, nEmax) -> None:
         super().__init__(Grid, nEmax)
+        self.alpha = Grid.get_alpha_kane()
 
     def get_wavevector(self, j, E):
         return math.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E)/(1.0-self.alpha[j]*(E-self.V[j])))
@@ -56,6 +58,7 @@ class Taylor_TMM(TMMSolver): # type: ignore
 class Kane_TMM(TMMSolver): # type: ignore
     def __init__(self, Grid, nEmax) -> None:
         super().__init__(Grid, nEmax)
+        self.alpha = Grid.get_alpha_kane()
 
     def get_wavevector(self, j, E):
         return math.sqrt(2.0*self.meff[j]*(1.0+self.alpha[j]*(E-self.V[j]))/self.hbar_pow2*(self.V[j]-E))
@@ -79,6 +82,7 @@ class Kane_TMM(TMMSolver): # type: ignore
 class Ekenberg_TMM(TMMSolver): # type: ignore
     def __init__(self, Grid, nEmax) -> None:
         super().__init__(Grid, nEmax)
+        self.alpha = Grid.get_alphap_ekenberg()
     
     def get_wavevector(self, j, E):
         return math.sqrt(self.meff[j]/(self.hbar_pow2*self.alpha[j]) * (math.sqrt(1.0+4.0*self.alpha[j]*(self.V[j]-E))-1.0))
