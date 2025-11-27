@@ -3,33 +3,22 @@
 #   Shrodinger Equation solved by Finite Difference Method
 #
 # 
+from BaseSolver import BaseSolver
 from Grid import Grid
 import ConstAndScales
 
-import cmath
+from abc import abstractmethod
 import math
 import numpy as np
+# import cmath
 
-class FDMSolver:
-    def __init__(self, solverType, Grid:Grid, nEmax) -> None:
-        self.solverType = solverType
-        self.G = Grid
-        self.nEmax = nEmax
-        self.V = self.G.get_bandstructure_potential()
-        self.meff = self.G.get_effective_mass()
-        self.alpha = self.G.get_alpha_kane()
-        self.nE = nEmax
-    
-    # NOTE: Currently implemented in "solverTypes" class. Same functions commented at the end of this file.
+class FDMSolver(BaseSolver):
+    def __init__(self, Grid:Grid, nEmax) -> None:
+        super().__init__(Grid, nEmax)
+
+    @abstractmethod
     def construct_system_matrix(self):      
-        if self.solverType == "Parabolic":
-            Solver = ParabolicSolver(self.G, self.alpha, self.meff, self.V)
-        elif self.solverType == "Kane":
-            Solver = KaneSolver(self.G, self.alpha, self.meff, self.V)
-        elif self.solverType == "Taylor":
-            Solver = TaylorSolver(self.G, self.alpha, self.meff, self.V)
-        
-        return Solver.construct_matrix()
+        pass
 
     def sort_and_filter_eigenvalues(self, eigenvalues):
         Vmin = min(self.V)
@@ -52,7 +41,7 @@ class FDMSolver:
         energies = []
 
         A = self.construct_system_matrix()
-        eigenvalues, eigenvectors = np.linalg.eig(A)
+        eigenvalues, eigenvectors = np.linalg.eig(A) # type: ignore
 
         # eigvals = np.diag(eigenvalues)
         Eidx = self.sort_and_filter_eigenvalues(eigenvalues)

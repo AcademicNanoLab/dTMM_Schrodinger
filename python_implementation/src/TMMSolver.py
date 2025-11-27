@@ -1,16 +1,15 @@
 #
 # 
 # Schrodinger equation solver class using dTMM method4
-from Grid import Grid
 from BaseSolver import BaseSolver
-# from SolverTypes import ParabolicSolver, TaylorSolver, KaneSolver, EkenbergSolver
+from Grid import Grid
 import ConstAndScales
 
 from abc import abstractmethod
 import numpy as np
 import math
-import cmath
 from scipy import optimize
+# import cmath
 
 class TMMSolver(BaseSolver):
     def __init__(self, Grid: Grid, nEmax) -> None:
