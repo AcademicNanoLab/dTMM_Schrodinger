@@ -2,45 +2,45 @@
 # 
 # Schrodinger equation solver class using dTMM method4
 from Grid import Grid
-from SolverTypes import ParabolicSolver, TaylorSolver, KaneSolver, EkenbergSolver
+from BaseSolver import BaseSolver
+# from SolverTypes import ParabolicSolver, TaylorSolver, KaneSolver, EkenbergSolver
 import ConstAndScales
 
+from abc import abstractmethod
 import numpy as np
 import math
 import cmath
 from scipy import optimize
 
-class TMMSolver:
-    def __init__(self, solverType, Grid: Grid, nEmax) -> None:
-        self.solverType = solverType
-        self.G = Grid
-        self.V = self.G.get_bandstructure_potential()
-        self.meff = self.G.get_effective_mass()
-        self.nE = nEmax
+class TMMSolver(BaseSolver):
+    def __init__(self, Grid: Grid, nEmax) -> None:
+        super().__init__(Grid, nEmax)
 
-        self.tolerance = np.float64(8.88e-16)
+        # alpha = Grid.get_alphap_ekenberg() if solverType=="Ekenberg" else Grid.get_alpha_kane()
 
-        alpha = Grid.get_alphap_ekenberg() if solverType=="Ekenberg" else Grid.get_alpha_kane()
+        # solver_types = {
+        #     "Parabolic": ParabolicSolver,
+        #     "Taylor": TaylorSolver,
+        #     "Kane": KaneSolver,
+        #     "Ekenberg": EkenbergSolver
+        # }
+        # self._solver = solver_types[solverType](Grid, alpha, self.meff, self.V)
 
-        solver_types = {
-            "Parabolic": ParabolicSolver,
-            "Taylor": TaylorSolver,
-            "Kane": KaneSolver,
-            "Ekenberg": EkenbergSolver
-        }
-        self._solver = solver_types[solverType](Grid, alpha, self.meff, self.V)
-
+    @abstractmethod
     def get_wavevector(self, j, E):
-        return self._solver.get_wavevector(j, E)
+        pass
 
+    @abstractmethod
     def get_coefficient(self, j, E):
-        return self._solver.get_coefficient(j, E)
+        pass
     
+    @abstractmethod
     def get_wavevector_derivative(self, j, E):
-        return self._solver.get_wavevector_derivative(j, E)
+        pass
     
+    @abstractmethod
     def get_coefficient_derivative(self, j, E):
-        return self._solver.get_coefficient_derivative(j, E)
+        pass
 
     def get_matrix_j(self, j, E):
         Mj = np.identity(2)
@@ -49,10 +49,10 @@ class TMMSolver:
             q = self.get_wavevector(j,E)
             qpq = self.get_coefficient(j,E)
             zj = self.G.get_zj(j)
-            Mj[1,1]=0.5*(1+qpq)*math.exp((p-q)*zj)
-            Mj[1,2]=0.5*(1-qpq)*math.exp(-(p+q)*zj)
-            Mj[2,1]=0.5*(1-qpq)*math.exp((p+q)*zj)
-            Mj[2,2]=0.5*(1+qpq)*math.exp(-(p-q)*zj)
+            Mj[1,1]=0.5*(1+qpq)*math.exp((p-q)*zj)  # type: ignore
+            Mj[1,2]=0.5*(1-qpq)*math.exp(-(p+q)*zj) # type: ignore
+            Mj[2,1]=0.5*(1-qpq)*math.exp((p+q)*zj)  # type: ignore
+            Mj[2,2]=0.5*(1+qpq)*math.exp(-(p-q)*zj) # type: ignore
 
         return Mj
 
@@ -66,10 +66,10 @@ class TMMSolver:
             qpq=self.get_coefficient(j,E)
             dqpq=self.get_coefficient_derivative(j,E)
             zj = self.G.get_zj(j)
-            dMj[1,1]= 0.5*( dqpq + (1.0+qpq)*zj*(dp-dq))*math.exp((p-q)*zj)
-            dMj[1,2]= 0.5*(-dqpq - (1.0-qpq)*zj*(dp+dq))*math.exp(-(p+q)*zj)
-            dMj[2,1]= 0.5*(-dqpq + (1.0-qpq)*zj*(dp+dq))*math.exp((p+q)*zj)
-            dMj[2,2]= 0.5*( dqpq - (1.0+qpq)*zj*(dp-dq))*math.exp(-(p-q)*zj)
+            dMj[1,1]= 0.5*( dqpq + (1.0+qpq)*zj*(dp-dq))*math.exp((p-q)*zj)  # type: ignore
+            dMj[1,2]= 0.5*(-dqpq - (1.0-qpq)*zj*(dp+dq))*math.exp(-(p+q)*zj) # type: ignore
+            dMj[2,1]= 0.5*(-dqpq + (1.0-qpq)*zj*(dp+dq))*math.exp((p+q)*zj)  # type: ignore
+            dMj[2,2]= 0.5*( dqpq - (1.0+qpq)*zj*(dp-dq))*math.exp(-(p-q)*zj) # type: ignore
         
         return dMj
 

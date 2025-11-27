@@ -4,7 +4,6 @@
 #
 # 
 from Grid import Grid
-from SolverTypes import ParabolicSolver, KaneSolver, TaylorSolver
 import ConstAndScales
 
 import cmath
