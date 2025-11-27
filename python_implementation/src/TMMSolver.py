@@ -18,6 +18,8 @@ class TMMSolver:
         self.meff = self.G.get_effective_mass()
         self.nE = nEmax
 
+        self.tolerance = np.float64(8.88e-16)
+
         alpha = Grid.get_alphap_ekenberg() if solverType=="Ekenberg" else Grid.get_alpha_kane()
 
         solver_types = {
@@ -139,25 +141,6 @@ class TMMSolver:
 
         return psi
     
-    # Bisection function (required when finding zeros of dm11)
-    def bisect(self, f, Elo, Ehi, tol):
-        a = Elo
-        b = Ehi
-        fa = f[a]
-
-        for i in range(1, 100):
-            Ex = (a+b)/2
-            fx = f[Ex]
-
-            if abs(fx) < tol:
-                break
-            if fx*fa < 0:
-                b = Ex
-            else:
-                a = Ex
-        
-        return Ex, fx   # NOTE: TMMSolver.m returns [Ex,i,fx]
-    
     def get_wavefunctions(self):
         found = 0
         energies = []
@@ -174,12 +157,12 @@ class TMMSolver:
                 found = found + 1
                 Elo = E-2*dE
                 Ehi = E
-                f = lambda E : self.get_m11_derivative(E)   # f=@(E) obj.get_m11_derivative(E);
-                # options = optimize.('TolX', 1e-300)         # https://docs.scipy.org/doc/scipy/reference/optimize.html#root-finding
-                # Ex = scipy.fzero(f, [Elo, Ehi], options)  
-                # psi = self.get_wavefunction(Ex)
-                # energies = [energies, Ex]
-                # psis = [psis, psi]
+                f = self.get_m11_derivative
+
+                Ex = optimize.brentq(f, Elo, Ehi, rtol=self.tolerance)
+                psi = self.get_wavefunction(Ex)
+                energies.append(Ex)
+                psis.append(psi)
             
             m11_km2 = m11_km1
             m11_km1 = m11_k
@@ -187,5 +170,6 @@ class TMMSolver:
             if self.nE>0 and found == self.nE:
                 break
 
+        return np.array(energies), psis
                 
 
