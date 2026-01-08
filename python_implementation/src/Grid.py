@@ -12,8 +12,8 @@
 # linear, depending on the fraction of dopant material in the system.
 
 # from local
-import ConstAndScales
-import Material
+from src import ConstAndScales
+from src import Material
 
 # from libraries
 import numpy as np
