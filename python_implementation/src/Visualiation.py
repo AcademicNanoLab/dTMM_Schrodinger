@@ -37,18 +37,18 @@ class Visualisation:
     def plot_QCL(self, K=0.0, padding=0, is_gif=False, axis=None):
         z = self.G.z / ConstAndScales.ANGSTROM
         Lper = z[-1] - padding
-        dz = self.G.get_dz / ConstAndScales.ANGSTROM
+        dz = self.G.get_dz() / ConstAndScales.ANGSTROM
         npad = int(padding/dz/2) +1
         fig = go.Figure()
 
         for p in range(2):
             shift = (p-1)*Lper
-            base = self.G.band_potential/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
+            base = self.G.get_bandstructure_potential() /ConstAndScales.meV - 1e-2*K*Lper*(p-1)
             zz = z[npad:-npad] + shift
             fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=3)))
 
             for i, Ei in enumerate(self.E):
-                wf = 1e3*(np.abs(self.psi[i, npad:-npad])**2) + Ei/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
+                wf = 1e3*(np.abs(self.psi[i][npad:-npad])**2) + Ei/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
                 fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines'))
         
         fig.update_layout(

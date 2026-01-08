@@ -37,12 +37,14 @@ class Kane_FDM(FDMSolver):      # type: ignore
         nz = self.G.get_nz()
         A = np.zeros((4*nz, 4*nz))
         scale = math.pow(ConstAndScales.HBAR / self.G.get_dz(), 2) / 4.0
+
         for i in range(nz):
             A_i = 1.0 / self.alpha[i]
             M_i = A_i / self.meff[i]
             V_i = self.V[i]
 
-            if (i == 1) or (i == nz):
+            # Handle boundaries
+            if (i == 1) or (i == nz-1):
                 A_plus = 1.0/self.alpha[i]
                 A_minus = A_plus
                 M_plus = A_minus/self.meff[i]
@@ -50,12 +52,12 @@ class Kane_FDM(FDMSolver):      # type: ignore
                 V_plus = self.V[i]
                 V_minus = V_plus
             else:
-                A_minus = 1.0/self.alpha[i-1]
                 A_plus =  1.0/self.alpha[i+1]
-                M_minus = A_minus/self.meff[i-1]
+                A_minus = 1.0/self.alpha[i-1]
                 M_plus = A_plus/self.meff[i+1]
-                V_minus = self.V[i-1]
+                M_minus = A_minus/self.meff[i-1]
                 V_plus = self.V[i+1]
+                V_minus = self.V[i-1]
             
             B_minus =  A_minus*A_i
             B_0 = A_minus*A_plus
@@ -68,7 +70,7 @@ class Kane_FDM(FDMSolver):      # type: ignore
                 A[3*nz+i,2*nz+i-1]  = -scale * (M_minus+M_i)																	        # A2
 
             # Add superdiagonals of A0, A1 and A2
-            if i!=nz:
+            if i!=nz-1:
                 A[3*nz+i,i+1]       = -scale * (1.0-V_minus/A_minus)*(M_plus*B_minus*(1.0 - V_i/A_i) + M_i*B_0*(1.0-V_plus/A_plus))     # A0
                 A[3*nz+i,nz+i+1]    = -scale * (M_i*(A_minus+A_plus-V_minus-V_plus)+M_plus*(A_minus+A_i-V_i-V_minus))				    # A1
                 A[3*nz+i,2*nz+i+1]  = -scale * (M_plus+M_i); 																		    # A2
@@ -85,7 +87,8 @@ class Kane_FDM(FDMSolver):      # type: ignore
             # Insert identity matrices
             A[i,nz+i] = 1.0
             A[nz+i,2*nz+i] = 1.0
-            A[2*nz+i,3*nz+i] = 1.0           
+            A[2*nz+i,3*nz+i] = 1.0         
+
         return A
 
 class Taylor_FDM(FDMSolver):    # type: ignore
@@ -98,14 +101,14 @@ class Taylor_FDM(FDMSolver):    # type: ignore
         B = A
         scale = math.pow(ConstAndScales.HBAR/self.G.get_dz(), 2) / 4.0
 
-        for i in range(nz-1):
+        for i in range(nz):
             if i != 1:
                 B[i, i-1] = -scale * (self.alpha[i] / self.meff[i] + self.alpha[i-1] / self.meff[i-1])
                 A[i, i-1] = -scale * ((1.0+self.alpha[i-1] *self.V[i-1]) / self.meff[i-1] + (1.0+self.alpha[i]*self.V[i])/self.meff[i])
-            if i != nz:
+            if i != nz-1:
                 B[i, i+1] = -scale * (self.alpha[i] / self.meff[i] + self.alpha[i+1] / self.meff[i+1])
                 A[i, i+1] = -scale * ((1.0+self.alpha[i+1]*self.V[i+1])/self.meff[i+1]+(1.0+self.alpha[i]*self.V[i])/self.meff[i])
-            if (i!=1) and (i!=nz):
+            if (i!=1) and (i!=nz-1):
                 B[i,i] = 1.0 + scale * (self.alpha[i+1] / self.meff[i+1] + 2.0 * self.alpha[i] / self.meff[i] + self.alpha[i-1] / self.meff[i-1])
                 A[i,i] = self.V[i] + scale * ((1.0+self.alpha[i+1]*self.V[i+1])/self.meff[i+1] + 2.0 * (1.0+self.alpha[i]*self.V[i])/self.meff[i] + (1.0+self.alpha[i-1]*self.V[i-1])/self.meff[i-1])
 			    
