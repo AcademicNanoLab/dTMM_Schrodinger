@@ -19,7 +19,7 @@ def main():
     material = "AlGaAs"
     K = 1.9
     nstmax = 10
-    solver = "TMM"
+    solver = "FDM"
     nonparabolicityType = "Taylor"
     dz = 0.6
     padding=400
@@ -45,7 +45,7 @@ def main():
         elif nonparabolicityType == "Ekenberg":
             Solver = Ekenberg_TMM(G, nstmax)
 
-    [energies, psis] = Solver.get_wavefunctions
+    [energies, psis] = Solver.get_wavefunctions()
     energies_meV = energies / src.ConstAndScales.E
     V = Visualisation(G, energies, psis)
     fig = V.plot_V_wf()

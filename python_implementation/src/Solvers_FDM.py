@@ -2,7 +2,7 @@
 #
 # Store classes for different FDM Solvers
 
-from src import FDMSolver
+from src.FDMSolver import FDMSolver
 from src import ConstAndScales
 
 import numpy as np
@@ -14,10 +14,10 @@ class Parabolic_FDM(FDMSolver): # type: ignore
 
     def construct_matrix(self):
         nz = self.G.get_nz()
-        A = np.zeros(nz)
+        A = np.zeros((nz, nz))
         scale = math.pow( (ConstAndScales.HBAR / self.G.get_dz()), 2) / 4.0
 
-        for i in range(1,nz):
+        for i in range(nz):
             if i != 1:
                 A[i, i-1] = -scale * (1.0/self.meff[i-1] + 1.0/self.meff[i])
             if i != nz:
@@ -35,9 +35,9 @@ class Kane_FDM(FDMSolver):      # type: ignore
 
     def construct_matrix(self):
         nz = self.G.get_nz()
-        A = np.zeros(4*nz)
+        A = np.zeros((4*nz, 4*nz))
         scale = math.pow(ConstAndScales.HBAR / self.G.get_dz(), 2) / 4.0
-        for i in range(1, nz):
+        for i in range(nz):
             A_i = 1.0 / self.alpha[i]
             M_i = A_i / self.meff[i]
             V_i = self.V[i]
@@ -94,11 +94,11 @@ class Taylor_FDM(FDMSolver):    # type: ignore
 
     def construct_matrix(self):
         nz = self.G.get_nz()
-        A = np.zeros(nz)
+        A = np.zeros((nz, nz))
         B = A
         scale = math.pow(ConstAndScales.HBAR/self.G.get_dz(), 2) / 4.0
 
-        for i in range(1, nz):
+        for i in range(nz-1):
             if i != 1:
                 B[i, i-1] = -scale * (self.alpha[i] / self.meff[i] + self.alpha[i-1] / self.meff[i-1])
                 A[i, i-1] = -scale * ((1.0+self.alpha[i-1] *self.V[i-1]) / self.meff[i-1] + (1.0+self.alpha[i]*self.V[i])/self.meff[i])

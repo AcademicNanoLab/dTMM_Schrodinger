@@ -3,8 +3,10 @@
 #
 #
 # Store classes for different TMM Solvers
+import cmath
 import math
-from src import TMMSolver
+from src.TMMSolver import TMMSolver
+from src import ConstAndScales
 
 # *** Concrete Classes *** #
 class Parabolic_TMM(TMMSolver): # type: ignore
@@ -13,7 +15,7 @@ class Parabolic_TMM(TMMSolver): # type: ignore
         self.alpha = Grid.get_alpha_kane()
     
     def get_wavevector(self, j, E):
-        return math.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E))
+        return cmath.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E))
 
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
@@ -22,14 +24,14 @@ class Parabolic_TMM(TMMSolver): # type: ignore
     def get_coefficient(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
-        return self.meff[j] / self.meff(j - 1) * p / q
+        return self.meff[j] / self.meff[j - 1] * p / q
     
     def get_coefficient_derivative(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
         dp = self.get_wavevector_derivative(j-1,E)
         dq = self.get_wavevector_derivative(j,E)
-        return self.meff[j] / self.meff(j - 1) * (q*dp-p*dq)/(q * q)
+        return self.meff[j] / self.meff[j - 1] * (q*dp-p*dq)/(q * q)
 
 class Taylor_TMM(TMMSolver): # type: ignore
     def __init__(self, Grid, nEmax) -> None:
@@ -37,7 +39,7 @@ class Taylor_TMM(TMMSolver): # type: ignore
         self.alpha = Grid.get_alpha_kane()
 
     def get_wavevector(self, j, E):
-        return math.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E)/(1.0-self.alpha[j]*(E-self.V[j])))
+        return cmath.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E)/(1.0-self.alpha[j]*(E-self.V[j])))
 
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
@@ -46,14 +48,14 @@ class Taylor_TMM(TMMSolver): # type: ignore
     def get_coefficient(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
-        return self.meff[j] / self.meff(j - 1) / (1.0-self.alpha[j]*(E-self.V[j])) * (1.0-self.alpha(j-1)*(E-self.V(j-1))) * p / q
+        return self.meff[j] / self.meff[j - 1] / (1.0-self.alpha[j]*(E-self.V[j])) * (1.0-self.alpha[j - 1]*(E-self.V[j-1])) * p / q
     
     def get_coefficient_derivative(self, j, E):
         p = self.get_wavevector(j-1, E)
         q = self.get_wavevector(j, E)
         dp = self.get_wavevector_derivative(j-1, E)
         dq = self.get_wavevector_derivative(j, E)
-        return self.meff[j] / self.meff(j-1) *(1.0-self.alpha(j-1)*(E-self.V(j-1))) / (1.0-self.alpha[j]*(E-self.V[j]))* (q*dp-p*dq)/(q * q) + p/q * (self.alpha[j]*self.meff[j]/math.pow(1.0-self.alpha[j]*(E-self.V[j]),2) / self.meff(j-1)*(1.0-self.alpha(j-1)*(E-self.V(j-1))) - self.meff[j]/(1.0-self.alpha[j]*(E-self.V[j]))/self.meff(j-1)*self.alpha(j-1))
+        return self.meff[j] / self.meff[j - 1] *(1.0-self.alpha[j - 1]*(E-self.V[j-1])) / (1.0-self.alpha[j]*(E-self.V[j]))* (q*dp-p*dq)/(q * q) + p/q * (self.alpha[j]*self.meff[j]/math.pow(1.0-self.alpha[j]*(E-self.V[j]),2) / self.meff[j - 1]*(1.0-self.alpha[j - 1]*(E-self.V[j-1])) - self.meff[j]/(1.0-self.alpha[j]*(E-self.V[j]))/self.meff[j - 1]*self.alpha[j - 1])
 
 class Kane_TMM(TMMSolver): # type: ignore
     def __init__(self, Grid, nEmax) -> None:
@@ -61,7 +63,7 @@ class Kane_TMM(TMMSolver): # type: ignore
         self.alpha = Grid.get_alpha_kane()
 
     def get_wavevector(self, j, E):
-        return math.sqrt(2.0*self.meff[j]*(1.0+self.alpha[j]*(E-self.V[j]))/self.hbar_pow2*(self.V[j]-E))
+        return cmath.sqrt(2.0*self.meff[j]*(1.0+self.alpha[j]*(E-self.V[j]))/self.hbar_pow2*(self.V[j]-E))
     
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
@@ -70,14 +72,14 @@ class Kane_TMM(TMMSolver): # type: ignore
     def get_coefficient(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
-        return self.meff[j] / self.meff(j - 1) * (1.0+self.alpha[j]*(E-self.V[j])) / (1.0+self.alpha(j-1)*(E-self.V(j-1))) * p / q
+        return self.meff[j] / self.meff[j - 1] * (1.0+self.alpha[j]*(E-self.V[j])) / (1.0+self.alpha[j - 1]*(E-self.V[j-1])) * p / q
     
     def get_coefficient_derivative(self, j, E) :
         p = self.get_wavevector(j-1, E)
         q = self.get_wavevector(j, E)
         dp = self.get_wavevector_derivative(j-1, E)
         dq = self.get_wavevector_derivative(j, E)
-        return self.meff[j] / self.meff(j-1) * (1.0+self.alpha[j]*(E-self.V[j]))/(1.0+self.alpha(j-1)*(E-self.V(j-1)))* (q*dp-p*dq)/(q * q) + p/q * self.meff[j]/self.meff(j-1)*(self.alpha[j] - self.alpha(j-1) + self.alpha[j]*self.alpha(j-1)*(self.V[j] - self.V(j-1))) / (1.0+self.alpha(j-1)*(E-self.V(j-1))) / (1.0+self.alpha(j-1)*(E-self.V(j-1)))
+        return self.meff[j] / self.meff[j - 1] * (1.0+self.alpha[j]*(E-self.V[j]))/(1.0+self.alpha[j - 1]*(E-self.V[j-1]))* (q*dp-p*dq)/(q * q) + p/q * self.meff[j]/self.meff[j - 1]*(self.alpha[j] - self.alpha[j - 1] + self.alpha[j]*self.alpha[j - 1]*(self.V[j] - self.V[j-1])) / (1.0+self.alpha[j - 1]*(E-self.V[j-1])) / (1.0+self.alpha[j - 1]*(E-self.V[j-1]))
 
 class Ekenberg_TMM(TMMSolver): # type: ignore
     def __init__(self, Grid, nEmax) -> None:
@@ -85,7 +87,7 @@ class Ekenberg_TMM(TMMSolver): # type: ignore
         self.alpha = Grid.get_alphap_ekenberg()
     
     def get_wavevector(self, j, E):
-        return math.sqrt(self.meff[j]/(self.hbar_pow2*self.alpha[j]) * (math.sqrt(1.0+4.0*self.alpha[j]*(self.V[j]-E))-1.0))
+        return cmath.sqrt(self.meff[j]/(self.hbar_pow2*self.alpha[j]) * (cmath.sqrt(1.0+4.0*self.alpha[j]*(self.V[j]-E))-1.0))
     
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
@@ -94,12 +96,12 @@ class Ekenberg_TMM(TMMSolver): # type: ignore
     def get_coefficient(self, j, E):
         p = self.get_wavevector(j-1,E)
         q = self.get_wavevector(j,E)
-        return (self.meff[j] / self.meff(j - 1) * (1.0+self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) / (1.0+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q)	) * p / q
+        return (self.meff[j] / self.meff[j - 1] * (1.0+self.hbar_pow2*self.alpha[j - 1]/self.meff[j - 1]*p*p) / (1.0+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q)	) * p / q
     
     def get_coefficient_derivative(self, j, E) :
         p = self.get_wavevector(j-1, E)
         q = self.get_wavevector(j, E)
         dp = self.get_wavevector_derivative(j-1, E)
         dq = self.get_wavevector_derivative(j, E)
-        return self.meff[j] / self.meff(j - 1) / (q+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q*q) * ((1.0 + 3.0 * self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) * dp - (1.0+self.hbar_pow2*self.alpha(j-1)/self.meff(j-1)*p*p) / (1.0+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q) * p / q * (1.0 + 3.0 * self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q)*dq)
+        return self.meff[j] / self.meff[j - 1] / (q+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q*q) * ((1.0 + 3.0 * self.hbar_pow2*self.alpha[j - 1]/self.meff[j - 1]*p*p) * dp - (1.0+self.hbar_pow2*self.alpha[j - 1]/self.meff[j - 1]*p*p) / (1.0+self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q) * p / q * (1.0 + 3.0 * self.hbar_pow2*self.alpha[j]/self.meff[j]*q*q)*dq)
     

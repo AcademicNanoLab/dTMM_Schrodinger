@@ -17,7 +17,7 @@ class Visualisation:
 
     def plot_V_wf(self):
         z = self.G.z / ConstAndScales.ANGSTROM
-        V = self.G.band_potential / ConstAndScales.meV
+        V = self.G.get_bandstructure_potential() / ConstAndScales.meV
         
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=z, y=V, mode='lines', line=dict(width=3)))

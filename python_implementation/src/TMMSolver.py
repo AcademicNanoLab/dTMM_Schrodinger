@@ -14,6 +14,7 @@ from scipy import optimize
 class TMMSolver(BaseSolver):
     def __init__(self, Grid: Grid, nEmax) -> None:
         super().__init__(Grid, nEmax)
+        self.hbar_pow2 = ConstAndScales.HBAR **2
 
     @abstractmethod
     def get_wavevector(self, j, E):
@@ -38,11 +39,12 @@ class TMMSolver(BaseSolver):
             q = self.get_wavevector(j,E)
             qpq = self.get_coefficient(j,E)
             zj = self.G.get_zj(j)
-            Mj[1,1]=0.5*(1+qpq)*math.exp((p-q)*zj)  # type: ignore
-            Mj[1,2]=0.5*(1-qpq)*math.exp(-(p+q)*zj) # type: ignore
-            Mj[2,1]=0.5*(1-qpq)*math.exp((p+q)*zj)  # type: ignore
-            Mj[2,2]=0.5*(1+qpq)*math.exp(-(p-q)*zj) # type: ignore
 
+            Mj[0,0]=0.5*(1+qpq)*math.exp((p-q)*zj)  # type: ignore
+            Mj[0,1]=0.5*(1-qpq)*math.exp(-(p+q)*zj) # type: ignore
+            Mj[1,0]=0.5*(1-qpq)*math.exp((p+q)*zj)  # type: ignore
+            Mj[1,1]=0.5*(1+qpq)*math.exp(-(p-q)*zj) # type: ignore
+            
         return Mj
 
     def get_matrix_derivative_j(self, j, E):

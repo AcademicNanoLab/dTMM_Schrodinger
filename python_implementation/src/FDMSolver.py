@@ -18,7 +18,7 @@ class FDMSolver(BaseSolver):
         self.alpha = Grid.get_alpha_kane()
 
     @abstractmethod
-    def construct_system_matrix(self):      
+    def construct_matrix(self):      
         pass
 
     def sort_and_filter_eigenvalues(self, eigenvalues):
@@ -41,7 +41,7 @@ class FDMSolver(BaseSolver):
         psis = []
         energies = []
 
-        A = self.construct_system_matrix()
+        A = self.construct_matrix()
         eigenvalues, eigenvectors = np.linalg.eig(A) # type: ignore
 
         # eigvals = np.diag(eigenvalues)
@@ -50,6 +50,8 @@ class FDMSolver(BaseSolver):
         nz = self.G.get_nz()
         if self.nE <= 0 or self.nE > len(Eidx):
             nE = len(Eidx)
+        else:
+            nE = self.nE
 
         for i in range(nE):
             E = eigenvalues[Eidx[i]].real # type: ignore
