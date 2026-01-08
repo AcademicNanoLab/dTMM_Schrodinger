@@ -7,7 +7,7 @@
 from dataclasses import dataclass
 import numpy as np
 
-import ConstAndScales
+from src import ConstAndScales
 
 @dataclass
 class Parameter:

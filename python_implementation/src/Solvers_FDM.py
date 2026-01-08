@@ -2,8 +2,8 @@
 #
 # Store classes for different FDM Solvers
 
-import FDMSolver
-import ConstAndScales
+from src import FDMSolver
+from src import ConstAndScales
 
 import numpy as np
 import math

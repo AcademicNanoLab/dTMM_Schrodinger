@@ -3,7 +3,7 @@
 # Abstract Class for all solvers
 
 from abc import ABC, abstractmethod
-from Grid import Grid
+from src.Grid import Grid
 
 import numpy as np
 

@@ -7,7 +7,7 @@
 import numpy as np
 import plotly.graph_objects as go
 
-import ConstAndScales
+from src import ConstAndScales
 
 class Visualisation:
     def __init__(self, grid, energies, psi):

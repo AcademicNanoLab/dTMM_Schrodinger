@@ -4,7 +4,7 @@
 #
 # Store classes for different TMM Solvers
 import math
-import TMMSolver
+from src import TMMSolver
 
 # *** Concrete Classes *** #
 class Parabolic_TMM(TMMSolver): # type: ignore

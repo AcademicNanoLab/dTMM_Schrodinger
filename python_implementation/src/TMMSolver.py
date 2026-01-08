@@ -1,9 +1,9 @@
 #
 # 
 # Schrodinger equation solver class using dTMM method4
-from BaseSolver import BaseSolver
-from Grid import Grid
-import ConstAndScales
+from src.BaseSolver import BaseSolver
+from src.Grid import Grid
+from src import ConstAndScales
 
 from abc import abstractmethod
 import numpy as np
