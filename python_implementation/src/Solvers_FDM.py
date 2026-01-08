@@ -17,7 +17,7 @@ class Parabolic_FDM(FDMSolver): # type: ignore
         A = np.zeros((nz, nz))
         scale = math.pow( (ConstAndScales.HBAR / self.G.get_dz()), 2) / 4.0
 
-        for i in range(nz):
+        for i in range(nz-1):
             if i != 1:
                 A[i, i-1] = -scale * (1.0/self.meff[i-1] + 1.0/self.meff[i])
             if i != nz:
@@ -25,8 +25,8 @@ class Parabolic_FDM(FDMSolver): # type: ignore
             if ( (i != 1) and (i != nz) ):
                 A[i, i] = self.V[i] + scale * (1.0/self.meff[i+1] + 2.0/self.meff[i] + 1.0/self.meff[i-1])
         
-        A[1, 1] = A[2, 2]
-        A[nz, nz] = A[nz-1, nz-1]
+        A[0, 0] = A[1, 1]
+        A[nz-1, nz-1] = A[nz-2, nz-2]
         return A
 
 class Kane_FDM(FDMSolver):      # type: ignore
