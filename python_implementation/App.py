@@ -44,6 +44,7 @@ def set_options(sweep=False):
 
     file = st.file_uploader("Pick a file", type="TXT")
 
+    tmp_path = None
     with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp:
         if file is not None:
             tmp.write(file.getbuffer())
