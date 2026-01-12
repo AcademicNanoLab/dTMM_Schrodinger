@@ -11,14 +11,13 @@ from src.Visualiation import Visualisation
 from src.Solvers_FDM import Parabolic_FDM, Taylor_FDM, Kane_FDM
 from src.Solvers_TMM import Parabolic_TMM, Taylor_TMM, Kane_TMM, Ekenberg_TMM
 
-
 import streamlit as st
 import base64
 import tempfile
 
 def Home():
     st.write("# Electronic Structure Calculator")
-    st.write("### Select sidebar option")
+    st.write("### Select option using sidebar")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -37,7 +36,6 @@ def Home():
             f'<img src="data:image/gif;base64,{data_url}" alt="cat gif">',
             unsafe_allow_html=True,
         )    
-
 
 def set_options(sweep=False):
     st.markdown("### Select your options")
@@ -60,15 +58,19 @@ def set_options(sweep=False):
 
     with c1:
         if sweep:
-            st.write("K")
-            k = 1.9
+            kmin = st.number_input("Kmin (kV/cm)", 0.0, 5.0, step=0.1, value = 1)
+            kmax = st.number_input("Kmax (kV/cm)", 0.0, 5.0, step=0.1, value = 2)
+            kstep = st.number_input("Step (kV/cm)", 0.0, 5.0, step=0.1, value = 0.5)
+
+            k_sweep = kmin, kmax, kstep
+
         else:
-            k = st.number_input("K (kV/cm)", 0.0, 5.0, step=0.1)
+            k = st.number_input("K (kV/cm)", 0.0, 5.0, step=0.1, value = 1.9)
 
     with c2:
-        nstmax = st.number_input("Nst max", 0, 20, placeholder="10")
+        nstmax = st.number_input("Nst max", 0, 20, value=10)
     with c3:
-        dz = st.number_input("dz (Å)", 0, 2)
+        dz = st.number_input("dz (Å)", 0, 2, value=1)
     with c4:
         pad = st.number_input("Padding (Å)", 0, 500)
     
@@ -78,47 +80,57 @@ def set_options(sweep=False):
 def ES_Calculator():
     st.title("Electronic Structure Calculator")
 
-    file, material, K, nstmax, solver, nonparabolicityType, dz, padding = set_options()
+    file, material, K, nstmax, solver, nonparabolicityType, dz, padding= set_options()
 
-    G = Grid(file, dz, material)
-    G.set_K(K)
+    solve = st.button("Calculate") 
 
-    if solver == "FDM":
-        if nonparabolicityType == "Parabolic":
-            Solver = Parabolic_FDM(G, nstmax)
-        elif nonparabolicityType == "Taylor":
-            Solver = Taylor_FDM(G, nstmax)
-        elif nonparabolicityType == "Kane":
-            Solver = Kane_FDM(G, nstmax)
+    if solve:
+        G = Grid(file, dz, material)
+        G.set_K(K)
 
-    elif solver == "TMM":
-        if nonparabolicityType == "Parabolic":
-            Solver = Parabolic_TMM(G, nstmax)
-        elif nonparabolicityType == "Taylor":
-            Solver = Taylor_TMM(G, nstmax)
-        elif nonparabolicityType == "Kane":
-            Solver = Kane_TMM(G, nstmax)
-        elif nonparabolicityType == "Ekenberg":
-            Solver = Ekenberg_TMM(G, nstmax)
+        if solver == "FDM":
+            if nonparabolicityType == "Parabolic":
+                Solver = Parabolic_FDM(G, nstmax)
+            elif nonparabolicityType == "Taylor":
+                Solver = Taylor_FDM(G, nstmax)
+            elif nonparabolicityType == "Kane":
+                Solver = Kane_FDM(G, nstmax)
 
-    [energies, psis] = Solver.get_wavefunctions()
-    energies_meV = energies / src.ConstAndScales.E
-    V = Visualisation(G, energies, psis)
-    
-    st.plotly_chart(V.plot_V_wf())
-    st.plotly_chart(V.plot_energies())
-    st.plotly_chart(V.plot_energy_diff_thz())
-    st.plotly_chart(V.plot_QCL(K, padding, False, None))
+        elif solver == "TMM":
+            if nonparabolicityType == "Parabolic":
+                Solver = Parabolic_TMM(G, nstmax)
+            elif nonparabolicityType == "Taylor":
+                Solver = Taylor_TMM(G, nstmax)
+            elif nonparabolicityType == "Kane":
+                Solver = Kane_TMM(G, nstmax)
+            elif nonparabolicityType == "Ekenberg":
+                Solver = Ekenberg_TMM(G, nstmax)
 
-
-
-
+        [energies, psis] = Solver.get_wavefunctions()
+        energies_meV = energies / src.ConstAndScales.E
+        V = Visualisation(G, energies, psis)
+        
+        st.plotly_chart(V.plot_V_wf())
+        st.plotly_chart(V.plot_energies())
+        st.plotly_chart(V.plot_energy_diff_thz())
+        st.plotly_chart(V.plot_QCL(K, padding, False, None))
 
 def Animation_Sweep():
     st.title("Electronic Structure Animation (Bias Sweep)")
 
-    set_options(sweep=True)
+    file, material, K, nstmax, solver, nonparabolicityType, dz, padding = set_options(sweep = True)
 
+    st.write("Set Axis Limits")
+    col1, col2, = st.columns(2)
+    with col1:
+        xmin = st.number_input("Xmin: ", 0, 3000, step=100)
+        xmax = st.number_input("Xmax: ", 0, 3000, step=100)
+            
+    with col2:
+        ymin = st.number_input("Ymin: ", 0, 200, step=10)
+        ymax = st.number_input("Xmax: ", 0, 200, step=10)
+
+    st.write("TODO: Complete Animation Sweep function.")
 
 pg = st.navigation([Home, ES_Calculator, Animation_Sweep])
 pg.run()
