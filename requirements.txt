@@ -2,3 +2,5 @@ plotly
 numpy
 scipy
 streamlit
+imageio
+kaleido
