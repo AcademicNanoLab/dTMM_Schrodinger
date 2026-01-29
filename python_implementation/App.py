@@ -15,6 +15,7 @@ import streamlit as st
 import base64
 import tempfile
 
+
 def Home():
     st.write("# Electronic Structure Calculator")
     st.write("### Select option using sidebar")
@@ -57,15 +58,7 @@ def set_options(sweep=False):
     c1, c2, c3, c4 = st.columns(4)
 
     with c1:
-        if sweep:
-            kmin = st.number_input("Kmin (kV/cm)", 0.0, 5.0, step=0.1, value = 1)
-            kmax = st.number_input("Kmax (kV/cm)", 0.0, 5.0, step=0.1, value = 2)
-            kstep = st.number_input("Step (kV/cm)", 0.0, 5.0, step=0.1, value = 0.5)
-
-            k_sweep = kmin, kmax, kstep
-
-        else:
-            k = st.number_input("K (kV/cm)", 0.0, 5.0, step=0.1, value = 1.9)
+        k = st.number_input("K (kV/cm)", 0.0, 5.0, step=0.1, value = 1.9)
 
     with c2:
         nstmax = st.number_input("Nst max", 0, 20, value=10)
@@ -119,6 +112,13 @@ def Animation_Sweep():
     st.title("Electronic Structure Animation (Bias Sweep)")
 
     file, material, K, nstmax, solver, nonparabolicityType, dz, padding = set_options(sweep = True)
+
+    kmin = st.number_input("Kmin (kV/cm)", 0.0, 5.0, step=0.1, value =1.0)
+    kmax = st.number_input("Kmax (kV/cm)", 0.0, 5.0, step=0.1, value =2.0)
+    kstep = st.number_input("Step (kV/cm)", 0.0, 5.0, step=0.1, value = 0.5)
+
+    k_sweep = kmin, kmax, kstep
+
 
     st.write("Set Axis Limits")
     col1, col2, = st.columns(2)
