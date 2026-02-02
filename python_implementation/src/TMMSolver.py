@@ -35,15 +35,16 @@ class TMMSolver(BaseSolver):
     def get_matrix_j(self, j, E):
         Mj = np.identity(2)
         if (j>1):
+            assert 0 <= j < len(self.meff)
             p = self.get_wavevector(j-1,E)
             q = self.get_wavevector(j,E)
             qpq = self.get_coefficient(j,E)
             zj = self.G.get_zj(j)
 
-            Mj[0,0]=0.5*(1+qpq)*math.exp((p-q)*zj)  # type: ignore
-            Mj[0,1]=0.5*(1-qpq)*math.exp(-(p+q)*zj) # type: ignore
-            Mj[1,0]=0.5*(1-qpq)*math.exp((p+q)*zj)  # type: ignore
-            Mj[1,1]=0.5*(1+qpq)*math.exp(-(p-q)*zj) # type: ignore
+            Mj[0,0]=0.5*(1+qpq)*np.exp((p-q)*zj)  # type: ignore
+            Mj[0,1]=0.5*(1-qpq)*np.exp(-(p+q)*zj) # type: ignore
+            Mj[1,0]=0.5*(1-qpq)*np.exp((p+q)*zj)  # type: ignore
+            Mj[1,1]=0.5*(1+qpq)*np.exp(-(p-q)*zj) # type: ignore
             
         return Mj
 
@@ -57,10 +58,10 @@ class TMMSolver(BaseSolver):
             qpq=self.get_coefficient(j,E)
             dqpq=self.get_coefficient_derivative(j,E)
             zj = self.G.get_zj(j)
-            dMj[1,1]= 0.5*( dqpq + (1.0+qpq)*zj*(dp-dq))*math.exp((p-q)*zj)  # type: ignore
-            dMj[1,2]= 0.5*(-dqpq - (1.0-qpq)*zj*(dp+dq))*math.exp(-(p+q)*zj) # type: ignore
-            dMj[2,1]= 0.5*(-dqpq + (1.0-qpq)*zj*(dp+dq))*math.exp((p+q)*zj)  # type: ignore
-            dMj[2,2]= 0.5*( dqpq - (1.0+qpq)*zj*(dp-dq))*math.exp(-(p-q)*zj) # type: ignore
+            dMj[0,0]= 0.5*( dqpq + (1.0+qpq)*zj*(dp-dq))*np.exp((p-q)*zj)  # type: ignore
+            dMj[0,1]= 0.5*(-dqpq - (1.0-qpq)*zj*(dp+dq))*np.exp(-(p+q)*zj) # type: ignore
+            dMj[1,0]= 0.5*(-dqpq + (1.0-qpq)*zj*(dp+dq))*np.exp((p+q)*zj)  # type: ignore
+            dMj[1,1]= 0.5*( dqpq - (1.0+qpq)*zj*(dp-dq))*np.exp(-(p-q)*zj) # type: ignore
         
         return dMj
 
@@ -68,6 +69,7 @@ class TMMSolver(BaseSolver):
         nz=self.G.get_nz()
         TM_left = np.zeros((2, 2, nz))
         TM_left[:,:,1]=np.identity(2)
+        # print("nz:", nz, "meff", len(self.meff))
         for j in range(2, nz):
             Mj=self.get_matrix_j(j,E)
             TM_left[:,:,j]= np.multiply(Mj, TM_left[:,:,j-1])
@@ -77,8 +79,9 @@ class TMMSolver(BaseSolver):
     def get_right_TMM_cumulative_sum(self, E):
         nz = self.G.get_nz()
         TM_right = np.zeros((2, 2, nz))
-        TM_right[:,:,nz] = self.get_matrix_j(nz, E)
-        for j in range(1, nz-1, -1):
+        TM_right[:,:,nz-1] = self.get_matrix_j(nz-1, E)
+
+        for j in range(nz-2, 0, -1):
             Mj = self.get_matrix_j(j, E)
             TM_right[:,:,j] = TM_right[:,:,j+1]*Mj
         TM_right[:,:,1] = TM_right[:,:,2]
@@ -107,8 +110,8 @@ class TMMSolver(BaseSolver):
             B = TM_left[:,:,j-1]
             dTM = dTM + A*dMj*B
         
-        dTM = dTM + self.get_matrix_derivative_j(nz, E) *TM_left[:,:,nz-1]
-        m11 = TM_left[1,1,nz]
+        dTM = dTM + self.get_matrix_derivative_j(nz-1, E) *TM_left[:,:,nz-1]
+        m11 = TM_left[1,1,nz-1]
         dTM11 = dTM[1,1]
         dm11 = 1/abs(m11)* ( dTM11.real*m11.real + dTM11.imag*m11.imag )
         
@@ -118,13 +121,13 @@ class TMMSolver(BaseSolver):
         nz = self.G.get_nz()
         A1B1 = np.zeros((2, 1))
         A1B1[1] = 1.0
-        psi = np.zeros((1, nz))
+        psi = np.zeros(nz)
 
         for j in range(2, nz):
             qjzj = self.get_wavevector(j, E) *self.G.get_zj(j)
             Mj = self.get_matrix_j(j, E)
             A1B1 = Mj *A1B1
-            tmp = A1B1[1]*math.exp(qjzj) + A1B1[2]*math.exp(-qjzj)
+            tmp = ( A1B1[0,0]*np.exp(qjzj) + A1B1[1,0]*np.exp(-qjzj) )
             psi[j] = tmp.real
         
         norm_const = math.sqrt(1/np.trapezoid(np.power(abs(psi), 2))/ self.G.get_dz()*ConstAndScales.ANGSTROM)
@@ -150,7 +153,14 @@ class TMMSolver(BaseSolver):
                 Ehi = E
                 f = self.get_m11_derivative
 
-                Ex = optimize.brentq(f, Elo, Ehi, rtol=self.tolerance)
+                # Ex = optimize.brentq(f, Elo, Ehi, rtol=self.tolerance)
+                res = optimize.minimize_scalar(     #temp fix?
+                    lambda E: abs(self.get_m11(E)),
+                    bounds=(Elo, Ehi),
+                    method="bounded"
+                )
+                Ex = res.x
+
                 psi = self.get_wavefunction(Ex)
                 energies.append(Ex)
                 psis.append(psi)

@@ -16,15 +16,32 @@ class Visualisation:
         self.psi = psi          # (nstates, nz)
 
     def plot_V_wf(self):
+        padding = 0
+        K = self.G.get_K()
         z = self.G.z / ConstAndScales.ANGSTROM
-        V = self.G.get_bandstructure_potential() / ConstAndScales.meV
-        
+        Lper = z[-1] - padding
+        dz = self.G.get_dz() / ConstAndScales.ANGSTROM
+        npad = int(padding/dz/2) +1
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=z, y=V, mode='lines', line=dict(width=3)))
+
+        for p in range(1):
+            shift = (p-1)*Lper
+            base = self.G.get_bandstructure_potential() /ConstAndScales.meV - 1e-2*K*Lper*(p-1)
+            zz = z[npad:-npad] + shift
+            fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=3)))
+
+            for i, Ei in enumerate(self.E):
+                wf = 1e3*(np.abs(self.psi[i][npad:-npad])**2) + Ei/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
+                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines'))
+        # z = self.G.z / ConstAndScales.ANGSTROM
+        # V = self.G.get_bandstructure_potential() /ConstAndScales.meV + 1e-2*self.G.get_K()
         
-        for i, Ei in enumerate(self.E):
-            wf = 1e3*(np.abs(self.psi[i]**2)+ Ei/ConstAndScales.meV)
-            fig.add_trace(go.Scatter(x=z, y=wf, mode='lines'))
+        # fig = go.Figure()
+        # fig.add_trace(go.Scatter(x=z, y=V, mode='lines', line=dict(width=3)))
+        
+        # for i, Ei in enumerate(self.E):
+        #     wf = 1e3*(np.abs(self.psi[i]**2)+ Ei/ConstAndScales.meV)
+        #     fig.add_trace(go.Scatter(x=z, y=wf, mode='lines'))
         
         fig.update_layout(
             title = 'Bandstructure Profile',

@@ -19,8 +19,8 @@ def main():
     material = "AlGaAs"
     K = 1.9
     nstmax = 10
-    solver = "FDM"
-    nonparabolicityType = "Taylor"
+    solver = "TMM"
+    nonparabolicityType = "Parabolic"
     dz = 0.6
     padding=400
 
