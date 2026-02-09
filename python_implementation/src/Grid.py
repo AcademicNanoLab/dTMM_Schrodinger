@@ -19,10 +19,13 @@ from src import Material
 import numpy as np
 
 class Grid:
-    def __init__(self, filename, dz, HeterostructureMaterial):
-        self.filename = filename
+    def __init__(self, composition, dz, HeterostructureMaterial):
+        # self.filename = filename
+        # layer_thickness, alloy_profile = self.extract_thickness_composition()
+        layer_thickness = composition.get_layer_thickness()
+        alloy_profile = composition.get_alloy_profile()
+        
         self.dz = dz*ConstAndScales.ANGSTROM
-        layer_thickness, alloy_profile = self.extract_thickness_composition()
         self.z = np.arange(0, np.sum(layer_thickness) + dz, dz)     # Check if dz is necessary in layer thickness + dz.
         self.nz = np.size(self.z)
         self.material = Material.Material(HeterostructureMaterial)
@@ -102,16 +105,16 @@ class Grid:
             alphap[i] = alpha0gp / ConstAndScales.E    # NOTE: assumed we're using only alpha0gp here?
         return alphap
 
-    def extract_thickness_composition(self) -> tuple[list, list]:
-            layer_thickness = []
-            alloy_profile = []
+    # def extract_thickness_composition(self) -> tuple[list, list]:
+    #         layer_thickness = []
+    #         alloy_profile = []
 
-            with open(self.filename, "r") as f:
-                for line in f:
-                    if line.strip():
-                        values = line.split()
-                        x, y = float(values[0]), float(values[1])
-                        layer_thickness.append(x)
-                        alloy_profile.append(y)
+    #         with open(self.filename, "r") as f:
+    #             for line in f:
+    #                 if line.strip():
+    #                     values = line.split()
+    #                     x, y = float(values[0]), float(values[1])
+    #                     layer_thickness.append(x)
+    #                     alloy_profile.append(y)
 
-            return layer_thickness, alloy_profile
+    #         return layer_thickness, alloy_profile

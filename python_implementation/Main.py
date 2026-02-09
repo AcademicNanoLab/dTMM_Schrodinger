@@ -9,22 +9,34 @@ sys.path.append("/dTMM_Schrodinger/python_implementation/src")
 
 import src.ConstAndScales
 from src.Grid import Grid
+from src.Composition import Composition
 from src.Visualiation import Visualisation
 from src.Solvers_FDM import Parabolic_FDM, Taylor_FDM, Kane_FDM
 from src.Solvers_TMM import Parabolic_TMM, Taylor_TMM, Kane_TMM, Ekenberg_TMM
-
 
 def main():
     layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
     material = "AlGaAs"
     K = 1.9
     nstmax = 10
-    solver = "TMM"
+    solver = "FDM"
     nonparabolicityType = "Parabolic"
     dz = 0.6
     padding=400
 
-    G = Grid(layer_file, dz, material)
+    arr = [
+        [225, 0.1],
+        [144, 0],
+        [10, 0.1],
+        [118, 0],
+        [10, 0.1],
+        [126, 0],
+        [225, 0.1]
+    ]
+
+    C = Composition.from_file(layer_file)
+    C2 = Composition.from_array(arr)
+    G = Grid(C2, dz, material)
     G.set_K(K)
 
     if solver == "FDM":
