@@ -136,8 +136,7 @@ class SolverFactory:
 
 
 class InputParameters:
-    def __init__(self, composition, material, solver, np_type, nst_max, dz, padding):
-        self.composition = composition
+    def __init__(self, structure_layers, structure_file, material, solver, np_type, nst_max, dz, padding):
         self.material = material
         self.solver = solver
         self.np_type = np_type
@@ -145,10 +144,24 @@ class InputParameters:
         self.dz = dz
         self.padding = padding
 
+        self.structure_layers = structure_layers
+        self.structure_file = structure_file
+        self.composition = self.set_composition()
+
+    def set_composition(self):
+        if self.structure_layers is not None:
+            C = Composition.from_array(self.structure_layers)
+        elif self.structure_file is not None:
+            C = Composition.from_file(self.structure_file)
+        return C
+        
+
 def set_options():
     st.markdown("### Select your options")
 
     layers_input = st.pills("File input or text input?", ["File", "Text"])
+    structure_layers = None
+    structure_file = None
 
     if layers_input == "Text":
 
@@ -162,21 +175,14 @@ def set_options():
             num_rows="dynamic",
             use_container_width=True
         )
-
-        layers = edited_df[["Thickness", "Alloy Profile"]].values.tolist()
-
-        C = Composition.from_array(layers)
-
+        structure_layers = edited_df[["Thickness", "Alloy Profile"]].values.tolist()
+    
     else:
         file = st.file_uploader("Pick a file", type="TXT")
-
-        tmp_path = None
         with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp:
             if file is not None:
                 tmp.write(file.getbuffer())
-                tmp_path = tmp.name
-        
-        C = Composition.from_file(tmp_path)
+                structure_file = tmp.name
 
     material = st.selectbox("Material", ["AlGaAs", "AlGaSb", "InGaAs_InAlAs", "InGaAs_GaAsSb"])
     solver = st.pills("Solver", ["FDM", "TMM"])
@@ -191,9 +197,9 @@ def set_options():
     with c2:
         dz = st.number_input("dz (Å)", 0, 2, value=1)
     with c3:
-        pad = st.number_input("Padding (Å)", 0, 500)
+        pad = st.number_input("Padding (Å)", 0, 500, step=50)
     
-    Params = InputParameters(C, material, solver, np_type, nstmax, dz, pad)
+    Params = InputParameters(structure_layers, structure_file, material, solver, np_type, nstmax, dz, pad)
 
     return Params
 
