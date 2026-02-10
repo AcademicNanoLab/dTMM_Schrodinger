@@ -11,11 +11,11 @@ class Composition:
         self.alloy_profile = alloy_profile
 
     @classmethod
-    def from_file(cls, filename) -> Self:
+    def from_file(cls, filepath) -> Self:
         layer_thickness = []
         alloy_profile = []
 
-        with open(filename, "r") as f:
+        with open(filepath, "r") as f:
             for line in f:
                 if line.strip():
                     values = line.split()
