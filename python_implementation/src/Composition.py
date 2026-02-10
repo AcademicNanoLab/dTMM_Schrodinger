@@ -1,5 +1,5 @@
 #
-#
+#   Composition class to allow heterosctructure composition input to be file or text/array input.
 #
 
 from typing import Self
@@ -31,7 +31,7 @@ class Composition:
         arr = np.asarray(layer_array)
         layer_thickness = arr[:, 0]
         alloy_profile = arr[:, 1]
-        
+
         return cls(layer_thickness, alloy_profile)
     
     def get_alloy_profile(self):

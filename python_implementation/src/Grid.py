@@ -104,17 +104,3 @@ class Grid:
             alpha0gp, beta0gp = self.material.get_alpha0gp(self.x[i])
             alphap[i] = alpha0gp / ConstAndScales.E    # NOTE: assumed we're using only alpha0gp here?
         return alphap
-
-    # def extract_thickness_composition(self) -> tuple[list, list]:
-    #         layer_thickness = []
-    #         alloy_profile = []
-
-    #         with open(self.filename, "r") as f:
-    #             for line in f:
-    #                 if line.strip():
-    #                     values = line.split()
-    #                     x, y = float(values[0]), float(values[1])
-    #                     layer_thickness.append(x)
-    #                     alloy_profile.append(y)
-
-    #         return layer_thickness, alloy_profile
