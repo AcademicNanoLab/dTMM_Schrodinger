@@ -1,23 +1,12 @@
 #
 #   Using streamlit to create an online app
 #
+import streamlit as st
+import numpy as np
+import pandas as pd
 
 import sys
 sys.path.append("/dTMM_Schrodinger/python_implementation/src")
-
-import src.ConstAndScales
-from src.Grid import Grid
-from src.Composition import Composition
-from src.Visualiation import Visualisation
-from src.Solvers_FDM import Parabolic_FDM, Taylor_FDM, Kane_FDM
-from src.Solvers_TMM import Parabolic_TMM, Taylor_TMM, Kane_TMM, Ekenberg_TMM
-
-import streamlit as st
-import imageio.v2 as imageio
-import numpy as np
-import base64
-import tempfile
-import pandas as pd
 
 class ElectronicStructureApp:
     def run(self):
@@ -34,6 +23,7 @@ class ElectronicStructureApp:
             st.image("matlab_implementation/src/optionPng.png")
         
         with col2:
+            import base64
             st.write("Electronic Structure Animation (Bias Sweep)")
 
             file_ = open("matlab_implementation/src/optionGif.gif", "rb")
@@ -55,13 +45,16 @@ class ElectronicStructureApp:
         solve = st.button("Calculate") 
 
         if solve:
-            G = Grid(IP.composition, IP.dz, IP.material)
+            from src.Grid import Grid
+            from src.Visualiation import Visualisation
+            
+            C = IP.set_composition()
+            G = Grid(C, IP.dz, IP.material)
             G.set_K(K)
 
             Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
 
             [energies, psis] = Solver.get_wavefunctions()
-            energies_meV = energies / src.ConstAndScales.E
             V = Visualisation(G, energies, psis)
             
             st.plotly_chart(V.plot_V_wf())
@@ -94,9 +87,14 @@ class ElectronicStructureApp:
 
         solve = st.button("Calculate") 
         if solve:
+            from src.Grid import Grid
+            from src.Visualiation import Visualisation
+            import imageio.v2 as imageio
+            import tempfile
             frames = []
 
-            G = Grid(IP.composition, IP.dz, IP.material)
+            C = IP.set_composition()
+            G = Grid(C, IP.dz, IP.material)
             k_values: list[float] = np.arange(kmin, kmax, kstep).tolist()
             for k in k_values:
                 G.set_K(k)
@@ -120,6 +118,8 @@ class ElectronicStructureApp:
 
 
 class SolverFactory:
+    from src.Solvers_FDM import Parabolic_FDM, Taylor_FDM, Kane_FDM
+    from src.Solvers_TMM import Parabolic_TMM, Taylor_TMM, Kane_TMM, Ekenberg_TMM
     solver_map = {
         ("FDM", "Parabolic"): Parabolic_FDM,
         ("FDM", "Taylor"): Taylor_FDM,
@@ -146,9 +146,10 @@ class InputParameters:
 
         self.structure_layers = structure_layers
         self.structure_file = structure_file
-        self.composition = self.set_composition()
+        # self.composition = self.set_composition()
 
     def set_composition(self):
+        from src.Composition import Composition
         if self.structure_layers is not None:
             C = Composition.from_array(self.structure_layers)
         elif self.structure_file is not None:
@@ -178,6 +179,7 @@ def set_options():
         structure_layers = edited_df[["Thickness", "Alloy Profile"]].values.tolist()
     
     else:
+        import tempfile
         file = st.file_uploader("Pick a file", type="TXT")
         with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp:
             if file is not None:
@@ -202,6 +204,19 @@ def set_options():
     Params = InputParameters(structure_layers, structure_file, material, solver, np_type, nstmax, dz, pad)
 
     return Params
+
+@st.cache_resource
+def build_grid(IP: InputParameters, K):
+    from src.Grid import Grid
+    C = IP.set_composition()
+    G = Grid(C, IP.dz, IP.material)
+    G.set_K(K)
+    return G
+
+@st.cache_data
+def solve_structure(G, solver, np_type, nst):
+    Solver = SolverFactory.create(G, solver, np_type, nst)
+    return Solver.get_wavefunctions()
 
 app = ElectronicStructureApp()
 app.run()
