@@ -107,3 +107,8 @@ class Visualisation:
             showlegend = False
         )
         return fig
+
+    # def plot_E2E1_diff(self):
+    #     fig = go.Figure()
+
+    #     return fig

@@ -7,6 +7,8 @@
 import sys
 sys.path.append("/dTMM_Schrodinger/python_implementation/src")
 
+import plotly.graph_objects as go
+
 import src.ConstAndScales
 from src.Grid import Grid
 from src.Composition import Composition
@@ -24,41 +26,61 @@ def main():
     dz = 0.6
     padding=400
 
-    arr = [
-        [225, 0.1],
-        [144, 0],
-        [10, 0.1],
-        [118, 0],
-        [10, 0.1],
-        [126, 0],
-        [225, 0.1]
-    ]
+    # arr = [
+    #     [225, 0.1],
+    #     [144, 0],
+    #     [225, 0.1]
+    # ]
 
-    C = Composition.from_file(layer_file)
-    C2 = Composition.from_array(arr)
-    G = Grid(C2, dz, material)
-    G.set_K(K)
+    fig = go.Figure()
+    E2E1 = []
+    x_axis = []
+    for i in range(10, 300, 10):
+        arr = [
+            [225, 0.1],
+            [i, 0],
+            [225, 0.1]
+        ]
 
-    if solver == "FDM":
-        if nonparabolicityType == "Parabolic":
-            Solver = Parabolic_FDM(G, nstmax)
-        elif nonparabolicityType == "Taylor":
-            Solver = Taylor_FDM(G, nstmax)
-        elif nonparabolicityType == "Kane":
-            Solver = Kane_FDM(G, nstmax)
+        C = Composition.from_file(layer_file)
+        C2 = Composition.from_array(arr)
+        G = Grid(C2, dz, material)
+        G.set_K(K)
 
-    elif solver == "TMM":
-        if nonparabolicityType == "Parabolic":
-            Solver = Parabolic_TMM(G, nstmax)
-        elif nonparabolicityType == "Taylor":
-            Solver = Taylor_TMM(G, nstmax)
-        elif nonparabolicityType == "Kane":
-            Solver = Kane_TMM(G, nstmax)
-        elif nonparabolicityType == "Ekenberg":
-            Solver = Ekenberg_TMM(G, nstmax)
+        if solver == "FDM":
+            if nonparabolicityType == "Parabolic":
+                Solver = Parabolic_FDM(G, nstmax)
+            elif nonparabolicityType == "Taylor":
+                Solver = Taylor_FDM(G, nstmax)
+            elif nonparabolicityType == "Kane":
+                Solver = Kane_FDM(G, nstmax)
 
-    [energies, psis] = Solver.get_wavefunctions()
-    energies_meV = energies / src.ConstAndScales.E
+        elif solver == "TMM":
+            if nonparabolicityType == "Parabolic":
+                Solver = Parabolic_TMM(G, nstmax)
+            elif nonparabolicityType == "Taylor":
+                Solver = Taylor_TMM(G, nstmax)
+            elif nonparabolicityType == "Kane":
+                Solver = Kane_TMM(G, nstmax)
+            elif nonparabolicityType == "Ekenberg":
+                Solver = Ekenberg_TMM(G, nstmax)
+
+        [energies, psis] = Solver.get_wavefunctions()
+        energies_meV = energies / src.ConstAndScales.E
+
+        if len(energies) > 1:
+            print(f"Energy_diff: @{i}, {energies_meV[1] - energies_meV[0]}")
+            x_axis.append(i)
+            E2E1.append(energies_meV[1] - energies_meV[0])
+
+    fig.add_trace(go.Scatter(x=x_axis, y=E2E1, mode='markers'))
+    fig.update_layout(
+        title="(E2 - E1) vs. quantum well width",
+        xaxis_title="Width (Å)",
+        yaxis_title="Energy difference (meV)"
+    )
+    fig.show()
+    
     V = Visualisation(G, energies, psis)
     fig = V.plot_V_wf()
     fig.show()

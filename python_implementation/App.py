@@ -47,6 +47,7 @@ class ElectronicStructureApp:
         if solve:
             from src.Grid import Grid
             from src.Visualiation import Visualisation
+            from src.BaseSolver import SolverFactory
             
             C = IP.set_composition()
             G = Grid(C, IP.dz, IP.material)
@@ -88,6 +89,7 @@ class ElectronicStructureApp:
         solve = st.button("Calculate") 
         if solve:
             from src.Grid import Grid
+            from src.BaseSolver import SolverFactory
             from src.Visualiation import Visualisation
             import imageio.v2 as imageio
             import tempfile
@@ -115,25 +117,6 @@ class ElectronicStructureApp:
 
             # show in streamlit
             st.image(gif_path)
-
-
-class SolverFactory:
-    from src.Solvers_FDM import Parabolic_FDM, Taylor_FDM, Kane_FDM
-    from src.Solvers_TMM import Parabolic_TMM, Taylor_TMM, Kane_TMM, Ekenberg_TMM
-    solver_map = {
-        ("FDM", "Parabolic"): Parabolic_FDM,
-        ("FDM", "Taylor"): Taylor_FDM,
-        ("FDM", "Kane"): Kane_FDM,
-        ("TMM", "Parabolic"): Parabolic_TMM,
-        ("TMM", "Taylor"): Taylor_TMM,
-        ("TMM", "Kane"): Kane_TMM,
-        ("TMM", "Ekenberg"): Ekenberg_TMM,
-    }
-
-    @staticmethod
-    def create(grid, solver, np_type, nstmax):
-        return SolverFactory.solver_map[(solver, np_type)](grid, nstmax)
-
 
 class InputParameters:
     def __init__(self, structure_layers, structure_file, material, solver, np_type, nst_max, dz, padding):
@@ -215,6 +198,7 @@ def build_grid(IP: InputParameters, K):
 
 @st.cache_data
 def solve_structure(G, solver, np_type, nst):
+    from src.BaseSolver import SolverFactory
     Solver = SolverFactory.create(G, solver, np_type, nst)
     return Solver.get_wavefunctions()
 
