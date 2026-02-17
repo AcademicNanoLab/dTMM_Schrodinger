@@ -1,7 +1,5 @@
 #
-#
 # Visualization object that plots outputs of SchrodingerNonparabolic solver
-#
 #
 
 import numpy as np
@@ -108,7 +106,10 @@ class Visualisation:
         )
         return fig
 
-    # def plot_E2E1_diff(self):
+    # def plot_E2E1_diff(self, start, end, inc, G, Solver):
     #     fig = go.Figure()
+    #     for i in range(start, end, inc):
+    #         C = 
+    #         [energies]
 
     #     return fig

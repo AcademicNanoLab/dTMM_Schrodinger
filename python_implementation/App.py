@@ -47,7 +47,7 @@ class ElectronicStructureApp:
         if solve:
             from src.Grid import Grid
             from src.Visualiation import Visualisation
-            from src.BaseSolver import SolverFactory
+            from src.Solvers_FDM import SolverFactory
             
             C = IP.set_composition()
             G = Grid(C, IP.dz, IP.material)
@@ -89,7 +89,7 @@ class ElectronicStructureApp:
         solve = st.button("Calculate") 
         if solve:
             from src.Grid import Grid
-            from src.BaseSolver import SolverFactory
+            from src.Solvers_FDM import SolverFactory
             from src.Visualiation import Visualisation
             import imageio.v2 as imageio
             import tempfile
@@ -117,27 +117,6 @@ class ElectronicStructureApp:
 
             # show in streamlit
             st.image(gif_path)
-
-class InputParameters:
-    def __init__(self, structure_layers, structure_file, material, solver, np_type, nst_max, dz, padding):
-        self.material = material
-        self.solver = solver
-        self.np_type = np_type
-        self.nst_max = nst_max
-        self.dz = dz
-        self.padding = padding
-
-        self.structure_layers = structure_layers
-        self.structure_file = structure_file
-        # self.composition = self.set_composition()
-
-    def set_composition(self):
-        from src.Composition import Composition
-        if self.structure_layers is not None:
-            C = Composition.from_array(self.structure_layers)
-        elif self.structure_file is not None:
-            C = Composition.from_file(self.structure_file)
-        return C
         
 
 def set_options():
@@ -184,23 +163,24 @@ def set_options():
     with c3:
         pad = st.number_input("Padding (Å)", 0, 500, step=50)
     
+    from src.Parameters import InputParameters
     Params = InputParameters(structure_layers, structure_file, material, solver, np_type, nstmax, dz, pad)
 
     return Params
 
-@st.cache_resource
-def build_grid(IP: InputParameters, K):
-    from src.Grid import Grid
-    C = IP.set_composition()
-    G = Grid(C, IP.dz, IP.material)
-    G.set_K(K)
-    return G
+# @st.cache_resource
+# def build_grid(IP: InputParameters, K):
+#     from src.Grid import Grid
+#     C = IP.set_composition()
+#     G = Grid(C, IP.dz, IP.material)
+#     G.set_K(K)
+#     return G
 
-@st.cache_data
-def solve_structure(G, solver, np_type, nst):
-    from src.BaseSolver import SolverFactory
-    Solver = SolverFactory.create(G, solver, np_type, nst)
-    return Solver.get_wavefunctions()
+# @st.cache_data
+# def solve_structure(G, solver, np_type, nst):
+#     from src.Solvers_FDM import SolverFactory
+#     Solver = SolverFactory.create(G, solver, np_type, nst)
+#     return Solver.get_wavefunctions()
 
 app = ElectronicStructureApp()
 app.run()

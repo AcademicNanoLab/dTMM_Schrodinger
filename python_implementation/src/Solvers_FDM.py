@@ -113,3 +113,20 @@ class Taylor_FDM(FDMSolver):    # type: ignore
                 A[i,i] = self.V[i] + scale * ((1.0+self.alpha[i+1]*self.V[i+1])/self.meff[i+1] + 2.0 * (1.0+self.alpha[i]*self.V[i])/self.meff[i] + (1.0+self.alpha[i-1]*self.V[i-1])/self.meff[i-1])
 			    
         return A
+    
+class SolverFactory:
+    from src.Solvers_FDM import Parabolic_FDM, Taylor_FDM, Kane_FDM
+    from src.Solvers_TMM import Parabolic_TMM, Taylor_TMM, Kane_TMM, Ekenberg_TMM
+    solver_map = {
+        ("FDM", "Parabolic"): Parabolic_FDM,
+        ("FDM", "Taylor"): Taylor_FDM,
+        ("FDM", "Kane"): Kane_FDM,
+        ("TMM", "Parabolic"): Parabolic_TMM,
+        ("TMM", "Taylor"): Taylor_TMM,
+        ("TMM", "Kane"): Kane_TMM,
+        ("TMM", "Ekenberg"): Ekenberg_TMM,
+    }
+
+    @staticmethod
+    def create(grid, solver, np_type, nstmax):
+        return SolverFactory.solver_map[(solver, np_type)](grid, nstmax)
