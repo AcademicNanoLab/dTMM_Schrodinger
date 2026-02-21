@@ -33,9 +33,8 @@ def main():
         [225, 0.1]
     ]
 
-    IP = InputParameters(arr, None, material, solver, nonparabolicityType, nstmax, dz, padding)
-    
     C = Composition.from_array(arr)
+    IP = InputParameters(C, material, solver, nonparabolicityType, nstmax, dz, padding)
     G = Grid(C, IP.dz, IP.material)
     G.set_K(K)
 

@@ -7,6 +7,7 @@ import pandas as pd
 
 import sys
 sys.path.append("/dTMM_Schrodinger/python_implementation/src")
+from src.forms.Fields import *
 
 class ElectronicStructureApp:
     def run(self):
@@ -49,8 +50,7 @@ class ElectronicStructureApp:
             from src.Visualiation import Visualisation
             from src.Solvers_FDM import SolverFactory
             
-            C = IP.set_composition()
-            G = Grid(C, IP.dz, IP.material)
+            G = Grid(IP.composition, IP.dz, IP.material)
             G.set_K(K)
 
             Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
@@ -68,23 +68,8 @@ class ElectronicStructureApp:
 
         IP = set_options()
 
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            kmin = st.number_input("Kmin (kV/cm)", 0.0, 5.0, step=0.1, value =1.0)
-        with c2:
-            kmax = st.number_input("Kmax (kV/cm)", 0.0, 5.0, step=0.1, value =2.0)
-        with c3:
-            kstep = st.number_input("Step (kV/cm)", 0.0, 5.0, step=0.1, value = 0.5)
-
-        st.write("Set Axis Limits")
-        col1, col2, = st.columns(2)
-        with col1:
-            xmin = st.number_input("Xmin: ", 0, 3000, step=100, value=0)
-            xmax = st.number_input("Xmax: ", 0, 3000, step=100, value=2000)
-                
-        with col2:
-            ymin = st.number_input("Ymin: ", 0, 200, step=10, value=0)
-            ymax = st.number_input("Ymax: ", 0, 200, step=10, value=120)
+        kmin, kmax, kstep = range_k()
+        xmin, xmax, ymin, ymax = axis_limits()
 
         solve = st.button("Calculate") 
         if solve:
@@ -95,8 +80,7 @@ class ElectronicStructureApp:
             import tempfile
             frames = []
 
-            C = IP.set_composition()
-            G = Grid(C, IP.dz, IP.material)
+            G = Grid(IP.composition, IP.dz, IP.material)
             k_values: list[float] = np.arange(kmin, kmax, kstep).tolist()
             for k in k_values:
                 G.set_K(k)
@@ -120,54 +104,25 @@ class ElectronicStructureApp:
 
     def Energy_Difference(self):
         st.title("Energy Difference Plot")
-        default_layers = pd.DataFrame({
-            "Thickness": [200, 100, 200],
-            "Alloy Profile": [0.5, 0, 0.5],
-        })
 
-        edited_df = st.data_editor(
-            default_layers,
-            num_rows="dynamic",
-            use_container_width=True
-        )
-        structure_layers = edited_df[["Thickness", "Alloy Profile"]].values.tolist()
-    
-        material = st.selectbox("Material", ["AlGaAs", "AlGaSb", "InGaAs_InAlAs", "InGaAs_GaAsSb"])
-        solver = st.pills("Solver", ["FDM", "TMM"])
-
-        np_options = ["Parabolic", "Taylor", "Kane", "Ekenberg"] if solver == "TMM" else ["Parabolic", "Taylor", "Kane"]
-        np_type = st.radio("Non-parabolicity type", np_options, horizontal=True)
+        composition = layer_input("Text")    
+        material = material_input()
+        solver = solver_input()
+        nonparabolicity = np_input(solver)
 
         c1, c2, c3 = st.columns(3)
 
         with c1:
-            nstmax = st.number_input("Nst max", 0, 20, value=10)
+            nst_max = nst_input()
         with c2:
-            dz = st.number_input("dz (Å)", 0, 2, value=1)
+            dz = dz_input()
         with c3:
-            pad = st.number_input("Padding (Å)", 0, 500, step=50)
+            pad = padding_input()
         
-        from src.Parameters import InputParameters
-        IP = InputParameters(structure_layers, None, material, solver, np_type, nstmax, dz, pad)
-
         st.text("Set ranges for width and height")
-        st.text("Width:")
-        with c1:
-            w_start = st.number_input("Start", 5, 300, value=50, step=50)
-        with c2:
-            w_end = st.number_input("End", 5, 300, value=150, step=50)
-        with c3:
-            w_step = st.number_input("Step", 5, 100, value=10, step=10)
+        w_start, w_end, w_step = range_well_width()
+        h_start, h_end, h_step = range_barrier_height()
         
-        st.text("Height:")
-        with c1:
-            h_start = st.number_input("Start", 0, 1, value=50, step=50)
-        with c2:
-            h_end = st.number_input("End", 0, 1, value=150, step=50)
-        with c3:
-            h_step = st.number_input("Step", 0.1, 1, value=10, step=10)
-        
-
         ### Calculate
 
 
@@ -175,49 +130,25 @@ class ElectronicStructureApp:
 def set_options():
     st.markdown("### Select your options")
 
-    layers_input = st.pills("File input or text input?", ["File", "Text"])
-    structure_layers = None
-    structure_file = None
+    layer_input_type = st.pills("File input or text input?", ["File", "Text"])
+    composition = layer_input(layer_input_type)
 
-    if layers_input == "Text":
+    material = material_input()
+    solver = solver_input()
 
-        default_layers = pd.DataFrame({
-            "Thickness": [200, 100, 200],
-            "Alloy Profile": [0.1, 0, 0.1],
-        })
-
-        edited_df = st.data_editor(
-            default_layers,
-            num_rows="dynamic",
-            use_container_width=True
-        )
-        structure_layers = edited_df[["Thickness", "Alloy Profile"]].values.tolist()
-    
-    else:
-        import tempfile
-        file = st.file_uploader("Pick a file", type="TXT")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp:
-            if file is not None:
-                tmp.write(file.getbuffer())
-                structure_file = tmp.name
-
-    material = st.selectbox("Material", ["AlGaAs", "AlGaSb", "InGaAs_InAlAs", "InGaAs_GaAsSb"])
-    solver = st.pills("Solver", ["FDM", "TMM"])
-
-    np_options = ["Parabolic", "Taylor", "Kane", "Ekenberg"] if solver == "TMM" else ["Parabolic", "Taylor", "Kane"]
-    np_type = st.radio("Non-parabolicity type", np_options, horizontal=True)
+    nonparabolicity = np_input(solver)
 
     c1, c2, c3 = st.columns(3)
 
     with c1:
-        nstmax = st.number_input("Nst max", 0, 20, value=10)
+        nstmax = nst_input()
     with c2:
-        dz = st.number_input("dz (Å)", 0, 2, value=1)
+        dz = dz_input
     with c3:
-        pad = st.number_input("Padding (Å)", 0, 500, step=50)
+        pad = padding_input()
     
     from src.Parameters import InputParameters
-    Params = InputParameters(structure_layers, structure_file, material, solver, np_type, nstmax, dz, pad)
+    Params = InputParameters(composition, material, solver, nonparabolicity, nstmax, dz, pad)
 
     return Params
 
