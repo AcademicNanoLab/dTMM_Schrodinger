@@ -10,7 +10,7 @@ sys.path.append("/dTMM_Schrodinger/python_implementation/src")
 
 class ElectronicStructureApp:
     def run(self):
-        pg = st.navigation([self.Home, self.ES_Calculator, self.Animation_Sweep])
+        pg = st.navigation([self.Home, self.ES_Calculator, self.Animation_Sweep, self.Energy_Difference])
         pg.run()
 
     def Home(self):
@@ -117,7 +117,60 @@ class ElectronicStructureApp:
 
             # show in streamlit
             st.image(gif_path)
+
+    def Energy_Difference(self):
+        st.title("Energy Difference Plot")
+        default_layers = pd.DataFrame({
+            "Thickness": [200, 100, 200],
+            "Alloy Profile": [0.5, 0, 0.5],
+        })
+
+        edited_df = st.data_editor(
+            default_layers,
+            num_rows="dynamic",
+            use_container_width=True
+        )
+        structure_layers = edited_df[["Thickness", "Alloy Profile"]].values.tolist()
+    
+        material = st.selectbox("Material", ["AlGaAs", "AlGaSb", "InGaAs_InAlAs", "InGaAs_GaAsSb"])
+        solver = st.pills("Solver", ["FDM", "TMM"])
+
+        np_options = ["Parabolic", "Taylor", "Kane", "Ekenberg"] if solver == "TMM" else ["Parabolic", "Taylor", "Kane"]
+        np_type = st.radio("Non-parabolicity type", np_options, horizontal=True)
+
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            nstmax = st.number_input("Nst max", 0, 20, value=10)
+        with c2:
+            dz = st.number_input("dz (Å)", 0, 2, value=1)
+        with c3:
+            pad = st.number_input("Padding (Å)", 0, 500, step=50)
         
+        from src.Parameters import InputParameters
+        IP = InputParameters(structure_layers, None, material, solver, np_type, nstmax, dz, pad)
+
+        st.text("Set ranges for width and height")
+        st.text("Width:")
+        with c1:
+            w_start = st.number_input("Start", 5, 300, value=50, step=50)
+        with c2:
+            w_end = st.number_input("End", 5, 300, value=150, step=50)
+        with c3:
+            w_step = st.number_input("Step", 5, 100, value=10, step=10)
+        
+        st.text("Height:")
+        with c1:
+            h_start = st.number_input("Start", 0, 1, value=50, step=50)
+        with c2:
+            h_end = st.number_input("End", 0, 1, value=150, step=50)
+        with c3:
+            h_step = st.number_input("Step", 0.1, 1, value=10, step=10)
+        
+
+        ### Calculate
+
+
 
 def set_options():
     st.markdown("### Select your options")

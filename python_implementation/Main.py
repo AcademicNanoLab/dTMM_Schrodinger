@@ -19,10 +19,10 @@ from src.Solvers_FDM import SolverFactory
 def main():
     layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
     material = "AlGaAs"
-    K = 1.9
+    K = 0.01
     nstmax = 10
     solver = "FDM"
-    nonparabolicityType = "Parabolic"
+    nonparabolicityType = "Taylor"
     dz = 0.6
     padding=400
 
@@ -56,20 +56,20 @@ def main():
     fig = V.plot_QCL(K, padding, False, None)
     # fig.show()
     
-    fig = plot_E2E1_diff(50, 150, 10, IP, K)
+    fig = plot_E2E1_diff(50, 200, 10, IP, K)
     fig.show()
 
 def plot_E2E1_diff(start, end, inc, IP, K):
     fig = go.Figure()
-    x_axis = []
-    for j in np.arange(0, 0.46, 0.05):
+    for j in np.arange(0.15, 0.20, 0.05):
+        x_axis = []
         trace = []
         print(f"Calculating for height = {j:.2f}")
         for i in range(start, end, inc):
             arr = [
-                [225, 0.5],
-                [i, j],
-                [225, 0.5]
+                [225, j],
+                [i, 0],
+                [225, j]
             ]
 
             # C = Composition.from_file(layer_file)
@@ -80,7 +80,7 @@ def plot_E2E1_diff(start, end, inc, IP, K):
             Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
 
             [energies, psis] = Solver.get_wavefunctions()
-            energies_meV = energies / src.ConstAndScales.E
+            energies_meV = energies / src.ConstAndScales.meV
 
             if len(energies) > 1:
                 print(f"Energy_diff: @{i}, {energies_meV[1] - energies_meV[0]:.2f}")
