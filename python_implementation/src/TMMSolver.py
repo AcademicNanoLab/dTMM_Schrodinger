@@ -9,7 +9,7 @@ from abc import abstractmethod
 import numpy as np
 import math
 from scipy import optimize
-import cmath
+# import cmath
 
 class TMMSolver(BaseSolver):
     def __init__(self, Grid: Grid, nEmax) -> None:
@@ -49,7 +49,7 @@ class TMMSolver(BaseSolver):
         return Mj
 
     def get_matrix_derivative_j(self, j, E):
-        dMj = np.identity(2, dtype=complex)
+        dMj = np.zeros((2, 2), dtype=complex)
         if (j>1):
             p = self.get_wavevector(j-1,E)
             q = self.get_wavevector(j,E)
@@ -67,9 +67,9 @@ class TMMSolver(BaseSolver):
 
     def get_left_TMM_cumulative_sum(self, E):
         nz=self.G.get_nz()
-        TM_left = np.zeros((2, 2, nz))
+        TM_left = np.zeros((2, 2, nz), dtype=complex)
         TM_left[:,:,0]=np.identity(2)
-        for j in range(1, nz):
+        for j in range(2, nz):
             Mj=self.get_matrix_j(j,E)
             TM_left[:,:,j]= Mj @ TM_left[:,:,j-1]
 
@@ -80,17 +80,17 @@ class TMMSolver(BaseSolver):
         TM_right = np.zeros((2, 2, nz), dtype=complex)
         TM_right[:,:,nz-1] = self.get_matrix_j(nz-1, E)
 
-        for j in range(nz-2, -1, -1):
+        for j in range(nz-2, 1, -1):
             Mj = self.get_matrix_j(j, E)
             TM_right[:,:,j] = TM_right[:,:,j+1] @ Mj
-        # TM_right[:,:,0] = TM_right[:,:,1]
         
+        TM_right[:,:,0] = TM_right[:,:,1]
         return TM_right
 
     def get_m11(self, E):
         nz = self.G.get_nz()
         TM = np.identity(2, dtype=complex)
-        for j in range(nz):
+        for j in range(2, nz):
             Mj = self.get_matrix_j(j, E)
             TM = Mj @ TM
         m11=abs(TM[0,0])
@@ -103,30 +103,21 @@ class TMMSolver(BaseSolver):
         TM_left = self.get_left_TMM_cumulative_sum(E)
         TM_right = self.get_right_TMM_cumulative_sum(E)
         
-        for j in range(nz):
+        for j in range(2, nz-1):
             dMj = self.get_matrix_derivative_j(j, E)
-
-            if j == 0:
-                B = np.identity(2, dtype=complex)
-            else:
-                B = TM_left[:,:,j-1]
-            if j == nz-1:
-                A = np.identity(2, dtype=complex)
-            else:
-                A = TM_right[:,:,j+1]
+            A = TM_right[:,:,j+1]
+            B = TM_left[:,:,j-1]
             dTM += A @ dMj @ B
+
+        dTM += self.get_matrix_derivative_j(nz-1, E) @ TM_left[:,:,nz-2]
+
         m11 = TM_left[0,0,nz-1]
+        if abs(m11) < 1e-14:
+            return 0.0
+
         dTM11 = dTM[0,0]
         dm11 = 1/abs(m11) * ( dTM11.real*m11.real + dTM11.imag*m11.imag )
-        #     A = TM_right[:,:,j+1]
-        #     B = TM_left[:,:,j-1]
-        #     dTM = dTM + A@dMj@B
-        
-        # dTM = dTM + self.get_matrix_derivative_j(nz-1, E) @TM_left[:,:,nz-1]
-        # m11 = TM_left[1,1,nz-1]
-        # dTM11 = dTM[1,1]
-        # dm11 = 1/abs(m11)* ( dTM11.real*m11.real + dTM11.imag*m11.imag )
-        
+
         return dm11
 
     def get_wavefunction(self, E):
@@ -134,9 +125,8 @@ class TMMSolver(BaseSolver):
         A1B1 = np.zeros((2,1), dtype=complex)
         A1B1[0,0] = 1.0
         psi = np.zeros(nz, dtype=complex)
-        # psi[0] = 1.0
 
-        for j in range(nz):
+        for j in range(1, nz):
             if j == 0:
                 psi[j] = 1.0
                 continue
@@ -168,7 +158,6 @@ class TMMSolver(BaseSolver):
                 Elo = E-2*dE
                 Ehi = E
                 f = self.get_m11_derivative
-
                 Ex = optimize.brentq(f, Elo, Ehi, rtol=self.tolerance)
                 # res = optimize.minimize_scalar(     #temp fix?
                 #     lambda E: abs(self.get_m11(E)),

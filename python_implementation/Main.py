@@ -19,20 +19,21 @@ from src.Solvers_FDM import SolverFactory
 def main():
     layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
     material = "AlGaAs"
-    K = 0.01
+    K = 5
     nstmax = 10
-    solver = "FDM"
-    nonparabolicityType = "Taylor"
+    solver = "TMM"
+    nonparabolicityType = "Parabolic"
     dz = 0.6
-    padding=400
+    padding=100
 
     from src.Parameters import InputParameters
     arr = [
-        [225, 0.1],
-        [10, 0],
-        [225, 0.1]
+        [225, 0.2],
+        [80, 0],
+        [225, 0.2]
     ]
 
+    # C = Composition.from_file(layer_file)
     C = Composition.from_array(arr)
     IP = InputParameters(C, material, solver, nonparabolicityType, nstmax, dz, padding)
     G = Grid(C, IP.dz, IP.material)
@@ -44,23 +45,23 @@ def main():
 
     V = Visualisation(G, energies, psis)
     fig = V.plot_V_wf()
+    fig.show()
+
+    # fig = V.plot_energies()
     # fig.show()
 
-    fig = V.plot_energies()
+    # fig = V.plot_energy_diff_thz()
     # fig.show()
 
-    fig = V.plot_energy_diff_thz()
-    # fig.show()
-
-    fig = V.plot_QCL(K, padding, False, None)
+    # fig = V.plot_QCL(K, padding, False, None)
     # fig.show()
     
-    fig = plot_E2E1_diff(50, 200, 10, IP, K)
-    fig.show()
+    # fig = plot_E2E1_diff(50, 200, 10, IP, K)
+    # fig.show()
 
 def plot_E2E1_diff(start, end, inc, IP, K):
     fig = go.Figure()
-    for j in np.arange(0.15, 0.20, 0.05):
+    for j in np.arange(0.15, 0.40, 0.05):
         x_axis = []
         trace = []
         print(f"Calculating for height = {j:.2f}")
