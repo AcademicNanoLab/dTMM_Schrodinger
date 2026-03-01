@@ -143,7 +143,7 @@ def set_options():
     with c1:
         nstmax = nst_input()
     with c2:
-        dz = dz_input
+        dz = dz_input()
     with c3:
         pad = padding_input()
     

@@ -134,10 +134,11 @@ class TMMSolver(BaseSolver):
             Mj = self.get_matrix_j(j, E)
 
             A1B1 = Mj @ A1B1
-            psi[j] = ( A1B1[0,0]*np.exp(qjzj) + A1B1[1,0]*np.exp(-qjzj) )
+            psi[j] = np.real( A1B1[0,0]*np.exp(qjzj) + A1B1[1,0]*np.exp(-qjzj) )        
         
         norm_const = math.sqrt(1/np.trapezoid(np.power(abs(psi), 2))/ self.G.get_dz()*ConstAndScales.ANGSTROM)
         psi *= norm_const
+        # print(np.trapezoid(abs(psi)**2))
 
         return psi
     
@@ -159,13 +160,6 @@ class TMMSolver(BaseSolver):
                 Ehi = E
                 f = self.get_m11_derivative
                 Ex = optimize.brentq(f, Elo, Ehi, rtol=self.tolerance)
-                # res = optimize.minimize_scalar(     #temp fix?
-                #     lambda E: abs(self.get_m11(E)),
-                #     bounds=(Elo, Ehi),
-                #     method="bounded"
-                # )
-                # Ex = res.x
-
                 psi = self.get_wavefunction(Ex)
                 energies.append(Ex)
                 psis.append(psi)
