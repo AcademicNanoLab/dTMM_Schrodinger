@@ -72,21 +72,21 @@ def range_barrier_height():
     c1, c2, c3 = st.columns(3)
     st.text("Height:")
     with c1:
-        h_start = st.number_input("Start", 0, 1, value=50, step=50)
+        h_start = st.number_input("Start", 0, 1, value=0, step=0.1)
     with c2:
-        h_end = st.number_input("End", 0, 1, value=150, step=50)
+        h_end = st.number_input("End", 0, 1, value=0.5, step=0.1)
     with c3:
-        h_step = st.number_input("Step", 0.1, 1, value=10, step=10)
+        h_step = st.number_input("Step", 0.1, 1, value=0.1, step=0.1)
     return h_start, h_end, h_step
 
 def range_k():
     c1, c2, c3 = st.columns(3)
     with c1:
-        kmin = st.number_input("Kmin (kV/cm)", 0.0, 5.0, step=0.1, value =1.0)
+        kmin = st.number_input("Kmin (kV/cm)", 0.0, 5.0, step=0.1, value=1.0)
     with c2:
-        kmax = st.number_input("Kmax (kV/cm)", 0.0, 5.0, step=0.1, value =2.0)
+        kmax = st.number_input("Kmax (kV/cm)", 0.0, 5.0, step=0.1, value=2.0)
     with c3:
-        kstep = st.number_input("Step (kV/cm)", 0.0, 5.0, step=0.1, value = 0.5)
+        kstep = st.number_input("Step (kV/cm)", 0.0, 5.0, step=0.1, value=0.5)
 
     return kmin, kmax, kstep
 
