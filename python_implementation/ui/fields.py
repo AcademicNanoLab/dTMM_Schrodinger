@@ -46,7 +46,7 @@ def layer_input(input_type):
         import tempfile
         file = st.file_uploader("Pick a file", type="TXT")
         
-        if structure_file is None:
+        if file is None:
             return None
         
         with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp:

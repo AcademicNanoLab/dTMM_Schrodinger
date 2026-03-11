@@ -30,66 +30,66 @@ class EnergyDifferencePage:
         fig = go.Figure()
         graph_type = st.pills("Choose graph type: ", ["Sweep Well Width", "Sweep Barrier Height", "Sweep Both"]) 
 
-        heights, widths = get_sweep_ranges(graph_type)
+        if graph_type:
+            heights, widths = get_sweep_ranges(graph_type)
+            
+            calculate = st.button("Calculate")
+            if calculate:
+                progress_text = "Calculating. Please wait."
+                pbar_val = 0
+                p_bar = st.progress(pbar_val, text=progress_text)
+                fig = go.Figure()
+                height_fig = go.Figure()
+                h_trace = []
+                for h in heights:
+                    x_width = []
+                    trace = []
+                    for w in widths:
+                        arr = [
+                            [225, h],
+                            [w, 0],
+                            [225, h]
+                        ]
 
-        calculate = st.button("Calculate")
-        if calculate:
-            progress_text = "Calculating. Please wait."
-            pbar_val = 0
-            p_bar = st.progress(pbar_val, text=progress_text)
-            fig = go.Figure()
-            height_fig = go.Figure()
-            # x_height = []
-            h_trace = []
-            for h in heights:
-                x_width = []
-                trace = []
-                for w in widths:
-                    arr = [
-                        [225, h],
-                        [w, 0],
-                        [225, h]
-                    ]
+                        C2 = Composition.from_array(arr)
+                        IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
+                        
+                        from .solver_service import solve_structure
+                        _, energies, _ = solve_structure(IP, K)
+                        energies_meV = energies / src.ConstAndScales.meV
 
-                    C2 = Composition.from_array(arr)
-                    IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
+                        if len(energies) > 1:
+                            x_width.append(w)
+                            trace.append(energies_meV[1] - energies_meV[0])
                     
-                    from python_implementation.ui.solver_service import solve_structure
-                    _, energies, _ = solve_structure(IP, K)
-                    energies_meV = energies / src.ConstAndScales.meV
-
+                        pbar_val += int(100/(len(heights)*len(widths)))
+                        p_bar.progress(pbar_val, progress_text)
+                        
                     if len(energies) > 1:
-                        x_width.append(w)
-                        trace.append(energies_meV[1] - energies_meV[0])
-                
-                    pbar_val += int(100/(len(heights)*len(widths)))
-                    p_bar.progress(pbar_val, progress_text)
-                    
-                if len(energies) > 1:
-                    h_trace.append(energies_meV[1] - energies_meV[0])
+                        h_trace.append(energies_meV[1] - energies_meV[0])
 
-                fig.add_trace(go.Scatter(
-                    x=x_width,
-                    y=trace,
-                    mode='lines+markers',
-                    name=f"h = {h:.2f}"
+                    fig.add_trace(go.Scatter(
+                        x=x_width,
+                        y=trace,
+                        mode='lines+markers',
+                        name=f"h = {h:.2f}"
+                    ))
+
+                height_fig.add_trace(go.Scatter(
+                    x = heights,
+                    y = h_trace,
+                    mode= 'lines+markers',
+                    name = f"w = {w}"
                 ))
 
-            height_fig.add_trace(go.Scatter(
-                x = heights,
-                y = h_trace,
-                mode= 'lines+markers',
-                name = f"w = {w}"
-            ))
+                p_bar.empty()
 
-            p_bar.empty()
-
-            if graph_type == "Sweep Barrier Height":
-                st.plotly_chart(height_fig)
-            else:
-                fig.update_layout(
-                    title="(E2 - E1) vs. quantum well width",
-                    xaxis_title="Width (Å)",
-                    yaxis_title="Energy difference (meV)"
-                )
-                st.plotly_chart(fig)
+                if graph_type == "Sweep Barrier Height":
+                    st.plotly_chart(height_fig)
+                else:
+                    fig.update_layout(
+                        title="(E2 - E1) vs. quantum well width",
+                        xaxis_title="Width (Å)",
+                        yaxis_title="Energy difference (meV)"
+                    )
+                    st.plotly_chart(fig)
