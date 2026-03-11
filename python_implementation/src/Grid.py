@@ -42,8 +42,9 @@ class Grid:
         
         self.z = self.z*ConstAndScales.ANGSTROM
         self.K = 0
-        self.dE = 0.05e-3
-
+        self.dE = 0.5e-3
+        # self.dE = 0.005
+        
     # Set methods
     def set_K(self, val):
         self.K = val

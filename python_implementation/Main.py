@@ -13,7 +13,7 @@ import numpy as np
 import src.ConstAndScales
 from src.Grid import Grid
 from src.Composition import Composition
-from python_implementation.src.Visualisation import Visualisation
+from src.Visualisation import Visualisation
 from src.Solvers_FDM import SolverFactory
 
 def main():
@@ -21,7 +21,7 @@ def main():
     material = "AlGaAs"
     K = 5
     nstmax = 10
-    solver = "FDM"
+    solver = "TMM"
     nonparabolicityType = "Parabolic"
     dz = 0.6
     padding=100
@@ -44,8 +44,8 @@ def main():
     # energies_meV = energies / src.ConstAndScales.E
 
     V = Visualisation(G, energies, psis)
-    # fig = V.plot_V_wf()
-    # fig.show()
+    fig = V.plot_V_wf()
+    fig.show()
 
     # fig = V.plot_energies()
     # fig.show()
@@ -57,8 +57,8 @@ def main():
     # fig.show()
     
     # fig = plot_E2E1_diff(90, 100, 10, IP, K)
-    fig = plot_E2E1_diff(50, 200, 10, IP, K)
-    fig.show()
+    # fig = plot_E2E1_diff(50, 200, 10, IP, K)
+    # fig.show()
 
 def plot_E2E1_diff(start, end, inc, IP, K):
     fig = go.Figure()
