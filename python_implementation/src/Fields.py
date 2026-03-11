@@ -58,8 +58,8 @@ def layer_input(input_type):
         return C
 
 def range_well_width():
-    c1, c2, c3 = st.columns(3)
     st.text("Width:")
+    c1, c2, c3 = st.columns(3)
     with c1:
         w_start = st.number_input("Start", 5, 300, value=50, step=50)
     with c2:
@@ -69,8 +69,8 @@ def range_well_width():
     return w_start, w_end, w_step
 
 def range_barrier_height():
-    c1, c2, c3 = st.columns(3)
     st.text("Height:")
+    c1, c2, c3 = st.columns(3)
     with c1:
         h_start = st.number_input("Start", 0.0, 1.0, value=0.0, step=0.1)
     with c2:

@@ -127,91 +127,92 @@ class ElectronicStructureApp:
             pad = padding_input()
         
         K = st.number_input("K (kV/cm)", 0.0, 5.0, step=0.1, value = 1.9)
-
-        st.text("Set ranges for width and height")
-        w_start, w_end, w_step = range_well_width()
         
         ### Calculate
-        solve_width = st.button("Sweep Barrier Width")
+        fig = go.Figure()
         solve_type = st.pills("Choose graph type: ", ["Sweep Well Width", "Sweep Barrier Height", "Sweep Both"]) 
-        calculate = st.button("Calculate")
-        if solve_width:
-            fig = go.Figure()
-            x_axis = []
-            trace = []
-            for i in range(w_start, w_end, w_step):
-                arr = [
-                    [225, 0.1],
-                    [i, 0],
-                    [225, 0.1]
-                ]
+        match solve_type:
+            case "Sweep Well Width":
+                st.text("Set ranges for width")
+                w_start, w_end, w_step = range_well_width()
 
-                C2 = Composition.from_array(arr)
-                IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
-                G = Grid(C2, IP.dz, IP.material)
-                G.set_K(K)
+                widths = [i for i in range(w_start, w_end, w_step)]
+                heights = [0.1]
 
-                Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
+            case "Sweep Barrier Height":
+                st.text("Set ranges for height")
+                h_start, h_end, h_step = range_barrier_height()
+                
+                heights = [j for j in np.arange(h_start, h_end, h_step)]
+                widths = [90]
+                
+            case "Sweep Both":
+                st.text("Set ranges for width and height")
+                w_start, w_end, w_step = range_well_width()
+                h_start, h_end, h_step = range_barrier_height()
 
-                [energies, _] = Solver.get_wavefunctions()
-                energies_meV = energies / src.ConstAndScales.meV
-
-                if len(energies) > 1:
-                    # print(f"Energy_diff: @{j}, {energies_meV - energies_meV[0]:.2f}")
-                    x_axis.append(i)
-                    trace.append(energies_meV[1] - energies_meV[0])
-            
-            fig.add_trace(go.Scatter(
-                x=x_axis,
-                y=trace,
-                mode='lines+markers',
-                name=f"x = {i:.2f}"
-            ))
-
-            st.plotly_chart(fig)
-
-        h_start, h_end, h_step = range_barrier_height()
-        solve_height = st.button("Sweep Barrier Height") 
-
-        if solve_height:
-            fig = go.Figure()
-            x_axis = []
-            trace = []
-            for j in np.arange(h_start, h_end, h_step):
-                arr = [
-                    [225, j],
-                    [90, 0],
-                    [225, j]
-                ]
-
-                C2 = Composition.from_array(arr)
-                IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
-                G = Grid(C2, IP.dz, IP.material)
-                G.set_K(K)
-
-                Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
-
-                [energies, _] = Solver.get_wavefunctions()
-                energies_meV = energies / src.ConstAndScales.meV
-
-                if len(energies) > 1:
-                    # print(f"Energy_diff: @{j}, {energies_meV - energies_meV[0]:.2f}")
-                    x_axis.append(j)
-                    trace.append(energies_meV[1] - energies_meV[0])
-            
-            fig.add_trace(go.Scatter(
-                x=x_axis,
-                y=trace,
-                mode='lines+markers',
-                name=f"x = {j:.2f}"
-            ))
-
-            st.plotly_chart(fig)
+                widths = [i for i in range(w_start, w_end, w_step)]
+                heights = [j for j in np.arange(h_start, h_end, h_step)]
         
-        # if solve_type == "Sweep Both":
+        calculate = st.button("Calculate")
+        if calculate:
+            progress_text = "Calculating. Please wait."
+            pbar_val = 0
+            p_bar = st.progress(pbar_val, text=progress_text)
+            fig = go.Figure()
+            width_fig = go.Figure()
+            x_height = []
+            for h in heights:
+                x_width = []
+                trace = []
+                for w in widths:
+                    arr = [
+                        [225, h],
+                        [w, 0],
+                        [225, h]
+                    ]
 
+                    C2 = Composition.from_array(arr)
+                    IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
+                    G = Grid(C2, IP.dz, IP.material)
+                    G.set_K(K)
 
+                    Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
 
+                    [energies, psis] = Solver.get_wavefunctions()
+                    energies_meV = energies / src.ConstAndScales.meV
+
+                    if len(energies) > 1:
+                        x_width.append(w)
+                        x_height.append(h)
+                        trace.append(energies_meV[1] - energies_meV[0])
+                
+                    pbar_val += int(100/(len(heights)*len(widths)))
+                    p_bar.progress(pbar_val, progress_text)
+
+                fig.add_trace(go.Scatter(
+                    x=x_width,
+                    y=trace,
+                    mode='lines+markers',
+                    name=f"h = {h:.2f}"
+                ))
+
+                width_fig.add_trace(go.Scatter(
+                    x = x_height,
+                    y = trace,
+                    mode= 'lines+markers',
+                    name = f"w = {w}"
+                ))
+
+            p_bar.empty()
+
+            fig.update_layout(
+                title="(E2 - E1) vs. quantum well width",
+                xaxis_title="Width (Å)",
+                yaxis_title="Energy difference (meV)"
+            )
+
+            st.plotly_chart(fig)
 
 def set_options():
     st.markdown("### Select your options")
