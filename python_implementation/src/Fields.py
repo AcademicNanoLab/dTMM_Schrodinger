@@ -72,11 +72,11 @@ def range_barrier_height():
     c1, c2, c3 = st.columns(3)
     st.text("Height:")
     with c1:
-        h_start = st.number_input("Start", 0, 1, value=0, step=0.1)
+        h_start = st.number_input("Start", 0.0, 1.0, value=0.0, step=0.1)
     with c2:
-        h_end = st.number_input("End", 0, 1, value=0.5, step=0.1)
+        h_end = st.number_input("End", 0.0, 1.0, value=0.5, step=0.1)
     with c3:
-        h_step = st.number_input("Step", 0.1, 1, value=0.1, step=0.1)
+        h_step = st.number_input("Step", 0.0, 1.0, value=0.1, step=0.01)
     return h_start, h_end, h_step
 
 def range_k():

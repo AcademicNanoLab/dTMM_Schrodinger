@@ -21,7 +21,7 @@ def main():
     material = "AlGaAs"
     K = 5
     nstmax = 10
-    solver = "TMM"
+    solver = "FDM"
     nonparabolicityType = "Parabolic"
     dz = 0.6
     padding=100
@@ -44,8 +44,8 @@ def main():
     # energies_meV = energies / src.ConstAndScales.E
 
     V = Visualisation(G, energies, psis)
-    fig = V.plot_V_wf()
-    fig.show()
+    # fig = V.plot_V_wf()
+    # fig.show()
 
     # fig = V.plot_energies()
     # fig.show()
@@ -56,8 +56,9 @@ def main():
     # fig = V.plot_QCL(K, padding, False, None)
     # fig.show()
     
+    fig = plot_E2E1_diff(90, 100, 10, IP, K)
     # fig = plot_E2E1_diff(50, 200, 10, IP, K)
-    # fig.show()
+    fig.show()
 
 def plot_E2E1_diff(start, end, inc, IP, K):
     fig = go.Figure()

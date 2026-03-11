@@ -3,11 +3,12 @@
 #
 import streamlit as st
 import numpy as np
+import plotly.graph_objects as go
 import pandas as pd
 
 import sys
 sys.path.append("/dTMM_Schrodinger/python_implementation/src")
-from src.forms.Fields import *
+from src.Fields import *
 
 class ElectronicStructureApp:
     def run(self):
@@ -103,9 +104,15 @@ class ElectronicStructureApp:
             st.image(gif_path)
 
     def Energy_Difference(self):
-        st.title("Energy Difference Plot")
+        from src.Grid import Grid
+        from src.Solvers_FDM import SolverFactory
+        from src.Composition import Composition
+        from src.Parameters import InputParameters
+        import src.ConstAndScales
 
-        composition = layer_input("Text")    
+        st.title("Energy Difference Plots")
+
+        # composition = layer_input("Text")    
         material = material_input()
         solver = solver_input()
         nonparabolicity = np_input(solver)
@@ -119,11 +126,90 @@ class ElectronicStructureApp:
         with c3:
             pad = padding_input()
         
+        K = st.number_input("K (kV/cm)", 0.0, 5.0, step=0.1, value = 1.9)
+
         st.text("Set ranges for width and height")
         w_start, w_end, w_step = range_well_width()
-        h_start, h_end, h_step = range_barrier_height()
         
         ### Calculate
+        solve_width = st.button("Sweep Barrier Width")
+        solve_type = st.pills("Choose graph type: ", ["Sweep Well Width", "Sweep Barrier Height", "Sweep Both"]) 
+        calculate = st.button("Calculate")
+        if solve_width:
+            fig = go.Figure()
+            x_axis = []
+            trace = []
+            for i in range(w_start, w_end, w_step):
+                arr = [
+                    [225, 0.1],
+                    [i, 0],
+                    [225, 0.1]
+                ]
+
+                C2 = Composition.from_array(arr)
+                IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
+                G = Grid(C2, IP.dz, IP.material)
+                G.set_K(K)
+
+                Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
+
+                [energies, _] = Solver.get_wavefunctions()
+                energies_meV = energies / src.ConstAndScales.meV
+
+                if len(energies) > 1:
+                    # print(f"Energy_diff: @{j}, {energies_meV - energies_meV[0]:.2f}")
+                    x_axis.append(i)
+                    trace.append(energies_meV[1] - energies_meV[0])
+            
+            fig.add_trace(go.Scatter(
+                x=x_axis,
+                y=trace,
+                mode='lines+markers',
+                name=f"x = {i:.2f}"
+            ))
+
+            st.plotly_chart(fig)
+
+        h_start, h_end, h_step = range_barrier_height()
+        solve_height = st.button("Sweep Barrier Height") 
+
+        if solve_height:
+            fig = go.Figure()
+            x_axis = []
+            trace = []
+            for j in np.arange(h_start, h_end, h_step):
+                arr = [
+                    [225, j],
+                    [90, 0],
+                    [225, j]
+                ]
+
+                C2 = Composition.from_array(arr)
+                IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
+                G = Grid(C2, IP.dz, IP.material)
+                G.set_K(K)
+
+                Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
+
+                [energies, _] = Solver.get_wavefunctions()
+                energies_meV = energies / src.ConstAndScales.meV
+
+                if len(energies) > 1:
+                    # print(f"Energy_diff: @{j}, {energies_meV - energies_meV[0]:.2f}")
+                    x_axis.append(j)
+                    trace.append(energies_meV[1] - energies_meV[0])
+            
+            fig.add_trace(go.Scatter(
+                x=x_axis,
+                y=trace,
+                mode='lines+markers',
+                name=f"x = {j:.2f}"
+            ))
+
+            st.plotly_chart(fig)
+        
+        # if solve_type == "Sweep Both":
+
 
 
 
