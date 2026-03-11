@@ -10,7 +10,8 @@ class EnergyDifferencePage:
         from src.Parameters import InputParameters
         import src.ConstAndScales
 
-        # composition = layer_input("Text")    
+        st.text("Base Composition")
+        composition = layer_input("Text")    
         material = material_input()
         solver = solver_input()
         nonparabolicity = np_input(solver)
@@ -34,7 +35,7 @@ class EnergyDifferencePage:
         if graph_type:
             heights, widths = get_sweep_ranges(graph_type)
             
-            if solver is not None:
+            if solver and composition is not None:
                 if st.button("Calculate"):
                     progress_text = "Calculating. Please wait."
                     pbar_val = 0
@@ -46,11 +47,15 @@ class EnergyDifferencePage:
                         x_width = []
                         trace = []
                         for w in widths:
-                            arr = [
-                                [225, h],
-                                [w, 0],
-                                [225, h]
-                            ]
+                            arr = composition.as_array()
+                            arr[1][0] = w
+                            arr[0][1] = h
+                            arr[-1][1] = h
+                            # arr = [
+                            #     [225, h],
+                            #     [w, 0],
+                            #     [225, h]
+                            # ]
 
                             C2 = Composition.from_array(arr)
                             IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)

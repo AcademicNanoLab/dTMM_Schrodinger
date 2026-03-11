@@ -34,6 +34,9 @@ class Composition:
 
         return cls(layer_thickness, alloy_profile)
     
+    def as_array(self):
+        return np.column_stack((self.layer_thickness, self.alloy_profile))
+
     def get_alloy_profile(self):
         return self.alloy_profile
     

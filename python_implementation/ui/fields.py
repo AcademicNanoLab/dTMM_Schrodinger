@@ -20,7 +20,7 @@ def dz_input():
 def padding_input():
     return st.number_input("Padding (Å)", 0, 500, step=50)
 
-def layer_input(input_type):
+def layer_input(input_type): 
     from src.Composition import Composition
 
     structure_layers = None
