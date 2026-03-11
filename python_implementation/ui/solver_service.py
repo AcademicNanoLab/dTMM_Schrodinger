@@ -14,8 +14,6 @@ def solve_structure(IP, K):
     return G, energies, psis
 
 def set_options():
-    st.markdown("### Select your options")
-
     layer_input_type = st.pills("File input or text input?", ["File", "Text"])
     composition = layer_input(layer_input_type)
 
