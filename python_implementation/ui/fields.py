@@ -79,6 +79,33 @@ def range_barrier_height():
         h_step = st.number_input("Step", 0.0, 1.0, value=0.1, step=0.01)
     return h_start, h_end, h_step
 
+def get_sweep_ranges(graph_type):
+    import numpy as np
+    match graph_type:
+        case "Sweep Well Width":
+            st.text("Set ranges for width")
+            w_start, w_end, w_step = range_well_width()
+
+            widths = [i for i in range(w_start, w_end, w_step)]
+            heights = [0.1]
+
+        case "Sweep Barrier Height":
+            st.text("Set ranges for height")
+            h_start, h_end, h_step = range_barrier_height()
+            
+            heights = [j for j in np.arange(h_start, h_end, h_step)]
+            widths = [90]
+            
+        case "Sweep Both":
+            st.text("Set ranges for width and height")
+            w_start, w_end, w_step = range_well_width()
+            h_start, h_end, h_step = range_barrier_height()
+
+            widths = [i for i in range(w_start, w_end, w_step)]
+            heights = [j for j in np.arange(h_start, h_end, h_step)]
+    
+    return heights, widths
+
 def range_k():
     c1, c2, c3 = st.columns(3)
     with c1:
