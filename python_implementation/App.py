@@ -160,8 +160,9 @@ class ElectronicStructureApp:
             pbar_val = 0
             p_bar = st.progress(pbar_val, text=progress_text)
             fig = go.Figure()
-            width_fig = go.Figure()
-            x_height = []
+            height_fig = go.Figure()
+            # x_height = []
+            h_trace = []
             for h in heights:
                 x_width = []
                 trace = []
@@ -184,11 +185,14 @@ class ElectronicStructureApp:
 
                     if len(energies) > 1:
                         x_width.append(w)
-                        x_height.append(h)
+                        # x_height.append(h)
                         trace.append(energies_meV[1] - energies_meV[0])
                 
                     pbar_val += int(100/(len(heights)*len(widths)))
                     p_bar.progress(pbar_val, progress_text)
+                    
+                if len(energies) > 1:
+                    h_trace.append(energies_meV[1] - energies_meV[0])
 
                 fig.add_trace(go.Scatter(
                     x=x_width,
@@ -197,22 +201,24 @@ class ElectronicStructureApp:
                     name=f"h = {h:.2f}"
                 ))
 
-                width_fig.add_trace(go.Scatter(
-                    x = x_height,
-                    y = trace,
-                    mode= 'lines+markers',
-                    name = f"w = {w}"
-                ))
+            height_fig.add_trace(go.Scatter(
+                x = heights,
+                y = h_trace,
+                mode= 'lines+markers',
+                name = f"w = {w}"
+            ))
 
             p_bar.empty()
 
-            fig.update_layout(
-                title="(E2 - E1) vs. quantum well width",
-                xaxis_title="Width (Å)",
-                yaxis_title="Energy difference (meV)"
-            )
-
-            st.plotly_chart(fig)
+            if solve_type == "Sweep Barrier Height":
+                st.plotly_chart(height_fig)
+            else:
+                fig.update_layout(
+                    title="(E2 - E1) vs. quantum well width",
+                    xaxis_title="Width (Å)",
+                    yaxis_title="Energy difference (meV)"
+                )
+                st.plotly_chart(fig)
 
 def set_options():
     st.markdown("### Select your options")
