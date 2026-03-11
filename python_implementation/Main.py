@@ -13,7 +13,7 @@ import numpy as np
 import src.ConstAndScales
 from src.Grid import Grid
 from src.Composition import Composition
-from src.Visualiation import Visualisation
+from python_implementation.src.Visualisation import Visualisation
 from src.Solvers_FDM import SolverFactory
 
 def main():

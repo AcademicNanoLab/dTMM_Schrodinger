@@ -10,6 +10,19 @@ import sys
 sys.path.append("/dTMM_Schrodinger/python_implementation/src")
 from src.Fields import *
 
+def solve_structure(IP, K):
+    from src.Grid import Grid
+    from src.Solvers_FDM import SolverFactory
+
+    G = Grid(IP.composition, IP.dz, IP.material)
+    G.set_K(K)
+
+    solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
+    energies, psis = solver.get_wavefunctions()
+
+    return G, energies, psis
+
+
 class ElectronicStructureApp:
     def run(self):
         pg = st.navigation([self.Home, self.ES_Calculator, self.Animation_Sweep, self.Energy_Difference])
@@ -28,10 +41,9 @@ class ElectronicStructureApp:
             import base64
             st.write("Electronic Structure Animation (Bias Sweep)")
 
-            file_ = open("matlab_implementation/src/optionGif.gif", "rb")
-            contents = file_.read()
-            data_url = base64.b64encode(contents).decode("utf-8")
-            file_.close()
+            with open("matlab_implementation/src/optionGif.gif", "rb") as file_:
+                contents = file_.read()
+                data_url = base64.b64encode(contents).decode("utf-8")
 
             st.markdown(
                 f'<img src="data:image/gif;base64,{data_url}" alt="cat gif">',
@@ -47,16 +59,9 @@ class ElectronicStructureApp:
         solve = st.button("Calculate") 
 
         if solve:
-            from src.Grid import Grid
-            from src.Visualiation import Visualisation
-            from src.Solvers_FDM import SolverFactory
+            from src.Visualisation import Visualisation
             
-            G = Grid(IP.composition, IP.dz, IP.material)
-            G.set_K(K)
-
-            Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
-
-            [energies, psis] = Solver.get_wavefunctions()
+            G, energies, psis = solve_structure(IP, K)
             V = Visualisation(G, energies, psis)
             
             st.plotly_chart(V.plot_V_wf())
@@ -76,7 +81,7 @@ class ElectronicStructureApp:
         if solve:
             from src.Grid import Grid
             from src.Solvers_FDM import SolverFactory
-            from src.Visualiation import Visualisation
+            from python_implementation.src.Visualisation import Visualisation
             import imageio.v2 as imageio
             import tempfile
             frames = []
@@ -175,17 +180,12 @@ class ElectronicStructureApp:
 
                     C2 = Composition.from_array(arr)
                     IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
-                    G = Grid(C2, IP.dz, IP.material)
-                    G.set_K(K)
-
-                    Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
-
-                    [energies, psis] = Solver.get_wavefunctions()
+                    
+                    _, energies, _ = solve_structure(IP, K)
                     energies_meV = energies / src.ConstAndScales.meV
 
                     if len(energies) > 1:
                         x_width.append(w)
-                        # x_height.append(h)
                         trace.append(energies_meV[1] - energies_meV[0])
                 
                     pbar_val += int(100/(len(heights)*len(widths)))
