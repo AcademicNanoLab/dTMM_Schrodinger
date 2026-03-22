@@ -36,7 +36,7 @@ def layer_input(input_type):
         edited_df = st.data_editor(
             default_layers,
             num_rows="dynamic",
-            use_container_width=True
+            width='stretch'
         )
         structure_layers = edited_df[["Thickness", "Alloy Profile"]].values.tolist()
         C = Composition.from_array(structure_layers)
