@@ -13,7 +13,7 @@ class BaseSolver(ABC):
 
         Args:
             Grid (Grid): Grid object for bandstructure and effective mass
-            nEmax (int?): Max number of energy levels
+            nEmax (int): Max number of energy levels
         """
 
         self.G = Grid

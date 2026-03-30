@@ -60,18 +60,21 @@ class FDMSolver(BaseSolver):
 
         Eidx = self.sort_and_filter_eigenvalues(eigenvalues)
 
+
         if self.nE <= 0 or self.nE > len(Eidx):
             nE = len(Eidx)
         else:
             nE = self.nE
-
+        print("*&^%$**********", self.nE)
+        print("$$$$$$$$$$$$$$", len(Eidx))
         for i in range(nE):
             E = eigenvalues[Eidx[i]]
             psiWhole = eigenvectors[:, Eidx[i]]
 
             energies.append(E)
             psi = psiWhole[:nz]
-            norm_const = math.sqrt(1 / np.trapezoid(abs(psi)**2) ) / self.G.get_dz() * ConstAndScales.ANGSTROM
+            norm_const = math.sqrt(1 / np.trapezoid(abs(psi)**2) / self.G.get_dz() * ConstAndScales.ANGSTROM )
+
             psi = norm_const * psi
             psis.append(psi)
 

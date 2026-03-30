@@ -105,11 +105,11 @@ class Visualisation:
             showlegend = False
         )
         return fig
+    
+    def plot_wavefunction(self):
+        fig = go.Figure()
+        z = self.G.z / ConstAndScales.ANGSTROM
 
-    # def plot_E2E1_diff(self, start, end, inc, G, Solver):
-    #     fig = go.Figure()
-    #     for i in range(start, end, inc):
-    #         C = 
-    #         [energies]
-
-    #     return fig
+        wf = self.psi[1].real
+        fig.add_trace(go.Scatter(x=z, y=wf, mode='lines'))
+        return fig

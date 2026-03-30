@@ -20,8 +20,6 @@ import numpy as np
 
 class Grid:
     def __init__(self, composition, dz, HeterostructureMaterial):
-        # self.filename = filename
-        # layer_thickness, alloy_profile = self.extract_thickness_composition()
         layer_thickness = composition.get_layer_thickness()
         alloy_profile = composition.get_alloy_profile()
         

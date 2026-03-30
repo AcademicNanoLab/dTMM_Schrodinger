@@ -45,6 +45,9 @@ def main():
 
     V = Visualisation(G, energies, psis)
     fig = V.plot_V_wf()
+    # fig.show()
+
+    fig = V.plot_wavefunction()
     fig.show()
 
     # fig = V.plot_energies()
