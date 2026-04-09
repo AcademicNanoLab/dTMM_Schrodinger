@@ -5,7 +5,6 @@ class CalculatorPage:
         st.title("Electronic Structure Calculator")
 
         from src.Visualisation import Visualisation
-        # from ui.solver_service import solve_structure
         from ui.user_inputs import CalculatorInputs
 
         Inputs = CalculatorInputs()
