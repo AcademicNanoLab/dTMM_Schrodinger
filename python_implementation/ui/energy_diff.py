@@ -62,19 +62,19 @@ class EnergyDifferencePage:
                             
                             from .solver_service import solve_structure
                             G, energies, wavefunctions = solve_structure(IP, K)
-                            print("@£@£@£@£@£@£@£@£",len(energies))
-                            if len(energies) < 2:
-                                continue
+
+                            i = 2
+                            j = 1
 
                             T = TransitionCalculator()
                             if plot_diff == "Energy Difference":
-                                trace.append(T.get_E21(energies))
+                                trace.append(T.get_energy_diff(energies, i,j))
                             elif plot_diff == "Dipole matrix element":
-                                tmp = T.get_d21(G.z, wavefunctions)
+                                tmp = T.get_dipole(G.z, wavefunctions, i,j)
                                 if tmp is not None:
-                                    trace.append(tmp /10e-9)
+                                    trace.append(tmp /1e-9)
                             elif plot_diff == "Oscillator Strength":
-                                trace.append(T.get_f21(G.z, energies, wavefunctions))
+                                trace.append(T.get_oscillator_strength(G.z, energies, wavefunctions, i,j))
                             x_width.append(w)
 
                             pbar_val += int(100/(len(heights)*len(widths)))
@@ -116,40 +116,44 @@ class TransitionCalculator:
         self.hbar = src.ConstAndScales.HBAR
         self.meV = src.ConstAndScales.meV
     
-    def get_E21(self, energies):
-        if len(energies) < 2:
+    def get_energy_diff(self, energies, i, j):
+        if len(energies) < max(i, j):
             return None
         else:
-            return energies[1] - energies[0] # FIXME: Needs div by meV.
+            return energies[i-1] - energies[j-1] # FIXME: Needs div by meV.
     
-    def get_d21(self, z, psis):
-        if len(psis) < 2:
+    def get_dipole(self, z, psis, i, j):
+        if len(psis) < max(i, j):
             return None
 
-        psi1 = psis[0]
-        psi2 = psis[2]
+        psi_i = psis[i-1]
+        psi_j = psis[j-1]
 
-        # z_m = z * 1e-10   # Å → m
         dz = z[1] - z[0]
+
+        integ=np.abs(psi_i)*np.abs(psi_i)
+        temp=0
+        for iz in range(1,len(z)):
+            temp+= dz * (integ[iz-1]+integ[iz])/2
+        # z_m = z * 1e-10   # Å → m
         integral=0
-        integrand = psi1 * z * psi2
-        for i in range(1,len(z)):
-            integral+= dz * (integrand[i-1]+integrand[i])/2
-        # print("new")
+        integrand = psi_i * z * psi_j
+        for iz in range(1,len(z)):
+            integral+= dz * (integrand[iz-1]+integrand[iz])/2
         return abs(integral)
     
-    def get_f21(self, z, energies, psis):
-        e21 = self.get_E21(energies)
-        if e21 is None:
+    def get_oscillator_strength(self, z, energies, psis, i,j):
+        e_ij = self.get_energy_diff(energies, i,j)
+        if e_ij is None:
             return None
         else:
-            d21 = self.get_d21(z, psis)
-            if d21 is None:
+            d_ij = self.get_dipole(z, psis, i,j)
+            if d_ij is None:
                 return None
-            return (2*self.m_e / self.hbar**2) * e21 * abs(d21)**2
+            return (2*self.m_e / self.hbar**2) * e_ij * abs(d_ij)**2
     
-    def calculate(self, z, energies, psis):
-        e21 = self.get_E21(energies)
-        d21 = self.get_d21(z, psis)
-        f21 = self.get_f21(z, energies, psis)
+    def calculate(self, z, energies, psis, i,j):
+        e21 = self.get_energy_diff(energies, i,j)
+        d21 = self.get_dipole(z, psis, i,j)
+        f21 = self.get_oscillator_strength(z, energies, psis, i,j)
         return e21, d21, f21

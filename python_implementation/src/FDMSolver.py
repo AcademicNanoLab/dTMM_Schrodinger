@@ -73,7 +73,14 @@ class FDMSolver(BaseSolver):
 
             energies.append(E)
             psi = psiWhole[:nz]
-            norm_const = math.sqrt(1 / np.trapezoid(abs(psi)**2) / self.G.get_dz() * ConstAndScales.ANGSTROM )
+
+            # integ=np.abs(psi_i)
+            norm_const=0
+            for iz in range(1,len(self.G.z)):
+                norm_const += self.G.get_dz() * (np.abs(psi[iz-1])*np.abs(psi[iz-1]) + np.abs(psi[iz])*np.abs(psi[iz]))/2
+
+            # norm_const = math.sqrt(1 / np.trapezoid(abs(psi)**2) / self.G.get_dz() * ConstAndScales.ANGSTROM )
+            norm_const = 1.0 / math.sqrt(norm_const)
 
             psi = norm_const * psi
             psis.append(psi)
