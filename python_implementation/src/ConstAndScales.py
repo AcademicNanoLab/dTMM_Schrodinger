@@ -13,3 +13,4 @@ m0 = 9.10938188e-31         # Electron mass
 ANGSTROM = 1e-10
 kVcm = 1e5                  # kiloVolt per cm
 meV = 1.602176462e-22       # mili eV
+nano = 1e-9
