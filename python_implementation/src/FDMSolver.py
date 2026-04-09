@@ -65,8 +65,7 @@ class FDMSolver(BaseSolver):
             nE = len(Eidx)
         else:
             nE = self.nE
-        print("*&^%$**********", self.nE)
-        print("$$$$$$$$$$$$$$", len(Eidx))
+
         for i in range(nE):
             E = eigenvalues[Eidx[i]]
             psiWhole = eigenvectors[:, Eidx[i]]
