@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
 import streamlit as st
 
-class UserInputs(ABC):
+class UserInputs:
     def __init__(self) -> None:
         self.material = None
         self.solver = None
@@ -26,7 +25,7 @@ class UserInputs(ABC):
         with c3:
             self.padding = self.padding_input()
         
-        self.k = self.k_input()
+        self.K = self.k_input()
 
     def material_input(self):
         return st.selectbox("Material", ["AlGaAs", "AlGaSb", "InGaAs_InAlAs", "InGaAs_GaAsSb"])

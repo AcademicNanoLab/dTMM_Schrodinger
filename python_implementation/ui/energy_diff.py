@@ -1,13 +1,13 @@
 import streamlit as st
-import numpy as np
-from ui.fields import *
 
 class EnergyDifferencePage:
     def render(self):
         st.title("Energy Difference Plots")
 
         from src.Composition import Composition
-        from src.Parameters import InputParameters
+        from src.Solvers_FDM import SolverFactory
+        from src.Grid import Grid
+
         from .user_inputs import EnergyDiffInputs
 
         Inputs = EnergyDiffInputs()
@@ -15,6 +15,7 @@ class EnergyDifferencePage:
 
         ### Calculate
         import plotly.graph_objects as go
+        from src.TransitionCalculator import TransitionCalculator
         fig = go.Figure()
 
         if None in (Inputs.solver, Inputs.composition, Inputs.sweep_param, Inputs.plot_diff):
@@ -37,15 +38,25 @@ class EnergyDifferencePage:
                         arr[-1][1] = h
 
                         C2 = Composition.from_array(arr)
-                        IP = InputParameters(C2, Inputs.material, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax, Inputs.dz, Inputs.padding)
                         
-                        from .solver_service import solve_structure
-                        G, energies, wavefunctions = solve_structure(IP, Inputs.K)
+                        # setup for calculation
+                        G = Grid(C2, Inputs.dz, Inputs.material)
+                        G.set_K(Inputs.K)
+
+                        # get solver outputs: energies, psis
+                        solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
+                        energies, wavefunctions = solver.get_wavefunctions()
 
                         i = 2
                         j = 1
 
                         T = TransitionCalculator()
+
+                        ediff, dipoles, osc_str = T.calculate(G.z, energies, wavefunctions, i, j)
+                        if None not in (ediff, dipoles, osc_str):
+                            x_width.append(w)
+
+
                         if Inputs.plot_diff == "Energy Difference":
                             trace.append(T.get_energy_diff(energies, i,j))
                         elif Inputs.plot_diff == "Dipole matrix element":
@@ -87,52 +98,3 @@ class EnergyDifferencePage:
                         yaxis_title="Energy difference (meV)"
                     )
                     st.plotly_chart(fig)
-
-class TransitionCalculator:
-    def __init__(self) -> None:
-        import src.ConstAndScales
-        self.m_e = src.ConstAndScales.m0
-        self.hbar = src.ConstAndScales.HBAR
-        self.meV = src.ConstAndScales.meV
-    
-    def get_energy_diff(self, energies, i, j):
-        if len(energies) < max(i, j):
-            return None
-        else:
-            return energies[i-1] - energies[j-1] # FIXME: Needs div by meV.
-    
-    def get_dipole(self, z, psis, i, j):
-        if len(psis) < max(i, j):
-            return None
-
-        psi_i = psis[i-1]
-        psi_j = psis[j-1]
-
-        dz = z[1] - z[0]
-
-        integ=np.abs(psi_i)*np.abs(psi_i)
-        temp=0
-        for iz in range(1,len(z)):
-            temp+= dz * (integ[iz-1]+integ[iz])/2
-        # z_m = z * 1e-10   # Å → m
-        integral=0
-        integrand = psi_i * z * psi_j
-        for iz in range(1,len(z)):
-            integral+= dz * (integrand[iz-1]+integrand[iz])/2
-        return abs(integral)
-    
-    def get_oscillator_strength(self, z, energies, psis, i,j):
-        e_ij = self.get_energy_diff(energies, i,j)
-        if e_ij is None:
-            return None
-        else:
-            d_ij = self.get_dipole(z, psis, i,j)
-            if d_ij is None:
-                return None
-            return (2*self.m_e / self.hbar**2) * e_ij * abs(d_ij)**2
-    
-    def calculate(self, z, energies, psis, i,j):
-        e21 = self.get_energy_diff(energies, i,j)
-        d21 = self.get_dipole(z, psis, i,j)
-        f21 = self.get_oscillator_strength(z, energies, psis, i,j)
-        return e21, d21, f21
