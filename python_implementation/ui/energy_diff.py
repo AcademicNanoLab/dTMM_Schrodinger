@@ -8,106 +8,85 @@ class EnergyDifferencePage:
 
         from src.Composition import Composition
         from src.Parameters import InputParameters
-        import src.ConstAndScales
+        from .user_inputs import EnergyDiffInputs
 
-        st.text("Base Composition")
-        composition = layer_input("Text")    
-        material = material_input()
-        solver = solver_input()
-        nonparabolicity = np_input(solver)
+        Inputs = EnergyDiffInputs()
+        Inputs.render_energy_diff_inputs()
 
-        c1, c2, c3 = st.columns(3)
-
-        with c1:
-            nst_max = nst_input()
-        with c2:
-            dz = dz_input()
-        with c3:
-            pad = padding_input()
-        
-        K = st.number_input("K (kV/cm)", 0.0, 5.0, step=0.1, value = 1.9)
-        
         ### Calculate
         import plotly.graph_objects as go
         fig = go.Figure()
-        sweep_param = st.pills("Choose sweep parameter: ", ["Sweep Well Width", "Sweep Barrier Height", "Sweep Both"])
-        plot_diff = st.pills("Choose plot value: ", ["Energy Difference", "Dipole matrix element", "Oscillator Strength"])
 
-        if sweep_param is None or plot_diff is None:
+        if None in (Inputs.solver, Inputs.composition, Inputs.sweep_param, Inputs.plot_diff):
             st.markdown(":red-badge[**<Calculate> button only appears once all fields are filled.**]")
         else:
-            heights, widths = get_sweep_ranges(sweep_param)
-            
-            if solver is None or composition is None:
-                st.markdown(":red-badge[**<Calculate> button only appears once all fields are filled.**]")
-            else:
-                if st.button("Calculate"):
-                    progress_text = "Calculating. Please wait."
-                    pbar_val = 0
-                    p_bar = st.progress(pbar_val, text=progress_text)
-                    fig = go.Figure()
-                    height_fig = go.Figure()
-                    h_trace = []
-                    for h in heights:
-                        x_width = []
-                        trace = []
-                        for w in widths:
-                            arr = composition.as_array() # type: ignore
-                            arr[1][0] = w
-                            arr[0][1] = h
-                            arr[-1][1] = h
+            if st.button("Calculate"):
+                progress_text = "Calculating. Please wait."
+                pbar_val = 0
+                p_bar = st.progress(pbar_val, text=progress_text)
+                fig = go.Figure()
+                height_fig = go.Figure()
+                h_trace = []
+                for h in Inputs.heights:
+                    x_width = []
+                    trace = []
+                    for w in Inputs.widths:
+                        arr = Inputs.composition.as_array() # type: ignore
+                        arr[1][0] = w
+                        arr[0][1] = h
+                        arr[-1][1] = h
 
-                            C2 = Composition.from_array(arr)
-                            IP = InputParameters(C2, material, solver, nonparabolicity, nst_max, dz, pad)
-                            
-                            from .solver_service import solve_structure
-                            G, energies, wavefunctions = solve_structure(IP, K)
+                        C2 = Composition.from_array(arr)
+                        IP = InputParameters(C2, Inputs.material, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax, Inputs.dz, Inputs.padding)
+                        
+                        from .solver_service import solve_structure
+                        G, energies, wavefunctions = solve_structure(IP, Inputs.K)
 
-                            i = 2
-                            j = 1
+                        i = 2
+                        j = 1
 
-                            T = TransitionCalculator()
-                            if plot_diff == "Energy Difference":
-                                trace.append(T.get_energy_diff(energies, i,j))
-                            elif plot_diff == "Dipole matrix element":
-                                tmp = T.get_dipole(G.z, wavefunctions, i,j)
-                                if tmp is not None:
-                                    trace.append(tmp /1e-9)
-                            elif plot_diff == "Oscillator Strength":
-                                trace.append(T.get_oscillator_strength(G.z, energies, wavefunctions, i,j))
-                            x_width.append(w)
+                        T = TransitionCalculator()
+                        if Inputs.plot_diff == "Energy Difference":
+                            trace.append(T.get_energy_diff(energies, i,j))
+                        elif Inputs.plot_diff == "Dipole matrix element":
+                            tmp = T.get_dipole(G.z, wavefunctions, i,j)
+                            if tmp is not None:
+                                trace.append(tmp /1e-9)
+                        elif Inputs.plot_diff == "Oscillator Strength":
+                            trace.append(T.get_oscillator_strength(G.z, energies, wavefunctions, i,j))
+                        x_width.append(w)
 
-                            pbar_val += int(100/(len(heights)*len(widths)))
-                            p_bar.progress(pbar_val, progress_text)
-                            
-                        if len(energies) > 1:
-                            h_trace.append(energies[1] - energies[0])
+                        pbar_val += int(100/(len(Inputs.heights)*len(Inputs.widths)))
+                        p_bar.progress(pbar_val, progress_text)
+                        
+                    if len(energies) > 1:
+                        h_trace.append(energies[1] - energies[0])
 
-                        fig.add_trace(go.Scatter(
-                            x=x_width,
-                            y=trace,
-                            mode='lines+markers',
-                            name=f"h = {h:.2f}"
-                        ))
-
-                    height_fig.add_trace(go.Scatter(
-                        x = heights,
-                        y = h_trace,
-                        mode= 'lines+markers',
-                        name = f"w = {w}"
+                    fig.add_trace(go.Scatter(
+                        x=x_width,
+                        y=trace,
+                        mode='lines+markers',
+                        name=f"h = {h:.2f}"
                     ))
 
-                    p_bar.empty()
+                height_fig.add_trace(go.Scatter(
+                    x = Inputs.heights,
+                    y = h_trace,
+                    mode= 'lines+markers',
+                    name = f"w = {w}"
+                ))
 
-                    if sweep_param == "Sweep Barrier Height":
-                        st.plotly_chart(height_fig)
-                    else:
-                        fig.update_layout(
-                            title="(E2 - E1) vs. quantum well width",
-                            xaxis_title="Width (Å)",
-                            yaxis_title="Energy difference (meV)"
-                        )
-                        st.plotly_chart(fig)
+                p_bar.empty()
+
+                if Inputs.sweep_param == "Sweep Barrier Height":
+                    st.plotly_chart(height_fig)
+                else:
+                    fig.update_layout(
+                        title="(E2 - E1) vs. quantum well width",
+                        xaxis_title="Width (Å)",
+                        yaxis_title="Energy difference (meV)"
+                    )
+                    st.plotly_chart(fig)
 
 class TransitionCalculator:
     def __init__(self) -> None:
