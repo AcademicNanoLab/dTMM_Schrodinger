@@ -1,7 +1,5 @@
 import streamlit as st
 
-import src.Composition
-
 class EnergyDifferencePage:
     def render(self):
         st.title("Energy Difference Plots")
@@ -19,7 +17,7 @@ class EnergyDifferencePage:
         import src.ConstAndScales
         from src.TransitionCalculator import TransitionCalculator
 
-        if None in (Inputs.solver, Inputs.composition, Inputs.sweep_param, Inputs.plot_diff):
+        if None in (Inputs.solver, Inputs.composition, Inputs.sweep_param):
             st.markdown(":red-badge[**<Calculate> button only appears once all fields are filled.**]")
         else:
             if st.button("Calculate"):
@@ -50,11 +48,8 @@ class EnergyDifferencePage:
                         solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
                         energies, wavefunctions = solver.get_wavefunctions()
 
-                        i = 2
-                        j = 1
-
                         T = TransitionCalculator()
-                        ediff, dipoles, osc_str = T.calculate(G.z, energies, wavefunctions, i, j)
+                        ediff, dipoles, osc_str = T.calculate(G.z, energies, wavefunctions, Inputs.i, Inputs.j)
 
                         if None not in (ediff, dipoles, osc_str):
                             plot_widths.append(w)
@@ -71,22 +66,16 @@ class EnergyDifferencePage:
 
                 match Inputs.sweep_param:
                     case "Sweep Well Width":
-                        Energies = SweepVisualisation(ediff_trace, plot_widths, "Width (Å)", "Energy (meV)", f"(E{i}-E{j}) vs Quantum Well Width")
-                        Dipoles = SweepVisualisation(dipole_trace, plot_widths, "Width (Å)", "Dipole Moment", f"(D{i}-D{j}) vs Quantum Well Width")
-                        Oscillator_Str = SweepVisualisation(osc_str_trace, plot_widths, "Width (Å)", "Oscillator Strength", f"(O{i}-O{j}) vs Quantum Well Width")
-
-                        st.plotly_chart(Energies.single_sweep_plot())
-                        st.plotly_chart(Dipoles.single_sweep_plot())
-                        st.plotly_chart(Oscillator_Str.single_sweep_plot())
+                        typ = "Well Width"
+                        V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_widths, typ)
                     
                     case "Sweep Barrier Height":
-                        Energies = SweepVisualisation(ediff_trace, plot_heights, "Height", "Energy (meV)", f"(E{i}-E{j}) vs Quantum Well Width")
-                        Dipoles = SweepVisualisation(dipole_trace, plot_heights, "Height", "Dipole Moment", f"(D{i}-D{j}) vs Quantum Well Width")
-                        Oscillator_Str = SweepVisualisation(osc_str_trace, plot_heights, "Height", "Oscillator Strength", f"(O{i}-O{j}) vs Quantum Well Width")
+                        typ = "Barrier Height"
+                        V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_heights, typ)
 
-                        st.plotly_chart(Energies.single_sweep_plot())
-                        st.plotly_chart(Dipoles.single_sweep_plot())
-                        st.plotly_chart(Oscillator_Str.single_sweep_plot())
+                st.plotly_chart(V.ediff_plot())
+                st.plotly_chart(V.dipoles_plot())
+                st.plotly_chart(V.osc_str_plot())
 
                 p_bar.empty()
 

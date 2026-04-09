@@ -102,9 +102,13 @@ class EnergyDiffInputs(UserInputs):
         
         self.render_common_inputs()
 
+        ij = st.pills("Select energy levels to compare.", ["1", "2", "3", "4", "5"], selection_mode="multi")
+        if ij:
+            ijs = list(map(int, ij))
+            self.i = max( ijs )
+            self.j = min( ijs )
+        
         self.sweep_param = st.pills("Choose sweep parameter: ", ["Sweep Well Width", "Sweep Barrier Height", "Sweep Both"])
-        self.plot_diff = st.pills("Choose plot value: ", ["Energy Difference", "Dipole matrix element", "Oscillator Strength"])
-
         if self.sweep_param is not None:
             self.heights, self.widths = self.get_sweep_ranges(self.sweep_param)
         

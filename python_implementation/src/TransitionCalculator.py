@@ -11,7 +11,7 @@ class TransitionCalculator:
         if len(energies) < max(i, j):
             return None
         else:
-            return energies[i-1] - energies[j-1] # FIXME: Needs div by meV.
+            return energies[i-1] - energies[j-1]
     
     def get_dipole(self, z, psis, i, j):
         if len(psis) < max(i, j):
