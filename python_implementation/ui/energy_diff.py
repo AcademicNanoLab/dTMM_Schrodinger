@@ -10,10 +10,10 @@ class EnergyDifferencePage:
 
         from .user_inputs import EnergyDiffInputs
 
+        # Get user inputs
         Inputs = EnergyDiffInputs()
         Inputs.render_energy_diff_inputs()
 
-        ### Calculate
         import src.ConstAndScales
         from src.TransitionCalculator import TransitionCalculator
 
@@ -22,6 +22,7 @@ class EnergyDifferencePage:
         else:
             if st.button("Calculate"):
                 progress_text = "Calculating. Please wait."
+                # init progress bar
                 pbar_val = 0
                 p_bar = st.progress(pbar_val, text=progress_text)
 
@@ -38,19 +39,18 @@ class EnergyDifferencePage:
                         arr[0][1] = h
                         arr[-1][1] = h
                     
+                        # Calculations
                         C2 = Composition.from_array(arr)
-                        
-                        # setup for calculation
                         G = Grid(C2, Inputs.dz, Inputs.material)
                         G.set_K(Inputs.K)
 
-                        # get solver outputs: energies, psis
                         solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
                         energies, wavefunctions = solver.get_wavefunctions()
 
                         T = TransitionCalculator()
                         ediff, dipoles, osc_str = T.calculate(G.z, energies, wavefunctions, Inputs.i, Inputs.j)
 
+                        # Add calculated values ton respective traces
                         if None not in (ediff, dipoles, osc_str):
                             plot_widths.append(w)
                             plot_heights.append(h)
@@ -59,11 +59,13 @@ class EnergyDifferencePage:
                             dipole_trace.append(dipoles / src.ConstAndScales.nano) # type: ignore
                             osc_str_trace.append(osc_str / src.ConstAndScales.E) # type: ignore
                         
+                        # update progress bar
                         pbar_val += int(100/(len(Inputs.heights)*len(Inputs.widths)))
                         p_bar.progress(pbar_val, progress_text)
 
                 from .sweep_visualisation import SweepVisualisation
 
+                # Plot and show graphs 
                 match Inputs.sweep_param:
                     case "Sweep Well Width":
                         typ = "Well Width"

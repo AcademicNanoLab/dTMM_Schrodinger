@@ -9,7 +9,6 @@ from abc import abstractmethod
 import numpy as np
 import math
 from scipy import optimize
-# import cmath
 
 class TMMSolver(BaseSolver):
     def __init__(self, Grid: Grid, nEmax) -> None:
@@ -35,7 +34,7 @@ class TMMSolver(BaseSolver):
     def get_matrix_j(self, j, E):
         Mj = np.identity(2, dtype=complex)
         if (j>1):
-            assert 0 <= j < len(self.meff)
+            # assert 0 <= j < len(self.meff)
             p = self.get_wavevector(j-1,E)
             q = self.get_wavevector(j,E)
             qpq = self.get_coefficient(j,E)

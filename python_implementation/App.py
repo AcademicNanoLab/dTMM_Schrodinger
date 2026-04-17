@@ -9,7 +9,6 @@ sys.path.append("/dTMM_Schrodinger/python_implementation/ui")
 from ui.home import HomePage
 from ui.calculator import CalculatorPage
 from ui.energy_diff import EnergyDifferencePage
-# from ui.animation import AnimationPage
 
 class ElectronicStructureApp:
     def run(self):
