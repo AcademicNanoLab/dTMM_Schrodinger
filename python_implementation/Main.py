@@ -18,31 +18,39 @@ def main():
     material = "AlGaAs"
     K = 1.9
     nstmax = 10
-    solver = "FDM"
+    solver = "TMM"
     nonparabolicity = "Parabolic"
     dz = 0.6
     padding=400
 
-    C = Composition.from_file(layer_file)
+    arr = [
+        [225, 0.2],
+        [80, 0.0],
+        [225, 0.2]
+    ]
+
+    C = Composition.from_array(arr)
     G = Grid(C, dz, material)
     G.set_K(K)
 
     Solver = SolverFactory.create(G, solver, nonparabolicity, nstmax)
 
     [energies, psis] = Solver.get_wavefunctions()
+    # print(Solver.get_matrix_j(2, 100))
+    print("energies:", energies)
     energies_meV = energies / src.ConstAndScales.E
     V = Visualisation(G, energies, psis)
     fig = V.plot_V_wf()
     fig.show()
 
     fig = V.plot_energies()
-    fig.show()
+    # fig.show()
 
     fig = V.plot_energy_diff_thz()
-    fig.show()
+    # fig.show()
 
     fig = V.plot_QCL(K, padding, False, None)
-    fig.show()
+    # fig.show()
 
 if __name__ == "__main__":
     main()
