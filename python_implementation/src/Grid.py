@@ -13,7 +13,7 @@
 
 # from local
 from src import ConstAndScales
-from src import Material
+from src.Material import Material
 
 # from libraries
 import numpy as np
@@ -26,7 +26,7 @@ class Grid:
         self.dz = dz*ConstAndScales.ANGSTROM
         self.z = np.arange(0, np.sum(layer_thickness) + dz, dz)     # Check if dz is necessary in layer thickness + dz.
         self.nz = np.size(self.z)
-        self.material = Material.Material(HeterostructureMaterial)
+        self.material = Material(HeterostructureMaterial)
 
         # Find the cumulative sum of the thickness of each layer and append to x.
         self.x = [0] * self.nz
