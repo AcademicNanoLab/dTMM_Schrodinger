@@ -4,6 +4,8 @@
 # in literature, the Grid class converts them to SI units for further use
 # by the solvers.
 
+# Refractive index are estimated values - couldn't find a credible source
+
 from dataclasses import dataclass
 import numpy as np
 
@@ -33,6 +35,7 @@ class Material:
         self.P   = Parameter(well=9.88,  barr=8.88)
         self.Q   = Parameter(well=8.68,  barr=8.07)
         self.V   = Parameter( well=0.0,  barr=0.67*(self.Eg.barr - self.Eg.well))
+        # self.nr  = 3.3
 
     def set_AlGaSb(self):
         self.m   = Parameter(well=0.041,  barr=0.12)
@@ -42,6 +45,7 @@ class Material:
         self.P   = Parameter(well=9.69,   barr=8.57)
         self.Q   = Parameter(well=8.25,   barr=7.8)
         self.V   = Parameter(well=0.0,    barr=0.55*(self.Eg.barr - self.Eg.well))
+        # self.nr  = Parameter(well=)
 
     def set_InGaAs_InAlAs(self):
         self.m   = Parameter(well=0.043,  barr=0.075)
@@ -51,6 +55,7 @@ class Material:
         self.P   = Parameter(well=9.4189, barr=8.9476)
         self.Q   = Parameter(well=8.1712, barr=7.888)
         self.V   = Parameter(well=0.0,    barr=0.73*(self.Eg.barr - self.Eg.well))
+        # self.nr  = Parameter(well=3.55,   barr=3.35)
 
     def set_InGaAs_GaAsSb(self):
         self.m   = Parameter(well=0.043,   barr=0.045)
@@ -60,6 +65,7 @@ class Material:
         self.P   = Parameter(well=9.4189,  barr=9.7869)
         self.Q   = Parameter(well=8.1712,  barr=8.4693)
         self.V   = Parameter(well=0.0,     barr=1*(self.Eg.barr - self.Eg.well))
+        # self.nr  = 
 
     def get_alpha0g(self, x):
         Eg_alloy = self.interpolate_parameter(x, self.Eg)
@@ -99,7 +105,3 @@ class Material:
             
     def interpolate_parameter(self, x, param: Parameter):
         return param.well + x *(param.barr - param.well)
-
-# a = input("material: ")
-# b = Material(a)
-# print(b.Eg.well)

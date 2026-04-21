@@ -93,7 +93,7 @@ def test_m11_positive(simple_well):
     E = np.mean(solver.V)
 
     m11 = solver.get_m11(E)
-    assert m11 >= 0
+    assert m11 > 0
 
 def test_m11_has_variation(simple_well):
     solver = simple_well
@@ -125,7 +125,6 @@ def test_m11_derivative_matches_fd(simple_well):
 
     analytic = solver.get_m11_derivative(E)
     numeric = numerical_derivative(solver.get_m11, E)
-
     assert np.isclose(analytic, numeric, rtol=1e-2, atol=1e-4)
 
 # ---------- Wavefunction ----------
