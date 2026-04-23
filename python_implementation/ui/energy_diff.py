@@ -3,13 +3,12 @@ import streamlit as st
 class EnergyDifferencePage:
     def render(self):
         st.title("Energy Difference Plots")
-
+        
+        from src.Grid import Grid
         from src.Composition import Composition
         from src.Solvers_FDM import SolverFactory
-        from src.Grid import Grid
 
         from .user_inputs import EnergyDiffInputs
-
         Inputs = EnergyDiffInputs()
         Inputs.render_energy_diff_inputs()
 
@@ -55,9 +54,9 @@ class EnergyDifferencePage:
                             plot_widths.append(w)
                             plot_heights.append(h)
 
-                            ediff_trace.append(ediff / src.ConstAndScales.meV) # type: ignore
-                            dipole_trace.append(dipoles / src.ConstAndScales.nano) # type: ignore
-                            osc_str_trace.append(osc_str / src.ConstAndScales.E) # type: ignore
+                            ediff_trace.append(ediff / src.ConstAndScales.meV) # type: ignore ediff is not None
+                            dipole_trace.append(dipoles / src.ConstAndScales.nano) # type: ignore dipoles is not None
+                            osc_str_trace.append(osc_str / src.ConstAndScales.E) # type: ignore osc_str is not None
                         
                         pbar_val += int(100/(len(Inputs.heights)*len(Inputs.widths)))
                         p_bar.progress(pbar_val, progress_text)
