@@ -5,11 +5,10 @@ from ui.fields import *
 class EnergyDifferencePage:
     def render(self):
         st.title("Energy Difference Plots")
-
+        from src.Grid import Grid
         from src.Composition import Composition
-        from src.Parameters import InputParameters
         from .user_inputs import EnergyDiffInputs
-
+        from src.Solvers_FDM import SolverFactory
         Inputs = EnergyDiffInputs()
         Inputs.render_energy_diff_inputs()
 
@@ -36,12 +35,12 @@ class EnergyDifferencePage:
                         arr[0][1] = h
                         arr[-1][1] = h
 
-                        C2 = Composition.from_array(arr)
-                        IP = InputParameters(C2, Inputs.material, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax, Inputs.dz, Inputs.padding)
-                        
-                        from .solver_service import solve_structure
-                        G, energies, wavefunctions = solve_structure(IP, Inputs.K)
+                        C = Composition.from_array(arr)
+                        G = Grid(C, Inputs.dz, Inputs.material)
+                        G.set_K(Inputs.K)
 
+                        Solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
+                        energies, wavefunctions = Solver.get_wavefunctions()
                         i = 2
                         j = 1
 
