@@ -63,7 +63,7 @@ class EnergyDifferencePage:
                         p_bar.progress(pbar_val, progress_text)
 
                 # Plot graphs
-                from .sweep_visualisation import SweepVisualisation
+                from src.Sweep_Visualisation import SweepVisualisation
 
                 match Inputs.sweep_param:
                     case "Sweep Well Width":
