@@ -31,4 +31,4 @@ class SweepVisualisation:
         return self.single_sweep_plot(self.dipoles, "Dipole Moment", f"Dipole Moments vs {self.typ}")
 
     def osc_str_plot(self):
-        return self.single_sweep_plot(self.osc_strength, "Oscillator Strength", f"Energy difference vs {self.typ}")
+        return self.single_sweep_plot(self.osc_strength, "Oscillator Strength", f"Oscillator Strength vs {self.typ}")

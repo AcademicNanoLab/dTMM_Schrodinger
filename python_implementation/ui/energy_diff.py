@@ -47,6 +47,7 @@ class EnergyDifferencePage:
                         solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
                         energies, wavefunctions = solver.get_wavefunctions()
 
+                        # Calculate Energy difference, dipile moment and oscillator strength between the energy levels.
                         T = TransitionCalculator()
                         ediff, dipoles, osc_str = T.calculate(G.z, energies, wavefunctions, Inputs.i, Inputs.j)
 
@@ -61,6 +62,7 @@ class EnergyDifferencePage:
                         pbar_val += int(100/(len(Inputs.heights)*len(Inputs.widths)))
                         p_bar.progress(pbar_val, progress_text)
 
+                # Plot graphs
                 from .sweep_visualisation import SweepVisualisation
 
                 match Inputs.sweep_param:

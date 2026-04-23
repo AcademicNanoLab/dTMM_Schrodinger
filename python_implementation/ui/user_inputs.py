@@ -105,6 +105,9 @@ class EnergyDiffInputs(UserInputs):
         ij = st.pills("Select energy levels to compare.", ["1", "2", "3", "4", "5"], selection_mode="multi")
         if ij:
             ijs = list(map(int, ij))
+            if len(ijs) != 2:
+                st.markdown(":red-badge[**Please select 2 energy levels.**]")
+
             self.i = max( ijs )
             self.j = min( ijs )
         
