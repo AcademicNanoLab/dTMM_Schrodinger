@@ -1,8 +1,10 @@
 import streamlit as st
+from src.Material import Material
 
 class UserInputs:
     def __init__(self) -> None:
         self.material = None
+        self.M = None
         self.solver = None
         self.nonparabolicity = None
         self.nstmax = None
@@ -28,7 +30,9 @@ class UserInputs:
         self.K = self.k_input()
 
     def material_input(self):
-        return st.selectbox("Material", ["AlGaAs", "AlGaSb", "InGaAs_InAlAs", "InGaAs_GaAsSb"])
+        choice = st.selectbox("Material", ["AlGaAs", "AlGaSb", "InGaAs_InAlAs", "InGaAs_GaAsSb"])
+        self.M = Material(choice)
+        return choice
 
     def solver_input(self):
         return st.pills("Solver", ["FDM", "TMM"])

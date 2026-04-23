@@ -29,6 +29,7 @@ class EnergyDifferencePage:
                 osc_str_trace = []
 
                 plot_heights = []
+                plot_height2 = []
                 for h in Inputs.heights:
                     plot_widths = []
                     for w in Inputs.widths:
@@ -53,6 +54,8 @@ class EnergyDifferencePage:
 
                         if None not in (ediff, dipoles, osc_str):
                             plot_widths.append(w)
+                            barrier_height = src.ConstAndScales.E *Inputs.M.interpolate_parameter(h, Inputs.M.V) / src.ConstAndScales.meV # type: ignore
+                            plot_height2.append(barrier_height)
                             plot_heights.append(h)
 
                             ediff_trace.append(ediff / src.ConstAndScales.meV) # type: ignore ediff is not None
@@ -70,9 +73,9 @@ class EnergyDifferencePage:
                         typ = "Well Width"
                         V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_widths, typ)
                     
-                    case "Sweep Barrier Height":
+                    case "Sweep Barrier Height": # TODO: add second x axis with 
                         typ = "Barrier Height"
-                        V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_heights, typ)
+                        V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_height2, typ)
 
                 st.plotly_chart(V.ediff_plot())
                 st.plotly_chart(V.dipoles_plot())

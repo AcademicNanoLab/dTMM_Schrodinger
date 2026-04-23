@@ -6,6 +6,7 @@ class TransitionCalculator:
         self.m_e = src.ConstAndScales.m0
         self.hbar = src.ConstAndScales.HBAR
         self.meV = src.ConstAndScales.meV
+        self.A = src.ConstAndScales.ANGSTROM
     
     def get_energy_diff(self, energies, i, j):
         if len(energies) < max(i, j):
@@ -31,14 +32,15 @@ class TransitionCalculator:
         integrand = psi_i * z * psi_j
         for iz in range(1,len(z)):
             integral+= dz * (integrand[iz-1]+integrand[iz])/2
-        return abs(integral)
+        
+        return abs(integral) / self.A
     
     def get_oscillator_strength(self, z, energies, psis, i,j):
         e_ij = self.get_energy_diff(energies, i,j)
         if e_ij is None:
             return None
         else:
-            d_ij = self.get_dipole(z, psis, i,j)
+            d_ij = self.get_dipole(z, psis, i,j) * self.A # type: ignore
             if d_ij is None:
                 return None
             return (2*self.m_e / self.hbar**2) * e_ij * abs(d_ij)**2
