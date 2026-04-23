@@ -32,4 +32,4 @@ class CalculatorPage:
                 st.plotly_chart(V.plot_V_wf())
                 st.plotly_chart(V.plot_energies())
                 st.plotly_chart(V.plot_energy_diff_thz())
-                st.plotly_chart(V.plot_QCL(Inputs.K, Inputs.padding, False, None)) # type: ignore
+                st.plotly_chart(V.plot_QCL(Inputs.K, Inputs.padding, False, None)) # type: ignore "inputs.K" and "inputs.padding" are never None here.
