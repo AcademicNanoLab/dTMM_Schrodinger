@@ -35,7 +35,7 @@ class Material:
         self.P   = Parameter(well=9.88,  barr=8.88)
         self.Q   = Parameter(well=8.68,  barr=8.07)
         self.V   = Parameter( well=0.0,  barr=0.67*(self.Eg.barr - self.Eg.well))
-        # self.nr  = 3.3
+        self.nr  = 3.9      # https://refractiveindex.info/?shelf=other&book=AlAs-GaAs&page=Aspnes-0 
 
     def set_AlGaSb(self):
         self.m   = Parameter(well=0.041,  barr=0.12)
@@ -45,7 +45,7 @@ class Material:
         self.P   = Parameter(well=9.69,   barr=8.57)
         self.Q   = Parameter(well=8.25,   barr=7.8)
         self.V   = Parameter(well=0.0,    barr=0.55*(self.Eg.barr - self.Eg.well))
-        # self.nr  = Parameter(well=)
+        self.nr  = 5.0      # https://refractiveindex.info/?shelf=other&book=AlSb-GaSb&page=Ferrini-10 
 
     def set_InGaAs_InAlAs(self):
         self.m   = Parameter(well=0.043,  barr=0.075)
@@ -55,7 +55,7 @@ class Material:
         self.P   = Parameter(well=9.4189, barr=8.9476)
         self.Q   = Parameter(well=8.1712, barr=7.888)
         self.V   = Parameter(well=0.0,    barr=0.73*(self.Eg.barr - self.Eg.well))
-        # self.nr  = Parameter(well=3.55,   barr=3.35)
+        self.nr  = 3.4      # https://www.batop.de/information/n_InGaAs.html
 
     def set_InGaAs_GaAsSb(self):
         self.m   = Parameter(well=0.043,   barr=0.045)
@@ -65,7 +65,7 @@ class Material:
         self.P   = Parameter(well=9.4189,  barr=9.7869)
         self.Q   = Parameter(well=8.1712,  barr=8.4693)
         self.V   = Parameter(well=0.0,     barr=1*(self.Eg.barr - self.Eg.well))
-        # self.nr  = 
+        self.nr  = 3.4      # https://www.batop.de/information/n_InGaAs.html 
 
     def get_alpha0g(self, x):
         Eg_alloy = self.interpolate_parameter(x, self.Eg)

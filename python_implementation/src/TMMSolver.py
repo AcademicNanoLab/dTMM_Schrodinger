@@ -68,7 +68,7 @@ class TMMSolver(BaseSolver):
         nz=self.G.get_nz()
         TM_left = np.zeros((2, 2, nz), dtype=complex)
         TM_left[:,:,0]=np.identity(2)
-        for j in range(2, nz):
+        for j in range(1, nz):
             Mj=self.get_matrix_j(j,E)
             TM_left[:,:,j]= Mj @ TM_left[:,:,j-1]
 
@@ -79,7 +79,7 @@ class TMMSolver(BaseSolver):
         TM_right = np.zeros((2, 2, nz), dtype=complex)
         TM_right[:,:,nz-1] = self.get_matrix_j(nz-1, E)
 
-        for j in range(nz-2, 1, -1):
+        for j in range(nz-2, 0, -1):
             Mj = self.get_matrix_j(j, E)
             TM_right[:,:,j] = TM_right[:,:,j+1] @ Mj
         
@@ -89,7 +89,7 @@ class TMMSolver(BaseSolver):
     def get_m11(self, E):
         nz = self.G.get_nz()
         TM = np.identity(2, dtype=complex)
-        for j in range(2, nz):
+        for j in range(1, nz):
             Mj = self.get_matrix_j(j, E)
             TM = Mj @ TM
         m11=abs(TM[0,0])
@@ -102,7 +102,7 @@ class TMMSolver(BaseSolver):
         TM_left = self.get_left_TMM_cumulative_sum(E)
         TM_right = self.get_right_TMM_cumulative_sum(E)
         
-        for j in range(2, nz-1):
+        for j in range(1, nz-1):
             dMj = self.get_matrix_derivative_j(j, E)
             A = TM_right[:,:,j+1]
             B = TM_left[:,:,j-1]
