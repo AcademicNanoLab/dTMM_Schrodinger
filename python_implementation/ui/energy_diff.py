@@ -73,9 +73,9 @@ class EnergyDifferencePage:
                         typ = "Well Width"
                         V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_widths, typ)
                     
-                    case "Sweep Barrier Height": # TODO: add second x axis with 
-                        typ = "Barrier Height"
-                        V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_height2, typ)
+                    case "Sweep Molar Content":
+                        typ = "Molar Content"
+                        V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_heights, typ, plot_height2)
 
                 st.plotly_chart(V.ediff_plot())
                 st.plotly_chart(V.dipoles_plot())
