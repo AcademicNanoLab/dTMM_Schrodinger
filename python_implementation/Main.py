@@ -5,6 +5,8 @@
 #
 
 import sys
+
+import src.Material
 sys.path.append("/dTMM_Schrodinger/python_implementation/src")
 
 import plotly.graph_objects as go
@@ -15,13 +17,14 @@ from src.Grid import Grid
 from src.Composition import Composition
 from src.Visualisation import Visualisation
 from src.Solvers_FDM import SolverFactory
+from src.Material import Material
 
 def main():
     layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
     material = "AlGaAs"
-    K = 5
+    K = 0.1
     nstmax = 10
-    solver = "TMM"
+    solver = "FDM"
     nonparabolicityType = "Parabolic"
     dz = 0.6
     padding=100
@@ -29,7 +32,7 @@ def main():
     from src.Parameters import InputParameters
     arr = [
         [225, 0.2],
-        [80, 0],
+        [200, 0],
         [225, 0.2]
     ]
 
@@ -44,11 +47,11 @@ def main():
     # energies_meV = energies / src.ConstAndScales.E
 
     V = Visualisation(G, energies, psis)
-    fig = V.plot_V_wf()
+    # fig = V.plot_V_wf()
     # fig.show()
 
-    fig = V.plot_wavefunction()
-    fig.show()
+    # fig = V.plot_wavefunction()
+    # fig.show()
 
     # fig = V.plot_energies()
     # fig.show()
@@ -59,50 +62,70 @@ def main():
     # fig = V.plot_QCL(K, padding, False, None)
     # fig.show()
     
-    # fig = plot_E2E1_diff(90, 100, 10, IP, K)
+    fig = plot_E2E1_diff(90, 100, 10, IP, K)
     # fig = plot_E2E1_diff(50, 200, 10, IP, K)
     # fig.show()
 
 def plot_E2E1_diff(start, end, inc, IP, K):
     fig = go.Figure()
-    for j in np.arange(0.15, 0.40, 0.05):
-        x_axis = []
-        trace = []
-        print(f"Calculating for height = {j:.2f}")
-        for i in range(start, end, inc):
-            arr = [
-                [225, j],
-                [i, 0],
-                [225, j]
-            ]
 
-            # C = Composition.from_file(layer_file)
-            C2 = Composition.from_array(arr)
-            G = Grid(C2, IP.dz, IP.material)
-            G.set_K(K)
+    M = Material(IP.material)
+    c_band_offset = 100 # meV
+    x = ( c_band_offset * src.ConstAndScales.meV / src.ConstAndScales.E) / M.V.barr
 
-            Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
+    # for j in np.arange(0.30, 0.40, 0.05):
+    x_axis = []
+    E1_list = []
+    E2_list = []
+    E3_list = []
+    # print(f"Calculating for height = {x:.2f}")
+    for i in range(10, 210, 10):
+        x_axis.append(i)
+        arr = [
+            [225, x],
+            [i, 0],
+            [225, x]
+        ]
 
-            [energies, psis] = Solver.get_wavefunctions()
-            energies_meV = energies / src.ConstAndScales.meV
+        # C = Composition.from_file(layer_file)
+        C2 = Composition.from_array(arr)
+        G = Grid(C2, IP.dz, IP.material)
+        G.set_K(K)
 
-            if len(energies) > 1:
-                print(f"Energy_diff: @{i}, {energies_meV[1] - energies_meV[0]:.2f}")
-                x_axis.append(i)
-                trace.append(energies_meV[1] - energies_meV[0])
-        
-        fig.add_trace(go.Scatter(
-            x=x_axis,
-            y=trace,
-            mode='lines+markers',
-            name=f"x = {j:.2f}"
-        ))
+        Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
+
+        [energies, psis] = Solver.get_wavefunctions()
+        energies_meV = energies / src.ConstAndScales.meV
+
+        if len(energies_meV) > 2:
+            E1_list.append(energies_meV[0])
+            E2_list.append(energies_meV[1])
+            E3_list.append(energies_meV[2])
+        elif len(energies_meV) > 1:
+            E1_list.append(energies_meV[0])
+            E2_list.append(energies_meV[1])
+            E3_list.append(None)
+        elif len(energies_meV) > 0:
+            E1_list.append(energies_meV[0])
+            E2_list.append(None)
+            E3_list.append(None)
+        else:
+            E1_list.append(None)
+            E2_list.append(None)
+            E3_list.append(None)
+            
+
+        # print(energies_meV)
+    fig.add_trace(go.Scatter(x=x_axis, y=E1_list, mode='lines+markers', name=f'E1 (x={x:.2f})'))
+    fig.add_trace(go.Scatter(x=x_axis, y=E2_list, mode='lines+markers', name=f'E2 (x={x:.2f})'))
+    fig.add_trace(go.Scatter(x=x_axis, y=E3_list, mode='lines+markers', name=f'E3 (x={x:.2f})'))
 
     fig.update_layout(
-        title="(E2 - E1) vs. quantum well width",
-        xaxis_title="Width (Å)",
-        yaxis_title="Energy difference (meV)"
+        xaxis_title = 'Width (Angstrom)',
+        yaxis_title = 'Energy (meV)',
+        title = 'Energy levels in a GaAs single quantum well, with constant effective mass'
     )
+    fig.show()
     return fig
 
 if __name__ == "__main__":
