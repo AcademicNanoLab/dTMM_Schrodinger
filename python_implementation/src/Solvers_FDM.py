@@ -2,9 +2,11 @@
 #
 # Store classes for different FDM Solvers
 
+import scipy.sparse
 from src.FDMSolver import FDMSolver
 from src import ConstAndScales
 
+import scipy
 import numpy as np
 import math
 
@@ -14,7 +16,8 @@ class Parabolic_FDM(FDMSolver): # type: ignore
 
     def construct_matrix(self):
         nz = self.G.get_nz()
-        A = np.zeros((nz, nz))
+        # A = np.zeros((nz, nz))
+        A = scipy.sparse.lil_matrix((nz, nz))
         scale = math.pow( (ConstAndScales.HBAR / self.G.get_dz()), 2) / 4.0
 
         for i in range(nz-1):
@@ -27,7 +30,7 @@ class Parabolic_FDM(FDMSolver): # type: ignore
         
         A[0, 0] = A[1, 1]
         A[nz-1, nz-1] = A[nz-2, nz-2]
-        return A
+        return A.tocsr()
 
 class Kane_FDM(FDMSolver):      # type: ignore
     def __init__(self, Grid, nEmax) -> None:
@@ -35,7 +38,8 @@ class Kane_FDM(FDMSolver):      # type: ignore
 
     def construct_matrix(self):
         nz = self.G.get_nz()
-        A = np.zeros((4*nz, 4*nz))
+        # A = np.zeros((4*nz, 4*nz))
+        A = scipy.sparse.lil_matrix((4*nz, 4*nz))
         scale = math.pow(ConstAndScales.HBAR / self.G.get_dz(), 2) / 4.0
 
         for i in range(nz):
@@ -89,7 +93,7 @@ class Kane_FDM(FDMSolver):      # type: ignore
             A[nz+i,2*nz+i] = 1.0
             A[2*nz+i,3*nz+i] = 1.0         
 
-        return A
+        return A.tocsr()
 
 class Taylor_FDM(FDMSolver):    # type: ignore
     def __init__(self, Grid, nEmax) -> None:
@@ -97,7 +101,8 @@ class Taylor_FDM(FDMSolver):    # type: ignore
 
     def construct_matrix(self):
         nz = self.G.get_nz()
-        A = np.zeros((nz, nz))
+        # A = np.zeros((nz, nz))
+        A = scipy.sparse.lil_matrix((nz,nz))
         B = A
         scale = math.pow(ConstAndScales.HBAR/self.G.get_dz(), 2) / 4.0
 
@@ -112,7 +117,7 @@ class Taylor_FDM(FDMSolver):    # type: ignore
                 B[i,i] = 1.0 + scale * (self.alpha[i+1] / self.meff[i+1] + 2.0 * self.alpha[i] / self.meff[i] + self.alpha[i-1] / self.meff[i-1])
                 A[i,i] = self.V[i] + scale * ((1.0+self.alpha[i+1]*self.V[i+1])/self.meff[i+1] + 2.0 * (1.0+self.alpha[i]*self.V[i])/self.meff[i] + (1.0+self.alpha[i-1]*self.V[i-1])/self.meff[i-1])
 			    
-        return A
+        return A.tocsr()
     
 class SolverFactory:
     from src.Solvers_FDM import Parabolic_FDM, Taylor_FDM, Kane_FDM

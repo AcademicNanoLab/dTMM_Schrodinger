@@ -44,19 +44,19 @@ class FDMSolver(BaseSolver):
         nz = self.G.get_nz()
         A = self.construct_matrix()
 
-        if A.shape[0] == 4*nz: # type: ignore
-            # Recognised Kane matrix, use sparse solver
-            A_sparse = sp.csr_matrix(A)
-            k = min(max(20, self.nE), A_sparse.shape[0]-2) # type: ignore
-            sigma = np.mean([min(self.V), max(self.V)])
-            eigenvalues, eigenvectors = spla.eigs(A_sparse, k=k, sigma=sigma, which="LM") # type: ignore
-            eigenvectors = eigenvectors.real # type: ignore
-            eigenvalues = eigenvalues.real # type: ignore
-        else:                   
-            # Not Kane matrix, use dense solver.
-            eigenvalues, eigenvectors = np.linalg.eig(A) # type: ignore
-            eigenvectors = eigenvectors.real
-            eigenvalues = eigenvalues.real
+        # if A.shape[0] == 4*nz: # type: ignore
+        # Recognised Kane matrix, use sparse solver
+        A_sparse = sp.csr_matrix(A)
+        k = min(max(20, self.nE), A_sparse.shape[0]-2) # type: ignore
+        sigma = np.mean([min(self.V), max(self.V)])
+        eigenvalues, eigenvectors = spla.eigs(A_sparse, k=k, sigma=sigma, which="LM") # type: ignore
+        eigenvectors = eigenvectors.real # type: ignore
+        eigenvalues = eigenvalues.real # type: ignore
+        # else:                   
+        #     # Not Kane matrix, use dense solver.
+        #     eigenvalues, eigenvectors = np.linalg.eig(A) # type: ignore
+        #     eigenvectors = eigenvectors.real
+        #     eigenvalues = eigenvalues.real
 
         Eidx = self.sort_and_filter_eigenvalues(eigenvalues)
 
