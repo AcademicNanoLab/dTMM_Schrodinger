@@ -22,31 +22,47 @@ from src.Material import Material
 def main():
     layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
     material = "AlGaAs"
-    K = 0.1
+    K = 1.9
     nstmax = 10
     solver = "FDM"
     nonparabolicityType = "Parabolic"
-    dz = 0.6
-    padding=100
-
-    from src.Parameters import InputParameters
+    dz = 0.2
+    padding=400
+    dz_vals = [0.2, 0.5, 0.7, 1, 2]
     arr = [
         [225, 0.2],
         [200, 0],
         [225, 0.2]
     ]
 
-    # C = Composition.from_file(layer_file)
-    C = Composition.from_array(arr)
-    IP = InputParameters(C, material, solver, nonparabolicityType, nstmax, dz, padding)
-    G = Grid(C, IP.dz, IP.material)
-    G.set_K(K)
+    C = Composition.from_file(layer_file)
+    # C = Composition.from_array(arr)
 
-    Solver = SolverFactory.create(G, IP.solver, IP.np_type, IP.nst_max)
-    [energies, psis] = Solver.get_wavefunctions()
-    # energies_meV = energies / src.ConstAndScales.E
+    # import timeit
+    # for dz in dz_vals:
+    #     # print("make grid")
+    #     G = Grid(C, dz, material)
+    #     G.set_K(K)
 
-    V = Visualisation(G, energies, psis)
+    #     # get solver outputs: energies, psis
+    #     Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
+    #     # print("make wavefunction")
+    #     energies, psis = Solver.get_wavefunctions()
+    #     # print("print time")
+    #     t = timeit.repeat(lambda: Solver.get_wavefunctions(), repeat=5, number=1)
+    #     print(min(t))  # best timing
+
+    # nps = ["Parabolic", "Kane", "Taylor"]
+    # for np in nps:
+    #     G = Grid(C, dz, material)
+    #     G.set_K(K)
+
+    #     Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
+    #     [energies, psis] = Solver.get_wavefunctions()
+    #     energies_meV = energies / src.ConstAndScales.meV
+    #     energy_table_comparison(np, energies_meV)
+
+    # V = Visualisation(G, energies, psis)
     # fig = V.plot_V_wf()
     # fig.show()
 
@@ -61,7 +77,8 @@ def main():
 
     # fig = V.plot_QCL(K, padding, False, None)
     # fig.show()
-    
+    from src.Parameters import InputParameters
+    IP = InputParameters(C, material, solver, nonparabolicityType, nstmax, dz, padding)
     fig = plot_E2E1_diff(90, 100, 10, IP, K)
     # fig = plot_E2E1_diff(50, 200, 10, IP, K)
     # fig.show()
@@ -73,12 +90,10 @@ def plot_E2E1_diff(start, end, inc, IP, K):
     c_band_offset = 100 # meV
     x = ( c_band_offset * src.ConstAndScales.meV / src.ConstAndScales.E) / M.V.barr
 
-    # for j in np.arange(0.30, 0.40, 0.05):
     x_axis = []
     E1_list = []
     E2_list = []
     E3_list = []
-    # print(f"Calculating for height = {x:.2f}")
     for i in range(10, 210, 10):
         x_axis.append(i)
         arr = [
@@ -96,7 +111,7 @@ def plot_E2E1_diff(start, end, inc, IP, K):
 
         [energies, psis] = Solver.get_wavefunctions()
         energies_meV = energies / src.ConstAndScales.meV
-
+        print(energies_meV)
         if len(energies_meV) > 2:
             E1_list.append(energies_meV[0])
             E2_list.append(energies_meV[1])
@@ -121,12 +136,52 @@ def plot_E2E1_diff(start, end, inc, IP, K):
     fig.add_trace(go.Scatter(x=x_axis, y=E3_list, mode='lines+markers', name=f'E3 (x={x:.2f})'))
 
     fig.update_layout(
-        xaxis_title = 'Width (Angstrom)',
-        yaxis_title = 'Energy (meV)',
-        title = 'Energy levels in a GaAs single quantum well, with constant effective mass'
+        xaxis_title=dict(
+            text='Width [Å]',
+            font=dict(size=24)
+        ),
+        yaxis_title=dict(
+            text='Energy [meV]',
+            font=dict(size=24)
+        ),
+        title=dict(
+            text='Energy levels in a GaAs single quantum well, with constant effective mass',
+            font=dict(size=28)
+        )
     )
     fig.show()
     return fig
+
+def energy_table_comparison(np, energies_meV):
+    file_path = "test/St1_FDM2.csv"
+    import csv
+    import os
+    # Create header if file doesn't exist
+    if not os.path.exists(file_path):
+        with open(file_path, mode="w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Level", np])
+            for i, e in enumerate(energies_meV, start=1):
+                writer.writerow([f"E{i} [meV]", f"{e:.4f}"])
+    else:
+        # Read existing data
+        with open(file_path, mode="r", newline="") as f:
+            rows = list(csv.reader(f))
+
+        # Add new column header
+        rows[0].append(np)
+
+        # Add corresponding energy values
+        for i, e in enumerate(energies_meV, start=1):
+            if i < len(rows):
+                rows[i].append(f"{e:.4f}")
+            else:
+                rows.append([f"E{i} [meV]", f"{e:.4f}"])
+
+        # Write updated data back
+        with open(file_path, mode="w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(rows)
 
 if __name__ == "__main__":
     main()
