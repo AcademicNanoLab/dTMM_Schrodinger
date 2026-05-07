@@ -23,7 +23,7 @@ class Visualisation:
         fig = go.Figure()
 
         for p in range(1):
-            shift = (p-1)*Lper
+            shift = p*Lper
             base = self.G.get_bandstructure_potential() /ConstAndScales.meV - 1e-2*K*Lper*(p-1)
             zz = z[npad:-npad] + shift
             fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=3)))

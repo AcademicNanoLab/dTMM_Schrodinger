@@ -21,7 +21,7 @@ class BaseSolver(ABC):
         self.meff = self.G.get_effective_mass()
         self.nE = nEmax
         
-        self.tolerance = np.float64(8.88e-6)
+        self.tolerance = np.float64(10e-16)
 
     @abstractmethod
     def get_wavefunctions(self):

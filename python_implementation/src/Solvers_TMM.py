@@ -16,30 +16,24 @@ class Parabolic_TMM(TMMSolver): # type: ignore
         self.alpha = Grid.get_alpha_kane()
     
     def get_wavevector(self, j, E):
-        return np.lib.scimath.sqrt(2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E))
+        return np.lib.scimath.sqrt( 2.0*self.meff[j]/self.hbar_pow2*(self.V[j]-E) )
 
     def get_wavevector_derivative(self, j, E):
         kj = self.get_wavevector(j,E)
-        if abs(kj) < 1e-14:
-            kj = 1e-14 + 0j
         return (- self.meff[j] / (kj * self.hbar_pow2))
     
     def get_coefficient(self, j, E):
-        j_prev = max(j-1, 0)
+        j_prev = j-1
         p = self.get_wavevector(j_prev,E)
         q = self.get_wavevector(j,E)
-        if abs(q) < 1e-14:
-            q = 1e-14 + 0j
         return self.meff[j] / self.meff[j_prev] * p / q
     
     def get_coefficient_derivative(self, j, E):
-        j_prev = max(j-1, 0)
+        j_prev = j-1
         p = self.get_wavevector(j_prev,E)
         q = self.get_wavevector(j,E)
         dp = self.get_wavevector_derivative(j_prev,E)
         dq = self.get_wavevector_derivative(j,E)
-        if abs(q) < 1e-14:
-            q = 1e-14 + 0j
         return self.meff[j] / self.meff[j_prev] * (q*dp-p*dq)/(q * q)
 
 class Taylor_TMM(TMMSolver): # type: ignore
