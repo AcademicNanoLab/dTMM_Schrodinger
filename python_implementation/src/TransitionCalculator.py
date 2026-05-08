@@ -22,12 +22,7 @@ class TransitionCalculator:
         psi_j = psis[j-1]
 
         dz = z[1] - z[0]
-
-        integ=np.abs(psi_i)*np.abs(psi_i)
-        temp=0
-        for iz in range(1,len(z)):
-            temp+= dz * (integ[iz-1]+integ[iz])/2
-
+        
         integral=0
         integrand = psi_i * z * psi_j
         for iz in range(1,len(z)):

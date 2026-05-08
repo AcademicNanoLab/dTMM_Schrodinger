@@ -1,5 +1,5 @@
 #
-# Visualization object that plots outputs of SchrodingerNonparabolic solver
+#   Core Visualisation functions using plotly. 
 #
 
 import numpy as np
@@ -26,16 +26,16 @@ class Visualisation:
             shift = p*Lper
             base = self.G.get_bandstructure_potential() /ConstAndScales.meV - 1e-2*K*Lper*(p-1)
             zz = z[npad:-npad] + shift
-            fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=3)))
+            fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=4)))
 
             for i, Ei in enumerate(self.E):
                 wf = 1e3*(np.abs(self.psi[i][npad:-npad])**2) + Ei/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
-                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines'))
+                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines', line=dict(width=3)))
         
         fig.update_layout(
-            title = 'Bandstructure Profile',
-            xaxis_title = 'z [Å]',
-            yaxis_title = 'V [meV]'
+            title = dict(text='Bandstructure Profile', y=0.95, font=dict(size=22)),
+            xaxis = dict(title='z [Å]', title_font=dict(size=16) ,tickfont=dict(size=16)),
+            yaxis = dict(title='V [meV]', title_font=dict(size=16) ,tickfont=dict(size=16))
         )
     
         return fig
@@ -51,16 +51,16 @@ class Visualisation:
             shift = (p-1)*Lper
             base = self.G.get_bandstructure_potential() /ConstAndScales.meV - 1e-2*K*Lper*(p-1)
             zz = z[npad:-npad] + shift
-            fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=3)))
+            fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=4)))
 
             for i, Ei in enumerate(self.E):
                 wf = 1e3*(np.abs(self.psi[i][npad:-npad])**2) + Ei/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
-                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines'))
+                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines', line = dict(width=3)))
         
         fig.update_layout(
-            title = f'K = {K}' if is_gif else 'Two QCL Periods',
-            xaxis_title = 'z [Å]', 
-            yaxis_title = 'V [meV]'
+            title = dict(text='Two QCL Periods', y=0.95, font=dict(size=22)),
+            xaxis = dict(title='z [Å]', title_font=dict(size=16) ,tickfont=dict(size=16)),
+            yaxis = dict(title='V [meV]', title_font=dict(size=16) ,tickfont=dict(size=16))
         )
 
         if axis:
