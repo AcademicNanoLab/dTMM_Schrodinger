@@ -5,8 +5,6 @@
 #
 
 import sys
-
-import src.Material
 sys.path.append("/dTMM_Schrodinger/python_implementation/src")
 
 import plotly.graph_objects as go
@@ -20,15 +18,15 @@ from src.Solvers_FDM import SolverFactory
 from src.Material import Material
 
 def main():
-    layer_file = "test/Structure2_LO_InGaAs_InAlAs.txt"
+    layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
     material = "AlGaAs"
-    K = 0.1
+    K = 1.9
     nstmax = 10
-    solver = "FDM"
+    solver = "TMM"
     nonparabolicityType = "Parabolic"
     dz = 0.6
     padding=400
-    dz_vals = [0.2, 0.5, 0.7, 1, 2]
+    dz_vals = [2, 1, 0.7, 0.5, 0.2]
     arr = [
         [225, 0.2],
         [200, 0],
@@ -38,38 +36,39 @@ def main():
     C = Composition.from_file(layer_file)
     # C = Composition.from_array(arr)
 
-    # import timeit
-    # for dz in dz_vals:
-    #     # print("make grid")
-    G = Grid(C, dz, material)
-    G.set_K(K)
+    # -------- test time -------- #
+    import timeit
+    for dz in dz_vals:
+        G = Grid(C, dz, material)
+        G.set_K(K)
 
-    # get solver outputs: energies, psis
-    Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
-    # print("make wavefunction")
-    energies, psis = Solver.get_wavefunctions()
-    energies_meV = energies / src.ConstAndScales.meV
-    print(solver, energies_meV)
+        Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
+        energies, psis = Solver.get_wavefunctions()
 
-    # print("print time")
-    # t = timeit.repeat(lambda: Solver.get_wavefunctions(), repeat=5, number=1)
-    # print(min(t))  # best timing
+        t = timeit.repeat(lambda: Solver.get_wavefunctions(), repeat=5, number=1)
+        print(min(t))  # best timing
 
+    # -------- test energies -------- #
     # nps = ["Parabolic", "Kane", "Taylor"]
     # for np in nps:
     #     G = Grid(C, dz, material)
     #     G.set_K(K)
 
-    #     Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
+    #     Solver = SolverFactory.create(G, solver, np, nstmax)
     #     [energies, psis] = Solver.get_wavefunctions()
     #     energies_meV = energies / src.ConstAndScales.meV
     #     energy_table_comparison(np, energies_meV)
 
-    V = Visualisation(G, energies, psis)
-    fig = V.plot_V_wf()
-    fig.show()
+    # -------- plot graphs -------- #
+    # G = Grid(C, dz, material)
+    # G.set_K(K)
 
-    # fig = V.plot_wavefunction()
+    # Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
+    # [energies, psis] = Solver.get_wavefunctions()
+    # energies_meV = energies / src.ConstAndScales.meV
+
+    # V = Visualisation(G, energies, psis)
+    # fig = V.plot_V_wf()
     # fig.show()
 
     # fig = V.plot_energies()
@@ -81,6 +80,7 @@ def main():
     # fig = V.plot_QCL(K, padding, False, None)
     # fig.show()
 
+    # -------- plot energy differences ------- #
     # from src.Parameters import InputParameters
     # IP = InputParameters(C, material, solver, nonparabolicityType, nstmax, dz, padding)
     # fig = plot_E2E1_diff(90, 100, 10, IP, K)

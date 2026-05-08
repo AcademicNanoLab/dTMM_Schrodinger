@@ -44,7 +44,7 @@ class FDMSolver(BaseSolver):
         nz = self.G.get_nz()
         A = self.construct_matrix()
 
-        if A.shape[0] == 4*nz: # type: ignore
+        if sp.issparse(A): # type: ignore
             # Recognised Kane matrix, use sparse solver
             A_sparse = sp.csr_matrix(A)
             k = min(max(20, self.nE), A_sparse.shape[0]-2) # type: ignore
