@@ -27,11 +27,11 @@ class SweepVisualisation:
             ))
             fig.update_layout(
                 xaxis=dict(
-                    title="Molar Content (%)",
+                    title="Molar Content [%]",
                     title_font=dict(size=16),
                     tickfont = dict(size=16)),
                 xaxis2=dict(
-                    title="Conduction Band Offset (meV)",
+                    title="Conduction Band Offset [meV]",
                     title_font=dict(size=16),
                     tickfont = dict(size=16),
                     overlaying='x',
@@ -49,7 +49,7 @@ class SweepVisualisation:
         else:
             fig.update_layout(
                 xaxis=dict(
-                    title="Width (Å)",
+                    title="Width [Å]",
                     title_font=dict(size=16),
                     tickfont = dict(size=16)
                 ),
@@ -64,10 +64,10 @@ class SweepVisualisation:
         return fig
 
     def ediff_plot(self):
-        return self.single_sweep_plot(self.ediff, "Energy (meV)", f"Energy difference vs {self.typ}")
+        return self.single_sweep_plot(self.ediff, "Energy [meV]", f"Energy difference vs {self.typ}")
     
     def dipoles_plot(self):
-        return self.single_sweep_plot(self.dipoles, "Dipole Moment", f"Dipole Moments vs {self.typ}")
+        return self.single_sweep_plot(self.dipoles, "Dipole Moment [e nm]", f"Dipole Moments vs {self.typ}")
 
     def osc_str_plot(self):
         return self.single_sweep_plot(self.osc_strength, "Oscillator Strength", f"Oscillator Strength vs {self.typ}")

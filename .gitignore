@@ -3,3 +3,4 @@ venv/
 python_implementation/src/__pycache__/
 *.pyc
 .env/
+.DS_Store

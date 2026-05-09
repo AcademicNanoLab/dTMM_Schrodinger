@@ -20,13 +20,13 @@ from src.Solvers_FDM import SolverFactory
 from src.Material import Material
 
 def main():
-    layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
+    layer_file = "test/Structure2_LO_InGaAs_InAlAs.txt"
     material = "AlGaAs"
-    K = 1.9
+    K = 0.1
     nstmax = 10
     solver = "FDM"
     nonparabolicityType = "Parabolic"
-    dz = 0.2
+    dz = 0.6
     padding=400
     dz_vals = [0.2, 0.5, 0.7, 1, 2]
     arr = [
@@ -41,16 +41,19 @@ def main():
     # import timeit
     # for dz in dz_vals:
     #     # print("make grid")
-    #     G = Grid(C, dz, material)
-    #     G.set_K(K)
+    G = Grid(C, dz, material)
+    G.set_K(K)
 
-    #     # get solver outputs: energies, psis
-    #     Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
-    #     # print("make wavefunction")
-    #     energies, psis = Solver.get_wavefunctions()
-    #     # print("print time")
-    #     t = timeit.repeat(lambda: Solver.get_wavefunctions(), repeat=5, number=1)
-    #     print(min(t))  # best timing
+    # get solver outputs: energies, psis
+    Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
+    # print("make wavefunction")
+    energies, psis = Solver.get_wavefunctions()
+    energies_meV = energies / src.ConstAndScales.meV
+    print(solver, energies_meV)
+
+    # print("print time")
+    # t = timeit.repeat(lambda: Solver.get_wavefunctions(), repeat=5, number=1)
+    # print(min(t))  # best timing
 
     # nps = ["Parabolic", "Kane", "Taylor"]
     # for np in nps:
@@ -62,9 +65,9 @@ def main():
     #     energies_meV = energies / src.ConstAndScales.meV
     #     energy_table_comparison(np, energies_meV)
 
-    # V = Visualisation(G, energies, psis)
-    # fig = V.plot_V_wf()
-    # fig.show()
+    V = Visualisation(G, energies, psis)
+    fig = V.plot_V_wf()
+    fig.show()
 
     # fig = V.plot_wavefunction()
     # fig.show()
@@ -77,9 +80,10 @@ def main():
 
     # fig = V.plot_QCL(K, padding, False, None)
     # fig.show()
-    from src.Parameters import InputParameters
-    IP = InputParameters(C, material, solver, nonparabolicityType, nstmax, dz, padding)
-    fig = plot_E2E1_diff(90, 100, 10, IP, K)
+
+    # from src.Parameters import InputParameters
+    # IP = InputParameters(C, material, solver, nonparabolicityType, nstmax, dz, padding)
+    # fig = plot_E2E1_diff(90, 100, 10, IP, K)
     # fig = plot_E2E1_diff(50, 200, 10, IP, K)
     # fig.show()
 
@@ -111,7 +115,7 @@ def plot_E2E1_diff(start, end, inc, IP, K):
 
         [energies, psis] = Solver.get_wavefunctions()
         energies_meV = energies / src.ConstAndScales.meV
-        print(energies_meV)
+        print(i, len(energies_meV), energies_meV)
         if len(energies_meV) > 2:
             E1_list.append(energies_meV[0])
             E2_list.append(energies_meV[1])
@@ -136,13 +140,19 @@ def plot_E2E1_diff(start, end, inc, IP, K):
     fig.add_trace(go.Scatter(x=x_axis, y=E3_list, mode='lines+markers', name=f'E3 (x={x:.2f})'))
 
     fig.update_layout(
-        xaxis_title=dict(
-            text='Width [Å]',
-            font=dict(size=24)
+        xaxis=dict(
+            title=dict(
+                text='Width [Å]',
+                font=dict(size=24)
+            ),
+            tickfont=dict(size=24)
         ),
-        yaxis_title=dict(
-            text='Energy [meV]',
-            font=dict(size=24)
+        yaxis=dict(
+            title=dict(
+                text='Energy [meV]',
+                font=dict(size=24)
+            ),
+            tickfont=dict(size=24)
         ),
         title=dict(
             text='Energy levels in a GaAs single quantum well, with constant effective mass',
