@@ -18,10 +18,10 @@ from src.Solvers_FDM import SolverFactory
 from src.Material import Material
 
 def main():
-    # layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
+    layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
     # layer_file = "test/Structure2_LO_InGaAs_InAlAs.txt"
-    layer_file = "test/Structure3_LO_InGaAs_GaAsSb.txt"
-    material = "InGaAs_GaAsSb"
+    # layer_file = "test/Structure3_LO_InGaAs_GaAsSb.txt"
+    material = "AlGaAs"
     K = 8
     nstmax = 5
     solver = "FDM"
@@ -35,8 +35,8 @@ def main():
         [225, 0.2]
     ]
 
-    C = Composition.from_file(layer_file)
-    # C = Composition.from_array(arr)
+    # C = Composition.from_file(layer_file)
+    C = Composition.from_array(arr)
 
     # -------- test time -------- #
     # import timeit
@@ -57,15 +57,15 @@ def main():
     # print("full times list:", get_wfs_times)
 
     # -------- test energies -------- #
-    nps = ["Parabolic", "Kane", "Taylor"]
-    for np in nps:
-        G = Grid(C, dz, material)
-        G.set_K(K)
+    # nps = ["Parabolic", "Kane", "Taylor"]
+    # for np in nps:
+    #     G = Grid(C, dz, material)
+    #     G.set_K(K)
 
-        Solver = SolverFactory.create(G, solver, np, nstmax)
-        [energies, psis] = Solver.get_wavefunctions()
-        energies_meV = energies / src.ConstAndScales.meV
-        energy_table_comparison(np, energies_meV)
+    #     Solver = SolverFactory.create(G, solver, np, nstmax)
+    #     [energies, psis] = Solver.get_wavefunctions()
+    #     energies_meV = energies / src.ConstAndScales.meV
+    #     energy_table_comparison(np, energies_meV)
 
     # -------- plot graphs -------- #
     G = Grid(C, dz, material)
