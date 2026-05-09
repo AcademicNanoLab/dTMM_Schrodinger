@@ -8,8 +8,21 @@ from src import ConstAndScales
 from abc import abstractmethod
 import numpy as np
 import math
-from scipy import optimize
+import timeit
+from concurrent.futures import ProcessPoolExecutor
+
+# from numba import njit
+# from scipy import optimize
 # import cmath
+
+# @njit(cache=True, fastmath=True)
+# def _matmul2x2(A, B):
+#     C = np.empty((2, 2), dtype=np.complex128)
+#     C[0,0] = A[0,0]*B[0,0] + A[0,1]*B[1,0]
+#     C[0,1] = A[0,0]*B[0,1] + A[0,1]*B[1,1]
+#     C[1,0] = A[1,0]*B[0,0] + A[1,1]*B[1,0]
+#     C[1,1] = A[1,0]*B[0,1] + A[1,1]*B[1,1]
+#     return C
 
 class TMMSolver(BaseSolver):
     def __init__(self, Grid: Grid, nEmax) -> None:
@@ -33,18 +46,20 @@ class TMMSolver(BaseSolver):
         pass
 
     def get_matrix_j(self, j, E):
-        Mj = np.identity(2, dtype=complex)
-        if (j>0):
-            p = self.get_wavevector(j-1,E)
-            q = self.get_wavevector(j,E)
-            qpq = self.get_coefficient(j,E)
-            zj = self.G.get_zj(j)
+        if j == 0:
+            return np.identity(2, dtype=np.complex128)
+        
+        p = self.get_wavevector(j-1,E)
+        q = self.get_wavevector(j,E)
+        qpq = self.get_coefficient(j,E)
+        zj = self.G.get_zj(j)
 
-            Mj[0,0]=0.5*(1+qpq)*np.exp((p-q)*zj)  # type: ignore
-            Mj[0,1]=0.5*(1-qpq)*np.exp(-(p+q)*zj) # type: ignore
-            Mj[1,0]=0.5*(1-qpq)*np.exp((p+q)*zj)  # type: ignore
-            Mj[1,1]=0.5*(1+qpq)*np.exp(-(p-q)*zj) # type: ignore
-            
+        Mj = np.empty((2,2), dtype=np.complex128)
+        Mj[0,0]=0.5*(1+qpq)*np.exp((p-q)*zj)  # type: ignore
+        Mj[0,1]=0.5*(1-qpq)*np.exp(-(p+q)*zj) # type: ignore
+        Mj[1,0]=0.5*(1-qpq)*np.exp((p+q)*zj)  # type: ignore
+        Mj[1,1]=0.5*(1+qpq)*np.exp(-(p-q)*zj) # type: ignore
+        
         return Mj
 
     def get_matrix_derivative_j(self, j, E):
@@ -139,7 +154,7 @@ class TMMSolver(BaseSolver):
         a=Elo
         b=Ehi
         fa = f(a)
-        for i in range(100):
+        for i in range(40):
             Ex=(a+b)/2
             fx=f(Ex)
             if abs(fx)<tol:
@@ -150,6 +165,13 @@ class TMMSolver(BaseSolver):
                 a=Ex
         return Ex
 
+    def _solve_root(self, args):
+        Elo, Ehi = args
+        f = self.get_m11_derivative
+        Ex = self.bisect(f, Elo, Ehi, 1e-8)
+        psi = self.get_wavefunction(Ex)
+        return Ex, psi
+
     def get_wavefunctions(self):
         found = 0
         energies = []
@@ -159,25 +181,23 @@ class TMMSolver(BaseSolver):
         E = min(self.V) + 3*dE
         m11_km1 = self.get_m11(E-dE)
         m11_km2 = self.get_m11(E-2*dE)
+
+        tasks = []
         while E<Emax:
             m11_k = self.get_m11(E)
             if ((m11_k>m11_km1) and (m11_km1<m11_km2)):
-                found = found + 1
-                Elo = E-2*dE
-                Ehi = E
-                f = self.get_m11_derivative
-                #Ex = optimize.brentq(f, Elo, Ehi, rtol=self.tolerance)
-                Ex=self.bisect(f,Elo,Ehi,1e-8)
-                psi = self.get_wavefunction(Ex)
-                energies.append(Ex)
-                psis.append(psi)
-            
+                tasks.append((E-2*dE, E))
+
             m11_km2 = m11_km1
             m11_km1 = m11_k
             E = E + dE
             if self.nE>0 and found == self.nE:
                 break
 
-        return np.array(energies), psis
+        with ProcessPoolExecutor() as ex:
+            results = list(ex.map(self._solve_root, tasks))
+
+        energies, psis = zip(*results)
+        return np.array(energies), list(psis)
                 
 

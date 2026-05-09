@@ -18,11 +18,13 @@ from src.Solvers_FDM import SolverFactory
 from src.Material import Material
 
 def main():
-    layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
-    material = "AlGaAs"
-    K = 1.9
-    nstmax = 10
-    solver = "TMM"
+    # layer_file = "test/Structure1_BTC_GaAs_AlGaAs.txt"
+    # layer_file = "test/Structure2_LO_InGaAs_InAlAs.txt"
+    layer_file = "test/Structure3_LO_InGaAs_GaAsSb.txt"
+    material = "InGaAs_GaAsSb"
+    K = 8
+    nstmax = 5
+    solver = "FDM"
     nonparabolicityType = "Parabolic"
     dz = 0.6
     padding=400
@@ -37,39 +39,45 @@ def main():
     # C = Composition.from_array(arr)
 
     # -------- test time -------- #
-    import timeit
-    for dz in dz_vals:
-        G = Grid(C, dz, material)
-        G.set_K(K)
-
-        Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
-        energies, psis = Solver.get_wavefunctions()
-
-        t = timeit.repeat(lambda: Solver.get_wavefunctions(), repeat=5, number=1)
-        print(min(t))  # best timing
-
-    # -------- test energies -------- #
-    # nps = ["Parabolic", "Kane", "Taylor"]
-    # for np in nps:
+    # import timeit
+    # print("TMM, simple arr, 40 iterations, parallelised bisect finding")
+    # get_wfs_times = []
+    # for dz in dz_vals:
+    #     print("\ndz: ", dz)
     #     G = Grid(C, dz, material)
     #     G.set_K(K)
 
-    #     Solver = SolverFactory.create(G, solver, np, nstmax)
-    #     [energies, psis] = Solver.get_wavefunctions()
-    #     energies_meV = energies / src.ConstAndScales.meV
-    #     energy_table_comparison(np, energies_meV)
+    #     Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
+    #     energies, psis = Solver.get_wavefunctions()
+
+    #     t = timeit.repeat(lambda: Solver.get_wavefunctions(), repeat=2, number=1)
+    #     print("get_wavefunctions", min(t))  # best timing
+    #     get_wfs_times.append(min(t))
+
+    # print("full times list:", get_wfs_times)
+
+    # -------- test energies -------- #
+    nps = ["Parabolic", "Kane", "Taylor"]
+    for np in nps:
+        G = Grid(C, dz, material)
+        G.set_K(K)
+
+        Solver = SolverFactory.create(G, solver, np, nstmax)
+        [energies, psis] = Solver.get_wavefunctions()
+        energies_meV = energies / src.ConstAndScales.meV
+        energy_table_comparison(np, energies_meV)
 
     # -------- plot graphs -------- #
-    # G = Grid(C, dz, material)
-    # G.set_K(K)
+    G = Grid(C, dz, material)
+    G.set_K(K)
 
-    # Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
-    # [energies, psis] = Solver.get_wavefunctions()
-    # energies_meV = energies / src.ConstAndScales.meV
+    Solver = SolverFactory.create(G, solver, nonparabolicityType, nstmax)
+    [energies, psis] = Solver.get_wavefunctions()
+    energies_meV = energies / src.ConstAndScales.meV
 
-    # V = Visualisation(G, energies, psis)
-    # fig = V.plot_V_wf()
-    # fig.show()
+    V = Visualisation(G, energies, psis)
+    fig = V.plot_V_wf()
+    fig.show()
 
     # fig = V.plot_energies()
     # fig.show()
@@ -163,7 +171,7 @@ def plot_E2E1_diff(start, end, inc, IP, K):
     return fig
 
 def energy_table_comparison(np, energies_meV):
-    file_path = "test/St1_FDM2.csv"
+    file_path = "test/St3_FDM.csv"
     import csv
     import os
     # Create header if file doesn't exist
