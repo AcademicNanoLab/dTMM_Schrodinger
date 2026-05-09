@@ -2,9 +2,11 @@
 #
 # Store classes for different FDM Solvers
 
+import scipy.sparse
 from src.FDMSolver import FDMSolver
 from src import ConstAndScales
 
+import scipy
 import numpy as np
 import scipy.sparse as sp
 import math
