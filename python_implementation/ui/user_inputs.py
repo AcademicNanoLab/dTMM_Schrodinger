@@ -115,7 +115,8 @@ class EnergyDiffInputs(UserInputs):
             self.i = max( ijs )
             self.j = min( ijs )
         
-        self.sweep_param = st.pills("Choose sweep parameter: ", ["Sweep Well Width", "Sweep Molar Content", "Sweep Both"])
+        self.sweep_param = st.pills("Choose sweep parameter: ", ["Sweep Well Width", "Sweep Molar Content"])
+        # self.sweep_param = st.pills("Choose sweep parameter: ", ["Sweep Well Width", "Sweep Molar Content", "Sweep Both"])
         if self.sweep_param is not None:
             self.heights, self.widths = self.get_sweep_ranges(self.sweep_param)
         

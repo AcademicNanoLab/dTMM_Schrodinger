@@ -16,7 +16,7 @@ class ElectronicStructureApp:
         pages = [
             st.Page(HomePage().render, title="Home", url_path="home"),
             st.Page(CalculatorPage().render, title="Calculator", url_path="calculator"),
-            st.Page(EnergyDifferencePage().render, title="Energy Difference", url_path="energy-difference"),
+            st.Page(EnergyDifferencePage().render, title="Transition Calculator", url_path="transition-calculator"),
         ]
         pg = st.navigation(list(pages))
         pg.run()

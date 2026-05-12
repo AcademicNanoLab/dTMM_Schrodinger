@@ -13,14 +13,15 @@ class HomePage:
             st.image("matlab_implementation/src/optionPng.png")
 
         with col2:
-            st.write("Electronic Structure Animation (Bias Sweep)")
+            st.write("Transition Calculator")
+            # st.image("")
 
-            with open("matlab_implementation/src/optionGif.gif", "rb") as f:
-                contents = f.read()
+            # with open("matlab_implementation/src/optionGif.gif", "rb") as f:
+            #     contents = f.read()
 
-            data_url = base64.b64encode(contents).decode("utf-8")
+            # data_url = base64.b64encode(contents).decode("utf-8")
 
-            st.markdown(
-                f'<img src="data:image/gif;base64,{data_url}">',
-                unsafe_allow_html=True,
-            )
+            # st.markdown(
+            #     f'<img src="data:image/gif;base64,{data_url}">',
+            #     unsafe_allow_html=True,
+            # )

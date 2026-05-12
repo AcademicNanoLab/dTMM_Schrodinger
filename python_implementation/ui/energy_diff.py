@@ -2,7 +2,7 @@ import streamlit as st
 
 class EnergyDifferencePage:
     def render(self):
-        st.title("Energy Difference Plots")
+        st.title("Transition Calculator")
         
         from src.Grid import Grid
         from src.Composition import Composition

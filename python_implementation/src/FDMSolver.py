@@ -44,8 +44,8 @@ class FDMSolver(BaseSolver):
         nz = self.G.get_nz()
         A = self.construct_matrix()
 
-        if sp.issparse(A): # type: ignore
-            # Recognised Kane matrix, use sparse solver
+        if sp.issparse(A):
+            # Recognised sparse matrix, use sparse solver
             A_sparse = sp.csr_matrix(A)
             k = min(max(20, self.nE), A_sparse.shape[0]-2) # type: ignore
             sigma = np.mean([min(self.V), max(self.V)])
@@ -53,7 +53,7 @@ class FDMSolver(BaseSolver):
             eigenvectors = eigenvectors.real # type: ignore
             eigenvalues = eigenvalues.real # type: ignore
         else:                   
-            # Not Kane matrix, use dense solver.
+            # Not sparse matrix, use dense solver.
             eigenvalues, eigenvectors = np.linalg.eig(A) # type: ignore
             eigenvectors = eigenvectors.real
             eigenvalues = eigenvalues.real
