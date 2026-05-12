@@ -14,7 +14,7 @@ class HomePage:
 
         with col2:
             st.write("Transition Calculator")
-            # st.image("")
+            st.image("python_implementation/ui/TransitionCalc_Plot.png")
 
             # with open("matlab_implementation/src/optionGif.gif", "rb") as f:
             #     contents = f.read()
