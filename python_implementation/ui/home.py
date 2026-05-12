@@ -1,5 +1,4 @@
 import streamlit as st
-import base64
 
 class HomePage:
     def render(self):
@@ -15,13 +14,3 @@ class HomePage:
         with col2:
             st.write("Transition Calculator")
             st.image("python_implementation/ui/TransitionCalc_Plot.png")
-
-            # with open("matlab_implementation/src/optionGif.gif", "rb") as f:
-            #     contents = f.read()
-
-            # data_url = base64.b64encode(contents).decode("utf-8")
-
-            # st.markdown(
-            #     f'<img src="data:image/gif;base64,{data_url}">',
-            #     unsafe_allow_html=True,
-            # )
