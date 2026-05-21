@@ -1,48 +1,130 @@
-# dTMM_Schrodinger
-Schrodinger equation solvers via derivative transfer matrix method and finite difference method
+# GitRepo
 
-Details on the solvers and methodology of this package is available at https://doi.org/10.1016/j.cpc.2025.109573 
+Notes: README
+Type: Git Repository
+URL: https://github.com/AcaDemicNanoLab/dTMM_Schrodinger
 
-The package consists of six classes, implemented in MATLAB:
-  - **ConstsAndScales** - contains common constants and scales required for solving Schrodinger equation under effective mass approximation
-  - **Material** - contains material parameters of several material systems in which multiple quantum well heterostrucutres can be generated, namely GaAs/AlGaAs, GaSb/AlGaSb, InGaAs/InAlAs, InGaAs/GaAsSb, we encourage the user to add more material properties to this repository
-  - **Grid** - contains methods that define the spatial axis z and material parameters profile
-  - **FDMSolver** - contains methods that solve 1D Schrodinger equation:
-      - under effective mass approximation via finite difference approach using three cases:
-      - parabolic subband approximation,
-      - full two band Kane nonparabolic subband approximation and
-      - Taylor expansion of the two band Kane nonparabolic subband approximation
-  - **dTMMsolver** - contains methods that solve 1D Schrodinger equation under effective mass approximation via derivative transfer matrix approach using four cases:
-    - parabolic subband approximation,
-    - full two band Kane nonparabolic subband approximation and
-    - Taylor expansion of the two band Kane nonparabolic subband approximation
-    - 14 kp band nonparabolicity treatement of Schrodinger equation as per work in  U.Ekenber et. al, Physical Review B 40 (1989) 7714
-   -  **Visualisation** - contains methods that create figures that visualise the electron structure, currently 4 figures are supported: electron structure of the modelled device, eigenvalue energy graph, energy difference graph, electron structure on two periods if user was modelling a QCL device.
+## Quick Reference:
 
-The main code contains GUI version (by running Main_GUI.m) and manual version (by running Main.m), user can select the following options:
-   -  **layer_file** = ".....txt" - two column file containing multiple quantum well layer structure in format
-       200  0.15
-       200  0
-       20   0.15
-       200  0
-       200  0.15
-      The first column is width of the layers in angstorom (1e-10 meters) and the second column is molar composition of the barrier layer (interpolation is handled via Material class depending on chosen material system)
-      We recommend users to add periods of superlattice starting by half of the injection barrier (so that the file ends and starts by the half of the width of the injection barrier).
-      To obtain tight-binding solutions of Schrodinger equation, user should add extra padding of 100+ angstroms in their injection barrier layers
-  - **material** = "AlGaAs" - string defining material systems, currently supported material systems are "AlGaAs", "AlGaSb", "InGaAs/InAlAs" and "InGaAs/GaAsSb"
-  - **nstamx** - number of states to visualy present in the figures, rule of thumb is number of wells + 2
-  - **solver** = "TMM" - string defining type of solver you wish to use, supported options are "TMM" and "FDM"
-  - **nonparabolicityType** = "Taylor" - string defining specific treatment of nonparabolicity treatment in Schrodinger equations, supported options are "Parabolic", "Kane", "Taylor" and TMM solver has an extra option "Ekenberg" for the 14kp model by U.Ekenber et. al, Physical Review B 40 (1989) 7714
-  - **dz** - resolution of z axis in angstroms
-  - **padding** - total added padding in layer_file in angstroms, this option is only relevant for plotting the solutions on two periods and if user used tight binding approximation while calculating the electronic structure
+Website: [https://dtmm-schrodinger.streamlit.app/](https://dtmm-schrodinger.streamlit.app/) (last sync’d with this repository 12/05/2026)
 
-The package contains a test folder in which there are three .m test files and three corresponding layer files = ".....txt" - containing the width of the layers in angstorom and the molar composition of the barrier layers for the three exemplary structures.
+Activate virtual environment: 
 
-  - Structure 1 is a GaAs/AlGaAs Bound to continuum THz QCL descibed in: A. Demić et. al, IEEE Transactions on Terahertz Science and Technology 7 (2017) 368–377.
-  - Structure 2 is a LO-phonon InGaAs/InAlAs THz QCL descibed in: C. Deutsch et. al, Acs Photonics 4 (2017) 957–962
-  - Structure 3 is a LO-phonon InGaAs/GaAsSb THz QCL descibed in: C. Deutsch et. al, Applied Physics Letters 101 (2012).
+```bash
+source venv/bin/activate
+```
 
-In the .m test files the structure parameters, grid spacing and electrical field are set for the exemplary structures and all of the seven solvers (three FDM + four TMM) are called for calculating the quasi-bound state energies and wavefunctions which are saved to the corresponding variables.
-The difference is calculated between the quasi-boung state energies calculated with the TMM and FDM solvers for the parabolic subband approximation (Parabolic), full two band Kane nonparabolic subband approximation (Kane) and the Taylor expansion of the two band Kane nonparabolic subband approximation (Taylor). Lastly the conduction band diagram is plotted using the Visualization.m class for the selected solver.
+Python from command line: in `dTMM_Schrodinger/python_implementation` run 
 
-# Python Implementation README.md is located within the python_implementation/ directory.
+```bash
+python Main.py
+```
+
+Streamlit from command line: in `dTMM_Schrodinger`  run
+
+```bash
+streamlit run App.py
+```
+
+## Using the Python Implementation
+
+### SETUP: Required for options 1, 2
+
+This project makes use of virtual environments to isolate the project’s dependencies from potential conflicts from other python packages on the user’s local machine. 
+
+**Setup your virtual environment** 
+
+In this project’s repository, run the relevant commands. NOTE: The .gitignore should ignore your venv, it should be setup for each user seperately.
+
+```bash
+# Create a virtual environment 
+python -m venv venv
+
+# Activate the virtual environment
+
+#  on Windows
+venv\Scripts\activate
+
+# on macOS and Linux
+source venv/bin/activate
+```
+
+**Install relevant packages**
+
+All of the necessary python packages for this repo are in the requirements.txt file. These can be installed by running
+
+```bash
+pip install -r requirements.txt
+```
+
+Now your terminal should be setup within your virtual environment. From now you only need the commands
+
+```bash
+# To activate
+#  on Windows
+myenv\Scripts\activate
+
+# on macOS and Linux
+source myenv/bin/activate
+
+# To deactivate (all OS)
+deactivate
+```
+
+### 1. Run Python script from command line
+
+Follow SETUP instructions above.
+
+This option is the same as running any python script. The project contains a “Main.py”. Often it’s helpful to develop and test functionality here before adding it to the UI. 
+
+To do so, enter the `dTMM_Schrodinger/python_implementation` directory and run
+
+```bash
+python Main.py
+```
+
+### 2. Run Streamlit from command line
+
+Follow SETUP instructions above.
+
+This option is sometimes preferred to using the website as it uses local compute resources which are typically much faster than using the cloud. 
+
+To do so, navigate to the top level directory `dTMM_Schrodinger` and run
+
+```bash
+streamlit run App.py
+```
+
+### 3. Run Streamlit from website
+
+Simply click this link: [https://dtmm-schrodinger.streamlit.app/](https://dtmm-schrodinger.streamlit.app/) 
+
+The website might be in hibernation if the App has been inactive for more than a few hours.
+
+Additionally: Read this section below on creating a Steamlit page for this directory.
+
+## Linking this repository to Streamlit Page
+
+Please note, the website link is synced to a forked version of this repository (this was because you must have admin rights to a repository to create a Streamlit Page for it). Therefore, any updates made to [App.py](http://App.py) in this repository will not make changes to the App found on the URL. However, it will make changes to the app if you run Streamlit from command line.
+
+To make a new website which is connected to this repo, follow the instructions on the Streamlit page. [https://streamlit.io/cloud](https://streamlit.io/cloud)
+
+Generally, you need to sign into your GitHub account, specify the repository you wish to deploy a website for, and give the website a URL. 
+
+## Software Architecture Overview
+
+### Source code class diagram
+
+![image.png](diagrams/UI_diagram.png)
+
+### User interface class diagram
+
+Generally the user interface aims to separate responsibilities into webpage rendering, input gathering, calculations, and graph plotting. This allows for reuse of functions and simplified modification. 
+
+![image.png](diagrams/Core_diagram.png)
+
+### To create a new page:
+
+In the `/dTMM_Schrodinger/python_implementation/ui` directory create a new file e.g. `myNewPage.py` with a new class `myPageClass`. 
+
+Then in [App.py](http://App.py), import `myPageClass` at the top of the file and add it to the list of pages on lines 16-20.
