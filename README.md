@@ -45,4 +45,4 @@ The package contains a test folder in which there are three .m test files and th
 In the .m test files the structure parameters, grid spacing and electrical field are set for the exemplary structures and all of the seven solvers (three FDM + four TMM) are called for calculating the quasi-bound state energies and wavefunctions which are saved to the corresponding variables.
 The difference is calculated between the quasi-boung state energies calculated with the TMM and FDM solvers for the parabolic subband approximation (Parabolic), full two band Kane nonparabolic subband approximation (Kane) and the Taylor expansion of the two band Kane nonparabolic subband approximation (Taylor). Lastly the conduction band diagram is plotted using the Visualization.m class for the selected solver.
 
-# Python Implementation README.md is located within the python_implementation/ directory.
+# Python Implementation README is named README_python.md.
