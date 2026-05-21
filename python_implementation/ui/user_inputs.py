@@ -35,7 +35,7 @@ class UserInputs:
         return choice
 
     def solver_input(self):
-        return st.pills("Solver", ["FDM", "TMM"])
+        return st.pills("Solver", ["FDM", "TMM"], default="FDM")
 
     def np_input(self, solver_type):
         np_options = ["Parabolic", "Taylor", "Kane", "Ekenberg"] if solver_type == "TMM" else ["Parabolic", "Taylor", "Kane"]
