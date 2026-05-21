@@ -1,9 +1,3 @@
-# GitRepo
-
-Notes: README
-Type: Git Repository
-URL: https://github.com/AcaDemicNanoLab/dTMM_Schrodinger
-
 ## Quick Reference:
 
 Website: [https://dtmm-schrodinger.streamlit.app/](https://dtmm-schrodinger.streamlit.app/) (last sync’d with this repository 12/05/2026)
