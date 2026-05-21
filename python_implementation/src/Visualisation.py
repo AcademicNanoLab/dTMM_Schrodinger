@@ -26,11 +26,12 @@ class Visualisation:
             shift = p*Lper
             base = self.G.get_bandstructure_potential() /ConstAndScales.meV - 1e-2*K*Lper*(p-1)
             zz = z[npad:-npad] + shift
-            fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=4)))
+            fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=4), name="V(z)"))
 
             for i, Ei in enumerate(self.E):
                 wf = 1e3*(np.abs(self.psi[i][npad:-npad])**2) + Ei/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
-                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines', line=dict(width=3)))
+                tracelegend = f"{Ei/ConstAndScales.meV:.2f} meV"
+                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines', line=dict(width=3), name=tracelegend))
         
         fig.update_layout(
             title = dict(text='Bandstructure Profile', y=0.95, font=dict(size=22)),
@@ -51,11 +52,15 @@ class Visualisation:
             shift = (p-1)*Lper
             base = self.G.get_bandstructure_potential() /ConstAndScales.meV - 1e-2*K*Lper*(p-1)
             zz = z[npad:-npad] + shift
-            fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=4)))
+            if p==0:
+                fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=4), name="V(z)"))
+            else:
+                fig.add_trace(go.Scatter(x=zz, y=base[npad:-npad], mode='lines', line=dict(width=4), showlegend=False))
 
             for i, Ei in enumerate(self.E):
                 wf = 1e3*(np.abs(self.psi[i][npad:-npad])**2) + Ei/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
-                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines', line = dict(width=3)))
+                legendvalue = Ei/ConstAndScales.meV - 1e-2*K*Lper*(p-1)
+                fig.add_trace(go.Scatter(x=zz, y=wf, mode='lines', line = dict(width=3), name = f"{legendvalue:.2f} meV" ))
         
         fig.update_layout(
             title = dict(text='Two QCL Periods', y=0.95, font=dict(size=22)),
