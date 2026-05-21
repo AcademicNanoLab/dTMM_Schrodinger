@@ -51,7 +51,7 @@ class UserInputs:
         return st.number_input("Padding (Å)", 0, 500, step=50)
 
     def k_input(self):
-        return st.number_input("K (kV/cm)", 0.1, 100, step=0.1, value=1.9)
+        return st.number_input("K (kV/cm)", 0.1, 100.0, step=0.1, value=1.9)
 
     def layer_input(self, input_type): 
         from src.Composition import Composition
