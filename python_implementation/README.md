@@ -17,7 +17,7 @@ python Main.py
 Streamlit from command line: in `dTMM_Schrodinger`  run
 
 ```bash
-streamlit run App.py
+streamlit run python_implementation/App.py
 ```
 
 ## Using the Python Implementation
