@@ -9,31 +9,17 @@ sys.path.append("/dTMM_Schrodinger/python_implementation/ui")
 from ui.home import HomePage
 from ui.calculator import CalculatorPage
 from ui.energy_diff import EnergyDifferencePage
-# from ui.animation import AnimationPage
 
 class ElectronicStructureApp:
     def run(self):
-        pages = [
-            st.Page(HomePage().render, title="Home", url_path="home"),
-            st.Page(CalculatorPage().render, title="Calculator", url_path="calculator"),
-            st.Page(EnergyDifferencePage().render, title="Transition Calculator", url_path="transition-calculator"),
-        ]
+        calculator_page = st.Page(CalculatorPage().render, title="Calculator", url_path="calculator")
+        transition_page = st.Page(EnergyDifferencePage().render, title="Transition Calculator", url_path="transition-calculator")
+        home_page = st.Page(HomePage(calculator_page, transition_page).render, title="Home", url_path="home")
+        
+        pages = [home_page, calculator_page, transition_page]
         pg = st.navigation(list(pages))
         pg.run()
 
+st.set_page_config(layout="centered")
 app = ElectronicStructureApp()
 app.run()
-
-# @st.cache_resource
-# def build_grid(IP: InputParameters, K):
-#     from src.Grid import Grid
-#     C = IP.set_composition()
-#     G = Grid(C, IP.dz, IP.material)
-#     G.set_K(K)
-#     return G
-
-# @st.cache_data
-# def solve_structure(G, solver, np_type, nst):
-#     from src.Solvers_FDM import SolverFactory
-#     Solver = SolverFactory.create(G, solver, np_type, nst)
-#     return Solver.get_wavefunctions()
