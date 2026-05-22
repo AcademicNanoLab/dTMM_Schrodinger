@@ -14,8 +14,8 @@ class HomePage:
         with col1:
             tile1 = col1.container(border=True)
             if tile1.button("Electronic Structure Calculator", icon=":material/link:", use_container_width=True):
-                # st.switch_page(self.calculator_page)
-                tile1.image("python_implementation/ui/Bandstructure_Plot.png")
+                st.switch_page(self.calculator_page)
+            tile1.image("python_implementation/ui/Bandstructure_Plot.png")
 
         with col2:
             tile2 = col2.container(border=True)
