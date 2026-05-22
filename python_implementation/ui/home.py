@@ -6,6 +6,7 @@ class HomePage:
         self.transition_page = transition_page
         
     def render(self):
+        st.set_page_config(layout="wide")
         st.title("DTMM Schrödinger Calculator")
         st.write("### Select Calculator Option")
 
