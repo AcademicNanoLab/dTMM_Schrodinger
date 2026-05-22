@@ -20,5 +20,5 @@ class HomePage:
         with col2:
             tile2 = col2.container(border=True)
             if tile2.button("Transition Calculator", icon=":material/link:", use_container_width=True):
-                # st.switch_page(self.transition_page)
-                tile2.image("python_implementation/ui/TransitionCalc_Plot.png")
+                st.switch_page(self.transition_page)
+            tile2.image("python_implementation/ui/TransitionCalc_Plot.png")
