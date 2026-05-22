@@ -12,12 +12,13 @@ class HomePage:
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button("Electronic Structure Calculator", icon=":material/link:"):
-                st.switch_page(self.calculator_page)
-            
-            st.image("python_implementation/ui/Bandstructure_Plot.png")
+            tile1 = col1.container(border=True)
+            if tile1.button("Electronic Structure Calculator", icon=":material/link:", use_container_width=True):
+                # st.switch_page(self.calculator_page)
+                tile1.image("python_implementation/ui/Bandstructure_Plot.png")
 
         with col2:
-            if st.button("Transition Calculator", icon=":material/link:"):
-                st.switch_page(self.transition_page)
-            st.image("python_implementation/ui/TransitionCalc_Plot.png")
+            tile2 = col2.container(border=True)
+            if tile2.button("Transition Calculator", icon=":material/link:", use_container_width=True):
+                # st.switch_page(self.transition_page)
+                tile2.image("python_implementation/ui/TransitionCalc_Plot.png")
