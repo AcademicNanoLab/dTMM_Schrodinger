@@ -45,7 +45,7 @@ class UserInputs:
         return st.number_input("Nst max", 0, 20, value=10)
 
     def dz_input(self):
-        return st.number_input("dz (Å)", 0.1, 2.5, step=0.1, value=1)
+        return st.number_input("dz (Å)", 0.1, 2.5, step=0.1, value=1.0)
 
     def padding_input(self):
         return st.number_input("Padding (Å)", 0, 500, step=50)
