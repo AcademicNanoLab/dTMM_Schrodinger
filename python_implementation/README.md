@@ -1,6 +1,6 @@
 ## Quick Reference:
 
-Website: [https://dtmm-schrodinger.streamlit.app/](https://dtmm-schrodinger.streamlit.app/) (last sync’d with this repository 12/05/2026)
+Website: [https://dtmmschrodinger.streamlit.app/](https://dtmmschrodinger.streamlit.app/)
 
 Activate virtual environment: 
 
@@ -97,13 +97,7 @@ The website might be in hibernation if the App has been inactive for more than a
 
 Additionally: Read this section below on creating a Steamlit page for this directory.
 
-## Linking this repository to Streamlit Page
 
-Please note, the website link is synced to a forked version of this repository (this was because you must have admin rights to a repository to create a Streamlit Page for it). Therefore, any updates made to [App.py](http://App.py) in this repository will not make changes to the App found on the URL. However, it will make changes to the app if you run Streamlit from command line.
-
-To make a new website which is connected to this repo, follow the instructions on the Streamlit page. [https://streamlit.io/cloud](https://streamlit.io/cloud)
-
-Generally, you need to sign into your GitHub account, specify the repository you wish to deploy a website for, and give the website a URL. 
 
 ## Software Architecture Overview
 
