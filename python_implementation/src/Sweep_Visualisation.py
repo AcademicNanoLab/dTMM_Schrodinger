@@ -31,7 +31,7 @@ class SweepVisualisation:
                 x=self.x_vals,
                 y=y,
                 mode='lines+markers',
-                name=str(self.k_values[i])
+                name=f"K = {self.k_values[i]}"
             ))
 
         # layout
