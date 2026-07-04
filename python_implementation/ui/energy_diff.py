@@ -94,7 +94,9 @@ class EnergyDifferencePage:
                         dipole_trace,
                         osc_str_trace,
                         plot_widths,
-                        typ
+                        typ,
+                        None,
+                        K_list
                     )
 
                 case "Sweep Molar Content":
