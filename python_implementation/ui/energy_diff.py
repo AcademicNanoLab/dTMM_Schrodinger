@@ -31,53 +31,53 @@ class EnergyDifferencePage:
                 plot_heights = []
                 plot_height2 = []
 
-                # =========================
-                # FIX: K COMPATIBILITY
-                # =========================
-                K = Inputs.K_values[0] if hasattr(Inputs, "K_values") else Inputs.K
+                # K can be single or list → always normalize to list
+                K_list = Inputs.K_values if hasattr(Inputs, "K_values") else [Inputs.K]
 
-                for h in Inputs.heights:
-                    plot_widths = []
-                    for w in Inputs.widths:
-                        arr = Inputs.composition.as_array()  # type: ignore
-                        arr[1][0] = w
-                        arr[0][1] = h
-                        arr[-1][1] = h
-                    
-                        C2 = Composition.from_array(arr)
+                for K in K_list:
+                    for h in Inputs.heights:
+                        plot_widths = []
+
+                        for w in Inputs.widths:
+                            arr = Inputs.composition.as_array()  # type: ignore
+                            arr[1][0] = w
+                            arr[0][1] = h
+                            arr[-1][1] = h
                         
-                        # setup for calculation
-                        G = Grid(C2, Inputs.dz, Inputs.material)
-                        G.set_K(K)
+                            C2 = Composition.from_array(arr)
+                            
+                            # setup for calculation
+                            G = Grid(C2, Inputs.dz, Inputs.material)
+                            G.set_K(K)
 
-                        # get solver outputs: energies, psis
-                        solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
-                        energies, wavefunctions = solver.get_wavefunctions()
+                            # get solver outputs: energies, psis
+                            solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
+                            energies, wavefunctions = solver.get_wavefunctions()
 
-                        # Calculate Energy difference, dipile moment and oscillator strength
-                        T = TransitionCalculator()
-                        ediff, dipoles, osc_str = T.calculate(
-                            G.z, energies, wavefunctions, Inputs.i, Inputs.j
-                        )
-
-                        if None not in (ediff, dipoles, osc_str):
-                            plot_widths.append(w)
-
-                            barrier_height = (
-                                src.ConstAndScales.E
-                                * Inputs.M.interpolate_parameter(h, Inputs.M.V)
-                                / src.ConstAndScales.meV
+                            # Calculate Energy difference, dipole moment and oscillator strength
+                            T = TransitionCalculator()
+                            ediff, dipoles, osc_str = T.calculate(
+                                G.z, energies, wavefunctions, Inputs.i, Inputs.j
                             )
 
-                            plot_height2.append(barrier_height)
-                            plot_heights.append(h)
+                            if None not in (ediff, dipoles, osc_str):
+                                plot_widths.append(w)
 
-                            ediff_trace.append(ediff / src.ConstAndScales.meV)
-                            dipole_trace.append(dipoles / src.ConstAndScales.nano)
-                            osc_str_trace.append(osc_str / src.ConstAndScales.E)
-                        
-                        pbar_val += int(100 / (len(Inputs.heights) * len(Inputs.widths)))
-                        p_bar.progress(pbar_val, text=progress_text)
+                                barrier_height = (
+                                    src.ConstAndScales.E
+                                    * Inputs.M.interpolate_parameter(h, Inputs.M.V)
+                                    / src.ConstAndScales.meV
+                                )
+
+                                plot_height2.append(barrier_height)
+                                plot_heights.append(h)
+
+                                ediff_trace.append(ediff / src.ConstAndScales.meV)
+                                dipole_trace.append(dipoles / src.ConstAndScales.nano)
+                                osc_str_trace.append(osc_str / src.ConstAndScales.E)
+                            
+                            pbar_val += int(100 / (len(Inputs.heights) * len(Inputs.widths) * len(K_list)))
+                            p_bar.progress(pbar_val, text=progress_text)
 
                 # Plot graphs
                 from src.Sweep_Visualisation import SweepVisualisation
