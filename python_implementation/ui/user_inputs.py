@@ -15,23 +15,23 @@ class UserInputs:
         # unified sweep-friendly storage
         self.K_values = None
 
-    def render_common_inputs(self):
+    def render_common_inputs(self, allow_k_sweep=False):
         self.material = self.material_input()
         self.solver = self.solver_input()
-
+    
         self.nonparabolicity = self.np_input(self.solver)
-
+    
         c1, c2, c3 = st.columns(3)
-
+    
         with c1:
             self.nstmax = self.nst_input()
         with c2:
             self.dz = self.dz_input()
         with c3:
             self.padding = self.padding_input()
-
-        # IMPORTANT: always produces list
-        self.k_input()
+    
+        # IMPORTANT: controlled per page
+        self.k_input(allow_sweep=allow_k_sweep)
 
     def material_input(self):
         choice = st.selectbox(
@@ -136,9 +136,8 @@ class CalculatorInputs(UserInputs):
             "File input or text input?",
             ["File", "Text"]
         )
-
         self.composition = self.layer_input(layer_input_type)
-        self.render_common_inputs()
+        self.render_common_inputs(allow_k_sweep=False)
 
 
 class EnergyDiffInputs(UserInputs):
@@ -146,7 +145,7 @@ class EnergyDiffInputs(UserInputs):
         st.text("Base Composition")
         self.composition = self.layer_input("Text")
 
-        self.render_common_inputs()
+        self.render_common_inputs(allow_k_sweep=True)
 
         ij = st.pills(
             "Select energy levels to compare.",
