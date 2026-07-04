@@ -1,53 +1,57 @@
 import plotly.graph_objects as go
 
 class SweepVisualisation:
-    def __init__(self, ediff_trace, dipoles_trace, osc_str_trace, x_vals, typ, x2_vals=None):
+    def __init__(
+        self,
+        ediff_trace,
+        dipoles_trace,
+        osc_str_trace,
+        x_vals,
+        typ,
+        x2_vals=None,
+        k_values=None
+    ):
         self.ediff = ediff_trace
         self.dipoles = dipoles_trace
         self.osc_strength = osc_str_trace
         self.x_vals = x_vals
         self.x2_vals = x2_vals
         self.typ = typ
+        self.k_values = k_values  # NEW
 
-    # -------------------------
-    # FIX: support multiple K traces
-    # -------------------------
     def _split_by_k(self, data):
-        """
-        Assumes data is appended sequentially per K run.
-        We split based on equal-length blocks.
-        """
         n = len(self.x_vals)
-
         if n == 0:
             return []
-
         return [data[i:i + n] for i in range(0, len(data), n)]
 
     def single_sweep_plot(self, plot_trace, y_label, title):
         fig = go.Figure()
 
-        # detect multi-K case
         traces = self._split_by_k(plot_trace)
 
-        # if only one K → fallback to original behaviour
+        # fallback K labels
+        if self.k_values is None:
+            self.k_values = [None] * len(traces)
+
         if len(traces) == 1:
             fig.add_trace(go.Scatter(
                 x=self.x_vals,
                 y=plot_trace,
                 mode='lines+markers',
-                name="K run"
+                name=f"K = {self.k_values[0]}"
             ))
         else:
             for i, y in enumerate(traces):
+                k_label = self.k_values[i] if i < len(self.k_values) else None
+
                 fig.add_trace(go.Scatter(
                     x=self.x_vals,
                     y=y,
                     mode='lines+markers',
-                    name=f"K set {i+1}"
+                    name=f"K = {k_label}"
                 ))
 
-        # ---- layout (unchanged logic) ----
         if self.typ == "Molar Content" and self.x2_vals is not None:
             fig.add_trace(go.Scatter(
                 x=self.x2_vals,
