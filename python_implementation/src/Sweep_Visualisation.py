@@ -17,50 +17,25 @@ class SweepVisualisation:
         self.x_vals = x_vals
         self.x2_vals = x2_vals
         self.typ = typ
-        self.k_values = k_values  # NEW
+        self.k_values = k_values or []
 
-    def _split_by_k(self, data):
-        n = len(self.x_vals)
-        if n == 0:
-            return []
-        return [data[i:i + n] for i in range(0, len(data), n)]
-
-    def single_sweep_plot(self, plot_trace, y_label, title):
+    def _make_fig(self, traces, y_label, title):
         fig = go.Figure()
 
-        traces = self._split_by_k(plot_trace)
+        # ensure K labels exist
+        if len(self.k_values) != len(traces):
+            self.k_values = [f"K={i}" for i in range(len(traces))]
 
-        # fallback K labels
-        if self.k_values is None:
-            self.k_values = [None] * len(traces)
-
-        if len(traces) == 1:
+        for i, y in enumerate(traces):
             fig.add_trace(go.Scatter(
                 x=self.x_vals,
-                y=plot_trace,
+                y=y,
                 mode='lines+markers',
-                name=f"K = {self.k_values[0]}"
+                name=str(self.k_values[i])
             ))
-        else:
-            for i, y in enumerate(traces):
-                k_label = self.k_values[i] if i < len(self.k_values) else None
 
-                fig.add_trace(go.Scatter(
-                    x=self.x_vals,
-                    y=y,
-                    mode='lines+markers',
-                    name=f"K = {k_label}"
-                ))
-
+        # layout
         if self.typ == "Molar Content" and self.x2_vals is not None:
-            fig.add_trace(go.Scatter(
-                x=self.x2_vals,
-                y=plot_trace[:len(self.x2_vals)],
-                mode='lines+markers',
-                xaxis='x2',
-                showlegend=False
-            ))
-
             fig.update_layout(
                 xaxis=dict(
                     title="Molar Content [%]",
@@ -69,10 +44,10 @@ class SweepVisualisation:
                 ),
                 xaxis2=dict(
                     title="Conduction Band Offset [meV]",
-                    title_font=dict(size=16),
-                    tickfont=dict(size=16),
                     overlaying='x',
-                    side='top'
+                    side='top',
+                    title_font=dict(size=16),
+                    tickfont=dict(size=16)
                 ),
                 yaxis=dict(
                     title=y_label,
@@ -102,21 +77,21 @@ class SweepVisualisation:
         return fig
 
     def ediff_plot(self):
-        return self.single_sweep_plot(
+        return self._make_fig(
             self.ediff,
             "Energy [meV]",
             f"Energy difference vs {self.typ}"
         )
 
     def dipoles_plot(self):
-        return self.single_sweep_plot(
+        return self._make_fig(
             self.dipoles,
             "Dipole Moment [e nm]",
             f"Dipole Moments vs {self.typ}"
         )
 
     def osc_str_plot(self):
-        return self.single_sweep_plot(
+        return self._make_fig(
             self.osc_strength,
             "Oscillator Strength",
             f"Oscillator Strength vs {self.typ}"
