@@ -180,7 +180,8 @@ class EnergyDiffInputs(UserInputs):
                 w_start, w_end, w_step = self.range_well_width()
 
                 widths = [i for i in range(w_start, w_end, w_step)]
-                heights = [0.1]
+                arr = self.composition.as_array()
+                heights = [arr[0][1]]
 
             case "Sweep Molar Content":
                 st.text("Set ranges for height")
