@@ -30,10 +30,16 @@ class EnergyDifferencePage:
 
                 plot_heights = []
                 plot_height2 = []
+
+                # =========================
+                # FIX: K COMPATIBILITY
+                # =========================
+                K = Inputs.K_values[0] if hasattr(Inputs, "K_values") else Inputs.K
+
                 for h in Inputs.heights:
                     plot_widths = []
                     for w in Inputs.widths:
-                        arr = Inputs.composition.as_array() # type: ignore
+                        arr = Inputs.composition.as_array()  # type: ignore
                         arr[1][0] = w
                         arr[0][1] = h
                         arr[-1][1] = h
@@ -42,28 +48,36 @@ class EnergyDifferencePage:
                         
                         # setup for calculation
                         G = Grid(C2, Inputs.dz, Inputs.material)
-                        G.set_K(Inputs.K)
+                        G.set_K(K)
 
                         # get solver outputs: energies, psis
                         solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
                         energies, wavefunctions = solver.get_wavefunctions()
 
-                        # Calculate Energy difference, dipile moment and oscillator strength between the energy levels.
+                        # Calculate Energy difference, dipile moment and oscillator strength
                         T = TransitionCalculator()
-                        ediff, dipoles, osc_str = T.calculate(G.z, energies, wavefunctions, Inputs.i, Inputs.j)
+                        ediff, dipoles, osc_str = T.calculate(
+                            G.z, energies, wavefunctions, Inputs.i, Inputs.j
+                        )
 
                         if None not in (ediff, dipoles, osc_str):
                             plot_widths.append(w)
-                            barrier_height = src.ConstAndScales.E *Inputs.M.interpolate_parameter(h, Inputs.M.V) / src.ConstAndScales.meV # type: ignore
+
+                            barrier_height = (
+                                src.ConstAndScales.E
+                                * Inputs.M.interpolate_parameter(h, Inputs.M.V)
+                                / src.ConstAndScales.meV
+                            )
+
                             plot_height2.append(barrier_height)
                             plot_heights.append(h)
 
-                            ediff_trace.append(ediff / src.ConstAndScales.meV) # type: ignore ediff is not None
-                            dipole_trace.append(dipoles / src.ConstAndScales.nano) # type: ignore dipoles is not None
-                            osc_str_trace.append(osc_str / src.ConstAndScales.E) # type: ignore osc_str is not None
+                            ediff_trace.append(ediff / src.ConstAndScales.meV)
+                            dipole_trace.append(dipoles / src.ConstAndScales.nano)
+                            osc_str_trace.append(osc_str / src.ConstAndScales.E)
                         
-                        pbar_val += int(100/(len(Inputs.heights)*len(Inputs.widths)))
-                        p_bar.progress(pbar_val, progress_text)
+                        pbar_val += int(100 / (len(Inputs.heights) * len(Inputs.widths)))
+                        p_bar.progress(pbar_val, text=progress_text)
 
                 # Plot graphs
                 from src.Sweep_Visualisation import SweepVisualisation
@@ -71,15 +85,27 @@ class EnergyDifferencePage:
                 match Inputs.sweep_param:
                     case "Sweep Well Width":
                         typ = "Well Width"
-                        V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_widths, typ)
+                        V = SweepVisualisation(
+                            ediff_trace,
+                            dipole_trace,
+                            osc_str_trace,
+                            plot_widths,
+                            typ
+                        )
                     
                     case "Sweep Molar Content":
                         typ = "Molar Content"
-                        V = SweepVisualisation(ediff_trace, dipole_trace, osc_str_trace, plot_heights, typ, plot_height2)
+                        V = SweepVisualisation(
+                            ediff_trace,
+                            dipole_trace,
+                            osc_str_trace,
+                            plot_heights,
+                            typ,
+                            plot_height2
+                        )
 
                 st.plotly_chart(V.ediff_plot())
                 st.plotly_chart(V.dipoles_plot())
                 st.plotly_chart(V.osc_str_plot())
 
                 p_bar.empty()
-
