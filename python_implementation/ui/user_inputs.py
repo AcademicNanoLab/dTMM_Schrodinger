@@ -151,7 +151,7 @@ class EnergyDiffInputs(UserInputs):
 
         ij = st.pills(
             "Select energy levels to compare.",
-            ["1", "2", "3", "4", "5"],
+            ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"],
             selection_mode="multi"
         )
 
