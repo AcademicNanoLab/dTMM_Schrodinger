@@ -20,8 +20,8 @@ class CalculatorPage:
 
                 # setup for calculation
                 G = Grid(Inputs.composition, Inputs.dz, Inputs.material)
-                G.set_K(Inputs.K)
-
+                G.set_K(Inputs.K_values[0])
+                
                 # get solver outputs: energies, psis
                 solver = SolverFactory.create(G, Inputs.solver, Inputs.nonparabolicity, Inputs.nstmax)
                 energies, psis = solver.get_wavefunctions()
