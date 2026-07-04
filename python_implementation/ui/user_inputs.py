@@ -64,32 +64,31 @@ class UserInputs:
     # =========================
     # K INPUT (UPDATED)
     # =========================
-    def k_input(self):
-        self.sweep_K = st.checkbox("Sweep K?", value=False)
-
-        if self.sweep_K:
-            c1, c2, c3 = st.columns(3)
-
-            with c1:
-                k_start = st.number_input(
-                    "K start (kV/cm)", 0.1, 100.0, value=1.0, step=0.1
-                )
-            with c2:
-                k_end = st.number_input(
-                    "K end (kV/cm)", 0.1, 100.0, value=5.0, step=0.1
-                )
-            with c3:
-                k_step = st.number_input(
-                    "K step", 0.1, 20.0, value=0.5, step=0.1
-                )
-
-            import numpy as np
-            self.K_values = np.arange(k_start, k_end, k_step).tolist()
-
+    def k_input(self, allow_sweep=True):
+        if allow_sweep:
+            sweep = st.checkbox("Sweep K?", value=False)
+    
+            if sweep:
+                c1, c2, c3 = st.columns(3)
+    
+                with c1:
+                    k_start = st.number_input("K start (kV/cm)", 0.1, 100.0, value=1.0, step=0.1)
+                with c2:
+                    k_end = st.number_input("K end (kV/cm)", 0.1, 100.0, value=5.0, step=0.1)
+                with c3:
+                    k_step = st.number_input("K step", 0.1, 20.0, value=0.5, step=0.1)
+    
+                import numpy as np
+                self.K_values = np.arange(k_start, k_end, k_step).tolist()
+    
+            else:
+                k = st.number_input("K (kV/cm)", 0.1, 100.0, step=0.1, value=1.9)
+                self.K_values = [k]
+    
         else:
+            # Calculator mode ONLY
             k = st.number_input("K (kV/cm)", 0.1, 100.0, step=0.1, value=1.9)
-            self.K_values = [k]   # unify interface (IMPORTANT)
-
+            self.K_values = [k]
     # =========================
     # STRUCTURE INPUTS
     # =========================
