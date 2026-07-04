@@ -64,7 +64,7 @@ class UserInputs:
     # =========================
     # K INPUT (UPDATED)
     # =========================
-    def k_input(self, allow_sweep=True):
+    def k_input(self, allow_sweep=False):
         if allow_sweep:
             sweep = st.checkbox("Sweep K?", value=False)
     
