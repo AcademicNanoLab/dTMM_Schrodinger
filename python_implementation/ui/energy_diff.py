@@ -12,7 +12,6 @@ class EnergyDifferencePage:
         Inputs = EnergyDiffInputs()
         Inputs.render_energy_diff_inputs()
 
-        ### Calculate
         import src.ConstAndScales
         from src.TransitionCalculator import TransitionCalculator
 
@@ -25,19 +24,28 @@ class EnergyDifferencePage:
             pbar_val = 0
             p_bar = st.progress(pbar_val, text=progress_text)
 
-            ediff_trace = []
-            dipole_trace = []
-            osc_str_trace = []
+            from src.Sweep_Visualisation import SweepVisualisation
 
-            plot_heights = []
-            plot_height2 = []
-
-            # K handling: single or list, but always treated as "overlay runs"
             K_list = Inputs.K_values if hasattr(Inputs, "K_values") else [Inputs.K]
 
             total_steps = len(K_list) * len(Inputs.heights) * len(Inputs.widths)
 
+            # =========================
+            # STORE PER-K TRACES
+            # =========================
+            all_ediff = []
+            all_dipole = []
+            all_osc = []
+
+            plot_heights = []
+            plot_height2 = []
+
             for K in K_list:
+
+                ediff_trace = []
+                dipole_trace = []
+                osc_trace = []
+
                 for h in Inputs.heights:
                     plot_widths = []
 
@@ -48,7 +56,7 @@ class EnergyDifferencePage:
                         arr[-1][1] = h
                     
                         C2 = Composition.from_array(arr)
-                        
+
                         G = Grid(C2, Inputs.dz, Inputs.material)
                         G.set_K(K)
 
@@ -58,6 +66,7 @@ class EnergyDifferencePage:
                             Inputs.nonparabolicity,
                             Inputs.nstmax
                         )
+
                         energies, wavefunctions = solver.get_wavefunctions()
 
                         T = TransitionCalculator()
@@ -79,21 +88,30 @@ class EnergyDifferencePage:
 
                             ediff_trace.append(ediff / src.ConstAndScales.meV)
                             dipole_trace.append(dipoles / src.ConstAndScales.nano)
-                            osc_str_trace.append(osc_str / src.ConstAndScales.E)
+                            osc_trace.append(osc_str / src.ConstAndScales.E)
 
                         pbar_val += int(100 / total_steps)
                         p_bar.progress(min(pbar_val, 100), text=progress_text)
 
-            from src.Sweep_Visualisation import SweepVisualisation
+                # store per-K result (CRITICAL FIX)
+                all_ediff.append(ediff_trace)
+                all_dipole.append(dipole_trace)
+                all_osc.append(osc_trace)
+
+            # =========================
+            # PASS STRUCTURED DATA
+            # =========================
 
             match Inputs.sweep_param:
+
                 case "Sweep Well Width":
                     typ = "Well Width"
+
                     V = SweepVisualisation(
-                        ediff_trace,
-                        dipole_trace,
-                        osc_str_trace,
-                        plot_widths,
+                        all_ediff,
+                        all_dipole,
+                        all_osc,
+                        Inputs.widths,
                         typ,
                         None,
                         K_list
@@ -101,13 +119,15 @@ class EnergyDifferencePage:
 
                 case "Sweep Molar Content":
                     typ = "Molar Content"
+
                     V = SweepVisualisation(
-                        ediff_trace,
-                        dipole_trace,
-                        osc_str_trace,
+                        all_ediff,
+                        all_dipole,
+                        all_osc,
                         plot_heights,
                         typ,
-                        plot_height2
+                        plot_height2,
+                        K_list
                     )
 
             st.plotly_chart(V.ediff_plot())
